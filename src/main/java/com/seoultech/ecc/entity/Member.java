@@ -43,6 +43,9 @@ public class Member {
     @Column(nullable = false)
     private double rate;
 
+    @Column(nullable = false)
+    private MemberStatus status;
+
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
