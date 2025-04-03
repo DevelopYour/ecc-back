@@ -16,13 +16,12 @@ public class TeamMatchingService {
     @Autowired
     GenerateFormatService initService;
 
-    Set<String> allPeople = new HashSet<>(); // 전체 인원 추출. Set는 중복을 자동으로 제거함!
-
     // 방법A: ILP(정수선형계획): MPSolver 엔진
     public void teamMatch(Map<String, List<Integer>> studentTimeMap) {
         Loader.loadNativeLibraries(); // native 라이브러리 로드
 
         List<List<String>> teamCandidates = initService.init(studentTimeMap);
+        Set<String> allPeople = new HashSet<>(); // 전체 인원 추출. Set는 중복을 자동으로 제거함!
         for (List<String> team : teamCandidates) {
             allPeople.addAll(team);
         }

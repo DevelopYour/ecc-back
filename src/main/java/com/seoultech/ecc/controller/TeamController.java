@@ -1,6 +1,5 @@
 package com.seoultech.ecc.controller;
 
-
 import com.seoultech.ecc.service.TeamService;
 import com.seoultech.ecc.service.team_match.TeamMatchingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.Map;
 public class TeamController {
 
     static Map<String, List<Integer>> studentTimeMap = Map.ofEntries(
-            Map.entry("A", List.of(1)),
+            Map.entry("A", List.of(10, 11, 15)),
             Map.entry("B", List.of(1, 2)),
             Map.entry("C", List.of(3, 4, 5, 6, 7, 8, 9)),
             Map.entry("D", List.of(3, 4, 5)),
@@ -38,7 +37,12 @@ public class TeamController {
             Map.entry("U", List.of(2, 4)),
             Map.entry("V", List.of(6, 8)),
             Map.entry("W", List.of(3, 9)),
-            Map.entry("X", List.of(1, 3, 7, 8, 9))
+            Map.entry("X", List.of(1, 3, 7, 8, 9)),
+            Map.entry("ㄱ", List.of(13, 14)),
+            Map.entry("ㄴ", List.of(2, 14)),
+            Map.entry("ㄷ", List.of(7, 15)),
+            Map.entry("ㄹ", List.of(5)),
+            Map.entry("ㅁ", List.of(5))
     );
     @Autowired
     private TeamService teamService;
@@ -47,7 +51,7 @@ public class TeamController {
 
     @GetMapping("/team")
     @ResponseBody
-    public String postAddPost(Map<String, List<Integer>> studentTimeMap) {
+    public String teamMatch() {
         teamMatchingService.teamMatch(studentTimeMap);
         return "팀 매칭 완료!";
     }
