@@ -1,7 +1,7 @@
 package com.seoultech.ecc.repository;
 
-import com.seoultech.ecc.entity.Member;
+import com.seoultech.ecc.entity.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
 }

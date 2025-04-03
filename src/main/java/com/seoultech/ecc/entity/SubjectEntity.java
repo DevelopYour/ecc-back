@@ -11,26 +11,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table
-public class Report {
+@Table(name = "subject")
+public class SubjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reportId;
-
-    @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
-
-    @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
-    private Subject subject;
+    private Long subjectId;
 
     @Column(nullable = false)
-    private int week;
+    private String name;
 
     @Column(nullable = false)
-    private String contents;
+    private String template;
 
     @Column(nullable = false)
-    private int grade;
+    private String prompt;
 }

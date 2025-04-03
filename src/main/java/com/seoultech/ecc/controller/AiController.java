@@ -1,10 +1,11 @@
 package com.seoultech.ecc.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class AiController {
     private final ChatClient chatClient;
 
@@ -13,7 +14,7 @@ public class AiController {
     }
 
     @GetMapping("/ai")
-    String generate(String input){
+    public String generate(@RequestParam("input") String input) {
         return this.chatClient.prompt()
                 .user(input)
                 .call() // sends a request to GPT

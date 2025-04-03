@@ -11,43 +11,43 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table
-public class Member {
+@Table(name = "member")
+public class MemberEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long uuid;
+    private Integer uuid; // 회원ID(학번)
 
-    @Column(nullable = false, unique = true)
-    private String kakaoUuid;
-
-    @Column(nullable = false, unique = true)
-    private String userId;
+    @Column(name = "kakao_uuid", nullable = false, unique = true)
+    private Integer kakaoUuid; // 카카오로그인ID
 
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String tel;
+
+    @Column(name = "kakao_tel", nullable = false)
+    private String kakaoTel; // 카카오아이디
 
     @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false, unique = true)
-    private String studentNo;
 
     @Column(unique = true)
     private String email;
 
     @Column(nullable = false)
-    private int level;
+    private Integer level;
 
     @Column(nullable = false)
-    private double rate;
+    private Double rate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
-    private Subject subject;
-}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "major_id", nullable = false)
+    private MajorEntity major;
 
+}
