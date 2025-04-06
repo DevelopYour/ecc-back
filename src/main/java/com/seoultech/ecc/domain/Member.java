@@ -10,6 +10,7 @@ import lombok.Setter;
 @Builder
 public class Member {
     private Integer uuid;        // 회원 ID (학번)
+    private String stduentId;   // 학번
     private Integer kakaoUuid;   // 카카오 로그인ID
     private String password;
     private String tel;
