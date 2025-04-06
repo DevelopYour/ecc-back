@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mariadb:
-    image: mariadb
+    image: mariadb:10.11
     container_name: ecc-db
     restart: always
     environment:
@@ -11,10 +11,9 @@ services:
       MARIADB_USER: user
       MARIADB_PASSWORD: 1234
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d
     networks:
       - springboot-net
 
