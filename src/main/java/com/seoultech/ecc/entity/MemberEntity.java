@@ -16,13 +16,19 @@ public class MemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer uuid; // 회원ID(학번)
+    private Long uuid;
+
+    @Column(name = "student_no", nullable = false, unique = true)
+    private String studentNo;
 
     @Column(name = "kakao_uuid", nullable = false, unique = true)
     private Integer kakaoUuid; // 카카오로그인ID
 
     @Column(nullable = false)
     private String password;
+
+    @Column
+    private String role;
 
     @Column(nullable = false)
     private String tel;
