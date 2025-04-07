@@ -35,7 +35,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return memberEntity.getStudentNo();
+        return memberEntity.getStudentId();
     }
 
     // TODO: 아래 4개 메소드 추후 처리 필요 (DB에 관련 필드 추가)

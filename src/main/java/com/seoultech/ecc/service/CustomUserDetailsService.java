@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 // 로그인 시 SecurityConfig에게 전달
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -18,12 +20,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String studentNo) throws UsernameNotFoundException {
-
-        MemberEntity memberData = memberRepository.findByStudentNo(studentNo);
-        if (memberData != null) {
-            return new CustomUserDetails(memberData);
-        }
-        return null;
+    public UserDetails loadUserByUsername(String studentId) throws UsernameNotFoundException {
+        Optional<MemberEntity> memberData = memberRepository.findByStudentId(studentId);
+        return memberData.map(CustomUserDetails::new).orElse(null);
     }
 }
