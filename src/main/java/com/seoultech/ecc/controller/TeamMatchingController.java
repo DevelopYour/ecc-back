@@ -56,4 +56,11 @@ public class TeamMatchingController {
         teamMatchingService.teamMatch(studentTimeMap);
         return "팀 매칭 완료!";
     }
+
+    @GetMapping("/teams")
+    @Operation(summary = "team matching - 1 answer", description = "팀 매칭 - 단일해 (정수선형계획법)")
+    public String teamMatch2() {
+        teamMatchingService.teamMatch(studentTimeMap);
+        return "팀 매칭 완료!";
+    }
 }
