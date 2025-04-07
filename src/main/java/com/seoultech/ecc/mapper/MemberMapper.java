@@ -1,6 +1,7 @@
 package com.seoultech.ecc.mapper;
 
 import com.seoultech.ecc.domain.Member;
+import com.seoultech.ecc.dto.MemberCreateDto;
 import com.seoultech.ecc.dto.MemberDto;
 import com.seoultech.ecc.dto.member.MemberResponse;
 import com.seoultech.ecc.entity.MajorEntity;
@@ -71,10 +72,26 @@ public class MemberMapper {
                 .build();
     }
 
+    // CreateDTO → Domain
+    public Member toModel(MemberCreateDto dto) {
+        return Member.builder()
+//                .kakaoUuid(dto.getKakaoUuid())
+                .studentId(dto.getStudentId())
+                .password(dto.getPassword())
+                .tel(dto.getTel())
+                .kakaoTel(dto.getKakaoTel())
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .level(dto.getLevel())
+                .majorId(dto.getMajorId())
+                .build();
+    }
+
     // Domain → Entity
     public MemberEntity toEntity(Member domain, MajorEntity major) {
         MemberEntity entity = new MemberEntity();
         entity.setUuid(domain.getUuid());
+        entity.setStudentId(domain.getStudentId());
 //        entity.setKakaoUuid(domain.getKakaoUuid());
         entity.setPassword(domain.getPassword());
         entity.setTel(domain.getTel());
@@ -85,6 +102,7 @@ public class MemberMapper {
         entity.setRate(domain.getRate());
         entity.setStatus(domain.getStatus());
         entity.setMajor(major);
+        entity.setRole(domain.getRole());
         return entity;
     }
 
@@ -103,6 +121,7 @@ public class MemberMapper {
                 .status(entity.getStatus())
                 .majorId(entity.getMajor().getId())
                 .majorName(entity.getMajor().getName())
+                .role(entity.getRole())
                 .build();
     }
 
@@ -121,6 +140,7 @@ public class MemberMapper {
                 .status(domain.getStatus())
                 .majorId(domain.getMajorId())
                 .majorName(domain.getMajorName())
+                .role(domain.getRole())
                 .build();
     }
 }
