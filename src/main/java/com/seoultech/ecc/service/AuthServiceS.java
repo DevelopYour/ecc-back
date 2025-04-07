@@ -26,7 +26,7 @@ public class AuthServiceS {
 
     public void signup(Member member) {
         if (memberRepository.existsByStudentId(member.getStudentId())) return;
-        member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
+        member.setPassword(bCryptPasswordEncoder.encode(member.getTel()));
         member.setRole("ROLE_USER");
         member.setStatus(MemberStatus.PENDING);
         member.setRate(0.0);

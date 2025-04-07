@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth-s")
+@RequestMapping("/api/auth-s")
 @RequiredArgsConstructor
 public class AuthControllerS {
 
@@ -28,6 +28,7 @@ public class AuthControllerS {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "가입 신청 상태로 회원가입합니다.")
     public ResponseEntity<ResponseDto> signup(@Valid @RequestBody MemberCreateDto dto) {
+        System.out.println("signup");
         try {
             authService.signup(mapper.toModel(dto));
             return ResponseEntity.ok(ResponseDto.success("회원가입이 완료되었습니다. 관리자 승인 후 로그인이 가능합니다."));

@@ -77,7 +77,6 @@ public class MemberMapper {
         return Member.builder()
 //                .kakaoUuid(dto.getKakaoUuid())
                 .studentId(dto.getStudentId())
-                .password(dto.getPassword())
                 .tel(dto.getTel())
                 .kakaoTel(dto.getKakaoTel())
                 .name(dto.getName())

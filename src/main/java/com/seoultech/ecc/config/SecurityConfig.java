@@ -25,7 +25,7 @@ public class SecurityConfig {
         // 인가
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/auth/signup", "/auth/login", "/auth-s/**", "/api-test", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/", "/api/auth/signup", "/api/auth/login", "/api/auth-s/**", "/api-test", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("MANAGER")
                         .anyRequest().authenticated()
                 );
@@ -43,7 +43,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000") // React
+                        .allowedOrigins("http://localhost:5176") // React
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
