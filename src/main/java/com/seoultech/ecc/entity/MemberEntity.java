@@ -28,13 +28,8 @@ public class MemberEntity extends BaseEntity {
     @Column(nullable = false)
     private String tel; // 전화번호 (초기 비밀번호)
 
-    //카카오 로그인은 일단 미구현
-    /*@Column(name = "kakao_uuid", nullable = false, unique = true)
-    private Integer kakaoUuid; // 카카오로그인ID
-
     @Column(name = "kakao_tel", nullable = false)
-    private String kakaoTel; // 카카오아이디ㅌㅈ
-     */
+    private String kakaoTel;
 
     @Column(nullable = false)
     private String name;
@@ -58,4 +53,9 @@ public class MemberEntity extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String motivation; // 지원 동기
+
+    /* 카카오 로그인 보류
+    @Column(name = "kakao_uuid", nullable = false, unique = true)
+    private Integer kakaoUuid; // 카카오로그인ID
+     */
 }
