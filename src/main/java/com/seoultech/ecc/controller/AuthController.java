@@ -14,11 +14,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    @GetMapping("/signup/check-id")
+    @Operation(summary = "아이디 중복 확인", description = "이미 가입된 학번(ID)인지 검사합니다.")
+    public ResponseEntity<ResponseDto<Boolean>> checkStudentIdAvailability(String studentId) {
+        try {
+            return ResponseEntity.ok(ResponseDto.success(authService.checkStudentIdAvailability(studentId)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
+        }
+    }
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "가입 신청 상태로 회원가입합니다.")

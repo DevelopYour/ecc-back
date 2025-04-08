@@ -25,7 +25,7 @@ public class SecurityConfig {
         // 인가
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/api/auth/signup", "/api/auth/login", "/api/auth-s/**", "/api-test", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/", "/api/auth/signup/**", "/api/auth/login", "/api/auth-s/**", "/api-test", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("MANAGER")
                         .anyRequest().authenticated()
                 );

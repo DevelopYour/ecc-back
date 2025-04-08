@@ -17,19 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final MemberRepository memberRepository;
-    private final MajorRepository majorRepository;
-
     // 임시 토큰 저장소 (실제로는 Redis나 DB 사용 권장)
     private static final Map<String, Integer> tokenStore = new HashMap<>();
     private static final String SESSION_USER_KEY = "LOGIN_USER_ID";
+    private final MemberRepository memberRepository;
+    private final MajorRepository majorRepository;
+
+    public Boolean checkStudentIdAvailability(String studentId) {
+        return memberRepository.findByStudentId(studentId).isEmpty();
+    }
 
     @Transactional
     public MemberResponse signup(SignupRequest request) {
