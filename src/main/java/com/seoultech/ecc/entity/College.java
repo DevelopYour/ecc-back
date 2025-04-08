@@ -1,6 +1,6 @@
 package com.seoultech.ecc.entity;
 
-enum College {
+public enum College {
     ENGINEERING, // 공과
     ICT, // 정보통신
     ENERGY_BIO, // 에너지바이오

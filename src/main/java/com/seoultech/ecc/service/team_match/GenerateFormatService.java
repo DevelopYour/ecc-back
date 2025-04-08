@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Map<학생, List<시간아이디>> -> 시간대별 가능한 3-5명 조합 전체 반환
 @Service
 public class GenerateFormatService {
 

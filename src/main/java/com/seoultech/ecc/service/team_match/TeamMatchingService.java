@@ -27,15 +27,12 @@ public class TeamMatchingService {
         }
 
         MPSolver solver = MPSolver.createSolver("SCIP"); // SCIP: OR-Tools에서 사용 가능한 대표 solver
-        if (solver == null) {
-            System.out.println("Solver not available");
-        }
+        if (solver == null) System.out.println("Solver not available");
 
         // 이진 변수 생성 (팀 선택 여부)
         Map<Integer, MPVariable> teamVariables = new HashMap<>();
         for (int i = 0; i < teamCandidates.size(); i++) {
-            teamVariables.put(i, solver.makeIntVar(0, 1, "team_" + i));
-            // teamVariables.get(i) = team_i의 선택여부 값
+            teamVariables.put(i, solver.makeIntVar(0, 1, "team_" + i)); // teamVariables.get(i) = team_i의 선택여부 값
         }
 
         // 제약 조건: 한 사람은 하나의 팀에만 속하도록
@@ -71,4 +68,6 @@ public class TeamMatchingService {
             System.out.println("해결 불가능하거나 오류 발생");
         }
     }
+
+    
 }
