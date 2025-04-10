@@ -61,7 +61,7 @@ public class MemberMapper {
                 //.kakaoUuid(dto.getKakaoUuid())
                 .password(dto.getPassword())
                 .tel(dto.getTel())
-                .kakaoId(dto.getKakaoId())
+                .kakaoTel(dto.getKakaoTel())
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .level(dto.getLevel())
@@ -78,7 +78,7 @@ public class MemberMapper {
                 //.kakaoUuid(dto.getKakaoUuid())
                 .studentId(dto.getStudentId())
                 .tel(dto.getTel())
-                .kakaoId(dto.getKakaoId())
+                .kakaoTel(dto.getKakaoTel())
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .level(dto.getLevel())
@@ -94,7 +94,7 @@ public class MemberMapper {
         //entity.setKakaoUuid(domain.getKakaoUuid());
         entity.setPassword(domain.getPassword());
         entity.setTel(domain.getTel());
-        entity.setKakaoTel(domain.getKakaoId());
+        entity.setKakaoTel(domain.getKakaoTel());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setLevel(domain.getLevel());
@@ -112,7 +112,7 @@ public class MemberMapper {
                 //.kakaoUuid(entity.getKakaoUuid())
                 .password(entity.getPassword())
                 .tel(entity.getTel())
-                .kakaoId(entity.getKakaoTel())
+                .kakaoTel(entity.getKakaoTel())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .level(entity.getLevel())
@@ -131,7 +131,7 @@ public class MemberMapper {
                 //.kakaoUuid(domain.getKakaoUuid())
                 .password(domain.getPassword())
                 .tel(domain.getTel())
-                .kakaoId(domain.getKakaoId())
+                .kakaoTel(domain.getKakaoTel())
                 .name(domain.getName())
                 .email(domain.getEmail())
                 .level(domain.getLevel())

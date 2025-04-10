@@ -14,7 +14,7 @@ public class Member {
     // private Integer kakaoUuid;   // 카카오 로그인ID (보류)
     private String password;
     private String tel;
-    private String kakaoId;     // 카카오톡 아이디
+    private String kakaoTel;     // 카카오톡 아이디
     private String name;
     private String email;
     private Integer level;
