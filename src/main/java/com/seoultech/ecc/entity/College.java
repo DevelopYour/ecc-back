@@ -8,5 +8,6 @@ public enum College {
     HUMANITIES, // 인문사회
     BUSINESS, // 기술경영
     FUTURE_CONVERGENCE, // 미래융합
-    CREATIVE_CONVERGENCE // 창의융합
+    CREATIVE_CONVERGENCE, // 창의융합
+    ST_FREE_MAJOR // 자유전공
 }
