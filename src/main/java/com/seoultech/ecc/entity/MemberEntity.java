@@ -3,6 +3,8 @@ package com.seoultech.ecc.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,8 +30,8 @@ public class MemberEntity extends BaseEntity {
     @Column(nullable = false)
     private String tel; // 전화번호 (초기 비밀번호)
 
-    @Column(name = "kakao_tel", nullable = false)
-    private String kakaoTel;
+    @Column(name = "kakao_id")
+    private String kakaoId; // 카카오톡 아이디
 
     @Column(nullable = false)
     private String name;
@@ -53,6 +55,18 @@ public class MemberEntity extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String motivation; // 지원 동기
+
+    // RefreshToken 관련 필드 추가
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expires_at")
+    private LocalDateTime refreshTokenExpiresAt;
+
+    // RefreshToken 만료 확인 메서드
+    public boolean isRefreshTokenExpired() {
+        return refreshTokenExpiresAt != null && LocalDateTime.now().isAfter(refreshTokenExpiresAt);
+    }
 
     /* 카카오 로그인 보류
     @Column(name = "kakao_uuid", nullable = false, unique = true)

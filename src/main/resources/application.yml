@@ -15,8 +15,27 @@ logging:
     root: info  # 전체 애플리케이션 로그 레벨
     org.hibernate.SQL: warn
     org.hibernate.type.descriptor.sql.BasicBinder: off
+    org.springframework.security: debug
+    com.seoultech.ecc: debug
 
 springdoc:
   swagger-ui:
     path: /api-test
     groups-order: DESC # path, query, body, response 순 출력
+
+# JWT 설정
+jwt:
+  secret: ECC_JWT_SECRET_KEY_SEOULTECH_ENGLISH_CONVERSATION_CLUB # 실제 배포 시 더 복잡한 값 사용 권장
+  access-token:
+    expiration: 3600000 # 1시간 (밀리초 단위)
+  refresh-token:
+    expiration: 604800000 # 7일 (밀리초 단위)
+
+# 관리자 계정 설정
+admin:
+  student-id: "00000000"  # 관리자 학번
+  name: "ECC Admin"       # 관리자 이름
+  password: "admin1234"   # 관리자 초기 비밀번호
+  tel: "01012345678"      # 관리자 전화번호
+  email: "admin@ecc.com"  # 관리자 이메일
+  major-id: 1             # 관리자 전공 ID

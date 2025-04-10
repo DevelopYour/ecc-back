@@ -2,14 +2,15 @@ package com.seoultech.ecc.dto;
 
 import com.seoultech.ecc.entity.MemberEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private MemberEntity memberEntity;
+    private final MemberEntity memberEntity;
 
     public CustomUserDetails(MemberEntity memberEntity) {
         this.memberEntity = memberEntity;
@@ -18,14 +19,7 @@ public class CustomUserDetails implements UserDetails {
     // 사용자의 특정 권한 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return memberEntity.getRole();
-            }
-        });
-        return collection;
+        return Collections.singleton(new SimpleGrantedAuthority(memberEntity.getRole()));
     }
 
     @Override
@@ -38,7 +32,6 @@ public class CustomUserDetails implements UserDetails {
         return memberEntity.getStudentId();
     }
 
-    // TODO: 아래 4개 메소드 추후 처리 필요 (DB에 관련 필드 추가)
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -46,7 +39,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return memberEntity.getStatus() != com.seoultech.ecc.entity.MemberStatus.BANNED
+                && memberEntity.getStatus() != com.seoultech.ecc.entity.MemberStatus.SUSPENDED;
     }
 
     @Override
@@ -56,6 +50,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return memberEntity.getStatus() == com.seoultech.ecc.entity.MemberStatus.ACTIVE;
     }
 }

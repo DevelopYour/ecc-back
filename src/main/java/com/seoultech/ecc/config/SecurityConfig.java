@@ -1,39 +1,93 @@
 package com.seoultech.ecc.config;
 
+import com.seoultech.ecc.security.jwt.JwtAuthenticationEntryPoint;
+import com.seoultech.ecc.security.jwt.JwtAuthenticationFilter;
+import com.seoultech.ecc.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    }
+
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // 인가
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/api/auth/signup/**", "/api/auth/login", "/api/auth-s/**", "/api-test", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyRole("MANAGER")
-                        .anyRequest().authenticated()
-                );
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
-        http
-                .csrf(AbstractHttpConfigurer::disable) // REST API에서는 보통 비활성화
-                .cors(Customizer.withDefaults()); // CORS 허용 필요 (react가 다른 origin에서 접근하므로)
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // CSRF 비활성화
+        http.csrf(AbstractHttpConfigurer::disable);
+
+        // 세션 관리 설정 - STATELESS로 설정하여 세션을 사용하지 않음
+        http.sessionManagement(sessionManagement ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // 접근 권한 설정
+        http.authorizeHttpRequests(auth -> auth
+                // 인증 없이 접근 가능한 경로
+                .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh", "/api-test/**",
+                        "/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
+                // 관리자 전용 경로
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // 그 외 모든 요청은 인증 필요
+                .anyRequest().authenticated()
+        );
+
+        // JWT 인증 예외 처리
+        http.exceptionHandling(exceptionHandling ->
+                exceptionHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
+        // JWT 필터 추가
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class);
+
+        // CORS 설정
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 프론트엔드 서버 주소
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

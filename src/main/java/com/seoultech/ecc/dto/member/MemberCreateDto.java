@@ -1,4 +1,4 @@
-package com.seoultech.ecc.dto;
+package com.seoultech.ecc.dto.member;
 
 import lombok.*;
 
@@ -9,9 +9,9 @@ import lombok.*;
 @Builder
 public class MemberCreateDto {
     private String studentId;   // 학번
-    //    private Integer kakaoUuid;   // 카카오 로그인ID
+    // private Integer kakaoUuid;   // 카카오 로그인ID (보류)
     private String tel;
-    private String kakaoTel;     // 카카오 아이디
+    private String kakaoId;     // 카카오톡 아이디
     private String name;
     private String email;
     private Integer level;

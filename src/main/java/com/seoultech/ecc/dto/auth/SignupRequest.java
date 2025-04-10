@@ -29,13 +29,15 @@ public class SignupRequest {
     @Pattern(regexp = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$", message = "올바른 형식의 전화번호를 입력해주세요.")
     private String tel;
 
+    @NotBlank(message = "카카오톡 아이디는 필수 입력 항목입니다.")
+    private String kakaoId;
+
     @NotBlank(message = "이메일은 필수 입력 항목입니다.")
     @Email(message = "올바른 이메일 형식을 입력해주세요.")
     private String email;
 
-    @NotBlank(message = "영어 실력은 필수 선택 항목입니다.")
-    @Pattern(regexp = "^(초급|중급|고급)$", message = "영어 실력은 초급, 중급, 고급 중 하나여야 합니다.")
-    private String level;
+    @NotNull(message = "영어 실력은 필수 선택 항목입니다.")
+    private Integer level;
 
     @NotBlank(message = "지원 동기는 필수 입력 항목입니다.")
     private String motivation;

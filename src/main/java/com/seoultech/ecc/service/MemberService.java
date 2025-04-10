@@ -7,10 +7,13 @@ import com.seoultech.ecc.entity.MemberEntity;
 import com.seoultech.ecc.entity.MemberStatus;
 import com.seoultech.ecc.repository.MajorRepository;
 import com.seoultech.ecc.repository.MemberRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,144 +21,211 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MajorRepository majorRepository;
-    private static final String SESSION_USER_KEY = "LOGIN_USER_ID";
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    // PENDING 상태 회원용 메서드들
 
     /**
-     * 회원 정보 조회
+     * PENDING 상태 회원의 가입 신청서 조회
      */
     @Transactional(readOnly = true)
-    public MemberResponse getMemberInfo(Integer uuid) {
-        MemberEntity member = memberRepository.findById(uuid)
+    public MemberResponse getPendingApplication(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        if (member.getStatus() != MemberStatus.PENDING) {
+            throw new RuntimeException("가입 신청 상태인 회원만 조회할 수 있습니다.");
+        }
+
         return MemberResponse.fromEntity(member);
     }
 
     /**
-     * 가입 신청서 수정 (PENDING 상태일 때만 가능)
+     * PENDING 상태 회원의 가입 신청서 수정
      */
     @Transactional
-    public MemberResponse updateApplication(Integer uuid, SignupRequest request) {
-        // 회원 조회
-        MemberEntity member = memberRepository.findById(uuid)
+    public MemberResponse updatePendingApplication(String studentId, SignupRequest request) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
-        // 가입 대기 상태인지 확인
         if (member.getStatus() != MemberStatus.PENDING) {
-            throw new RuntimeException("가입 신청 상태에서만 지원서를 수정할 수 있습니다.");
+            throw new RuntimeException("가입 신청 상태인 회원만 신청서를 수정할 수 있습니다.");
         }
 
         // 학과 정보 조회
         MajorEntity major = majorRepository.findById(request.getMajorId())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 학과입니다."));
 
-        // 영어 실력 레벨 변환 (초급=1, 중급=2, 고급=3)
-        int level = 1; // 기본값 초급
-        if ("중급".equals(request.getLevel())) {
-            level = 2;
-        } else if ("고급".equals(request.getLevel())) {
-            level = 3;
-        }
-
         // 회원 정보 업데이트
         member.setName(request.getName());
-        member.setStudentId(request.getStudentId());
         member.setTel(request.getTel());
+        member.setKakaoId(request.getKakaoId());
         member.setEmail(request.getEmail());
-        member.setLevel(level);
+        member.setLevel(request.getLevel());
         member.setMajor(major);
         member.setMotivation(request.getMotivation());
-        // 초기 비밀번호도 전화번호로 업데이트
-        member.setPassword(request.getTel());
+        // 비밀번호 업데이트 (암호화)
+        member.setPassword(passwordEncoder.encode(request.getTel()));
 
-        // 회원 저장
         MemberEntity updatedMember = memberRepository.save(member);
-
-        // 응답 DTO 변환 및 반환
         return MemberResponse.fromEntity(updatedMember);
     }
 
     /**
-     * 가입 신청 취소 (PENDING 상태일 때만 가능)
+     * PENDING 상태 회원의 가입 신청 취소
      */
     @Transactional
-    public void cancelApplication(Integer uuid) {
-        // 회원 조회
-        MemberEntity member = memberRepository.findById(uuid)
+    public void cancelPendingApplication(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
-        // 가입 대기 상태인지 확인
         if (member.getStatus() != MemberStatus.PENDING) {
-            throw new RuntimeException("가입 신청 상태에서만 지원을 취소할 수 있습니다.");
+            throw new RuntimeException("가입 신청 상태인 회원만 신청을 취소할 수 있습니다.");
         }
 
-        // 회원 삭제
         memberRepository.delete(member);
     }
 
+    // ACTIVE 상태 회원용 메서드들
+
     /**
-     * 현재 로그인한 회원의 정보 조회
+     * ACTIVE 상태 회원 정보 조회
      */
     @Transactional(readOnly = true)
-    public MemberResponse getMyInfo(HttpSession session) {
-        Integer userId = getCurrentUserId(session);
-        return getMemberInfo(userId);
-    }
-
-    /**
-     * 현재 로그인한 회원의 정보 수정
-     */
-    @Transactional
-    public MemberResponse updateMyInfo(HttpSession session, SignupRequest request) {
-        Integer userId = getCurrentUserId(session);
-        return updateApplication(userId, request);
-    }
-
-    /**
-     * 현재 로그인한 회원의 가입 신청 취소
-     */
-    @Transactional
-    public void deleteMyAccount(HttpSession session) {
-        Integer userId = getCurrentUserId(session);
-        cancelApplication(userId);
-        session.invalidate();
-    }
-
-    /**
-     * 현재 로그인한 회원의 영어 실력 레벨 변경 신청
-     */
-    @Transactional
-    public void updateEnglishLevel(HttpSession session, Integer level) {
-        Integer userId = getCurrentUserId(session);
-
-        MemberEntity member = memberRepository.findById(userId)
+    public MemberResponse getActiveMemberInfo(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new RuntimeException("승인된 회원만 정보를 조회할 수 있습니다.");
+        }
+
+        return MemberResponse.fromEntity(member);
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    @Transactional
+    public void updatePassword(String studentId, String currentPassword, String newPassword) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new RuntimeException("승인된 회원만 비밀번호를 변경할 수 있습니다.");
+        }
+
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new RuntimeException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호 저장
+        member.setPassword(passwordEncoder.encode(newPassword));
+        memberRepository.save(member);
+    }
+
+    /**
+     * 영어 레벨 변경 신청
+     */
+    @Transactional
+    public void requestLevelChange(String studentId, Integer level) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new RuntimeException("승인된 회원만 레벨 변경을 신청할 수 있습니다.");
+        }
+
+        // 변경 신청만 하고 실제 변경은 관리자가 승인해야 함
+        // 여기서는 관리자 승인 없이 바로 변경으로 구현
         member.setLevel(level);
         memberRepository.save(member);
     }
 
     /**
-     * 현재 로그인한 회원의 상태 변경 신청
+     * 회원 탈퇴
      */
     @Transactional
-    public void updateStatus(HttpSession session, MemberStatus status) {
-        Integer userId = getCurrentUserId(session);
-
-        MemberEntity member = memberRepository.findById(userId)
+    public void withdrawMembership(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
-        member.setStatus(status);
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new RuntimeException("승인된 회원만 탈퇴할 수 있습니다.");
+        }
+
+        // 상태를 WITHDRAWN으로 변경
+        member.setStatus(MemberStatus.WITHDRAWN);
         memberRepository.save(member);
     }
 
     /**
-     * 세션에서 현재 로그인한 사용자 ID 가져오기
+     * 관리자를 위한 모든 회원 조회 메서드
      */
-    private Integer getCurrentUserId(HttpSession session) {
-        Integer userId = (Integer) session.getAttribute(SESSION_USER_KEY);
-        if (userId == null) {
-            throw new RuntimeException("로그인이 필요합니다.");
+    @Transactional(readOnly = true)
+    public List<MemberResponse> getAllMembers() {
+        List<MemberEntity> members = memberRepository.findAll();
+        return members.stream()
+                .map(MemberResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 관리자를 위한 특정 상태의 회원 조회 메서드
+     */
+    @Transactional(readOnly = true)
+    public List<MemberResponse> getMembersByStatus(MemberStatus status) {
+        List<MemberEntity> members = memberRepository.findByStatus(status);
+        return members.stream()
+                .map(MemberResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 관리자를 위한 회원 상태 업데이트 메서드
+     */
+    @Transactional
+    public MemberResponse updateMemberStatus(String studentId, MemberStatus status) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        member.setStatus(status);
+        MemberEntity updatedMember = memberRepository.save(member);
+
+        return MemberResponse.fromEntity(updatedMember);
+    }
+
+    /**
+     * 관리자를 위한 회원 가입 승인 메서드
+     */
+    @Transactional
+    public MemberResponse approveApplication(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        if (member.getStatus() != MemberStatus.PENDING) {
+            throw new RuntimeException("승인 대기 상태의 회원만 승인할 수 있습니다.");
         }
-        return userId;
+
+        member.setStatus(MemberStatus.ACTIVE);
+        MemberEntity updatedMember = memberRepository.save(member);
+
+        return MemberResponse.fromEntity(updatedMember);
+    }
+
+    /**
+     * 관리자를 위한 회원 가입 거절 메서드
+     */
+    @Transactional
+    public void rejectApplication(String studentId) {
+        MemberEntity member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        if (member.getStatus() != MemberStatus.PENDING) {
+            throw new RuntimeException("승인 대기 상태의 회원만 거절할 수 있습니다.");
+        }
+
+        memberRepository.delete(member);
     }
 }

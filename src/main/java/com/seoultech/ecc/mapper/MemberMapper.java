@@ -1,8 +1,8 @@
 package com.seoultech.ecc.mapper;
 
 import com.seoultech.ecc.domain.Member;
-import com.seoultech.ecc.dto.MemberCreateDto;
-import com.seoultech.ecc.dto.MemberDto;
+import com.seoultech.ecc.dto.member.MemberCreateDto;
+import com.seoultech.ecc.dto.member.MemberDto;
 import com.seoultech.ecc.dto.member.MemberResponse;
 import com.seoultech.ecc.entity.MajorEntity;
 import com.seoultech.ecc.entity.MemberEntity;
@@ -25,6 +25,7 @@ public class MemberMapper {
         entity.setStudentId(dto.getStudentId());
         entity.setName(dto.getName());
         entity.setTel(dto.getTel());
+        entity.setKakaoId(dto.getKakaoId());
         entity.setEmail(dto.getEmail());
         entity.setLevel(dto.getLevel());
         entity.setRate(dto.getRate());
@@ -33,7 +34,6 @@ public class MemberMapper {
 
         /* 카카오 로그인은 현재 미구현
         entity.setKakaoUuid(dto.getKakaoUuid());
-        entity.setKakaoTel(dto.getKakaoTel());
         */
 
         // majorId가 있을 경우 MajorEntity 설정
@@ -58,10 +58,10 @@ public class MemberMapper {
     public Member toModel(MemberDto dto) {
         return Member.builder()
                 .uuid(dto.getUuid())
-//                .kakaoUuid(dto.getKakaoUuid())
+                //.kakaoUuid(dto.getKakaoUuid())
                 .password(dto.getPassword())
                 .tel(dto.getTel())
-                .kakaoTel(dto.getKakaoTel())
+                .kakaoId(dto.getKakaoId())
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .level(dto.getLevel())
@@ -75,10 +75,10 @@ public class MemberMapper {
     // CreateDTO → Domain
     public Member toModel(MemberCreateDto dto) {
         return Member.builder()
-//                .kakaoUuid(dto.getKakaoUuid())
+                //.kakaoUuid(dto.getKakaoUuid())
                 .studentId(dto.getStudentId())
                 .tel(dto.getTel())
-                .kakaoTel(dto.getKakaoTel())
+                .kakaoId(dto.getKakaoId())
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .level(dto.getLevel())
@@ -91,10 +91,10 @@ public class MemberMapper {
         MemberEntity entity = new MemberEntity();
         entity.setUuid(domain.getUuid());
         entity.setStudentId(domain.getStudentId());
-//        entity.setKakaoUuid(domain.getKakaoUuid());
+        //entity.setKakaoUuid(domain.getKakaoUuid());
         entity.setPassword(domain.getPassword());
         entity.setTel(domain.getTel());
-        entity.setKakaoTel(domain.getKakaoTel());
+        entity.setKakaoId(domain.getKakaoId());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setLevel(domain.getLevel());
@@ -109,10 +109,10 @@ public class MemberMapper {
     public Member toDomain(MemberEntity entity) {
         return Member.builder()
                 .uuid(entity.getUuid())
-//                .kakaoUuid(entity.getKakaoUuid())
+                //.kakaoUuid(entity.getKakaoUuid())
                 .password(entity.getPassword())
                 .tel(entity.getTel())
-                .kakaoTel(entity.getKakaoTel())
+                .kakaoId(entity.getKakaoId())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .level(entity.getLevel())
@@ -128,10 +128,10 @@ public class MemberMapper {
     public MemberDto toDto(Member domain) {
         return MemberDto.builder()
                 .uuid(domain.getUuid())
-//                .kakaoUuid(domain.getKakaoUuid())
+                //.kakaoUuid(domain.getKakaoUuid())
                 .password(domain.getPassword())
                 .tel(domain.getTel())
-                .kakaoTel(domain.getKakaoTel())
+                .kakaoId(domain.getKakaoId())
                 .name(domain.getName())
                 .email(domain.getEmail())
                 .level(domain.getLevel())
