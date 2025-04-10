@@ -59,7 +59,7 @@ public class MemberService {
         // 회원 정보 업데이트
         member.setName(request.getName());
         member.setTel(request.getTel());
-        member.setKakaoId(request.getKakaoId());
+        member.setKakaoTel(request.getKakaoTel());
         member.setEmail(request.getEmail());
         member.setLevel(request.getLevel());
         member.setMajor(major);

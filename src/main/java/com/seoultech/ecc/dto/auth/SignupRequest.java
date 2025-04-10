@@ -30,7 +30,7 @@ public class SignupRequest {
     private String tel;
 
     @NotBlank(message = "카카오톡 아이디는 필수 입력 항목입니다.")
-    private String kakaoId;
+    private String kakaoTel;
 
     @NotBlank(message = "이메일은 필수 입력 항목입니다.")
     @Email(message = "올바른 이메일 형식을 입력해주세요.")

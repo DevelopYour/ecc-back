@@ -1,9 +1,9 @@
 package com.seoultech.ecc.config;
 
+import com.seoultech.ecc.entity.College;
 import com.seoultech.ecc.entity.MajorEntity;
 import com.seoultech.ecc.entity.MemberEntity;
 import com.seoultech.ecc.entity.MemberStatus;
-import com.seoultech.ecc.entity.College;
 import com.seoultech.ecc.repository.MajorRepository;
 import com.seoultech.ecc.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +35,9 @@ public class AdminInitializer implements ApplicationRunner {
 
     @Value("${admin.tel:01012345678}")
     private String adminTel;
+
+    @Value("kakaoteltest")
+    private String kakaoTel;
 
     @Value("${admin.email:admin@ecc.com}")
     private String adminEmail;
@@ -105,7 +108,7 @@ public class AdminInitializer implements ApplicationRunner {
                 .name(adminName)
                 .password(passwordEncoder.encode(adminPassword))
                 .tel(adminTel)
-                .kakaoId("admin")
+                .kakaoTel(kakaoTel)
                 .email(adminEmail)
                 .level(3) // 관리자는 최고 레벨
                 .rate(5.0) // 관리자는 최고 평점

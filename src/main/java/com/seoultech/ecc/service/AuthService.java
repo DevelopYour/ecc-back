@@ -2,8 +2,8 @@ package com.seoultech.ecc.service;
 
 import com.seoultech.ecc.dto.auth.LoginRequest;
 import com.seoultech.ecc.dto.auth.SignupRequest;
-import com.seoultech.ecc.dto.auth.TokenResponse;
 import com.seoultech.ecc.dto.auth.TokenRefreshRequest;
+import com.seoultech.ecc.dto.auth.TokenResponse;
 import com.seoultech.ecc.dto.member.MemberResponse;
 import com.seoultech.ecc.entity.MajorEntity;
 import com.seoultech.ecc.entity.MemberEntity;
@@ -24,14 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final String ROLE_USER = "ROLE_USER";
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
     private final MemberRepository memberRepository;
     private final MajorRepository majorRepository;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-
-    private static final String ROLE_USER = "ROLE_USER";
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
 
     @Transactional
     public MemberResponse signup(SignupRequest request) {
@@ -52,7 +51,7 @@ public class AuthService {
                 .studentId(request.getStudentId())
                 .name(request.getName())
                 .tel(request.getTel())
-                .kakaoId(request.getKakaoId())
+                .kakaoTel(request.getKakaoTel())
                 .password(hashedPassword) // 암호화된 비밀번호 설정
                 .email(request.getEmail())
                 .level(request.getLevel()) // 직접 전달된 레벨 사용

@@ -25,7 +25,7 @@ public class MemberMapper {
         entity.setStudentId(dto.getStudentId());
         entity.setName(dto.getName());
         entity.setTel(dto.getTel());
-        entity.setKakaoId(dto.getKakaoId());
+        entity.setKakaoTel(dto.getKakaoTel());
         entity.setEmail(dto.getEmail());
         entity.setLevel(dto.getLevel());
         entity.setRate(dto.getRate());
@@ -94,7 +94,7 @@ public class MemberMapper {
         //entity.setKakaoUuid(domain.getKakaoUuid());
         entity.setPassword(domain.getPassword());
         entity.setTel(domain.getTel());
-        entity.setKakaoId(domain.getKakaoId());
+        entity.setKakaoTel(domain.getKakaoId());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setLevel(domain.getLevel());
@@ -112,7 +112,7 @@ public class MemberMapper {
                 //.kakaoUuid(entity.getKakaoUuid())
                 .password(entity.getPassword())
                 .tel(entity.getTel())
-                .kakaoId(entity.getKakaoId())
+                .kakaoId(entity.getKakaoTel())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .level(entity.getLevel())

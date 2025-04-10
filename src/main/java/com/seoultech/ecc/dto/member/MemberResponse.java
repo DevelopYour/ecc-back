@@ -17,7 +17,7 @@ public class MemberResponse {
     private String studentId; // 학번 (로그인 ID)로 사용
     private String name;
     private String tel;
-    private String kakaoId; // 카카오톡 아이디
+    private String kakaoTel; // 카카오톡 아이디
     private String email;
     private Integer level;
     private Double rate;
@@ -35,7 +35,7 @@ public class MemberResponse {
                 .studentId(member.getStudentId())
                 .name(member.getName())
                 .tel(member.getTel())
-                .kakaoId(member.getKakaoId())
+                .kakaoTel(member.getKakaoTel())
                 .email(member.getEmail())
                 .level(member.getLevel())
                 .rate(member.getRate())

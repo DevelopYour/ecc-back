@@ -30,8 +30,8 @@ public class MemberEntity extends BaseEntity {
     @Column(nullable = false)
     private String tel; // 전화번호 (초기 비밀번호)
 
-    @Column(name = "kakao_id")
-    private String kakaoId; // 카카오톡 아이디
+    @Column(name = "kakao_tel")
+    private String kakaoTel; // 카카오톡 아이디
 
     @Column(nullable = false)
     private String name;
