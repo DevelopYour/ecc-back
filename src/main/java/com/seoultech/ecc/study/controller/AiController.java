@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study;
+package com.seoultech.ecc.study.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.bind.annotation.GetMapping;

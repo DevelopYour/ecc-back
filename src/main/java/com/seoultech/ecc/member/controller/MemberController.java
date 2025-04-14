@@ -1,5 +1,6 @@
-package com.seoultech.ecc.member;
+package com.seoultech.ecc.member.controller;
 
+import com.seoultech.ecc.member.service.MemberService;
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.SignupRequest;
 import com.seoultech.ecc.member.dto.MemberResponse;

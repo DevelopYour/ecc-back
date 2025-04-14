@@ -1,8 +1,7 @@
-package com.seoultech.ecc.team;
+package com.seoultech.ecc.study.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TeamController {
-
+public class StudyController {
 }

@@ -1,4 +1,4 @@
-package com.seoultech.ecc.member;
+package com.seoultech.ecc.member.service;
 
 import com.seoultech.ecc.member.dto.SignupRequest;
 import com.seoultech.ecc.member.dto.level.LevelChangeRequestDto;

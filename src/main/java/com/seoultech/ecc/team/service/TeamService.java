@@ -1,4 +1,4 @@
-package com.seoultech.ecc.team;
+package com.seoultech.ecc.team.service;
 
 import org.springframework.stereotype.Service;
 

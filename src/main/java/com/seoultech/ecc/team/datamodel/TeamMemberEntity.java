@@ -1,13 +1,8 @@
-package com.seoultech.ecc.member.datamodel;
+package com.seoultech.ecc.team.datamodel;
 
-import com.seoultech.ecc.team.datamodel.TeamEntity;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
 import jakarta.persistence.*;
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(
         name = "team_member",
@@ -27,4 +22,6 @@ public class TeamMemberEntity {
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
 }
+
+
 

@@ -1,4 +1,4 @@
-package com.seoultech.ecc.member;
+package com.seoultech.ecc.member.controller;
 
 import com.seoultech.ecc.member.dto.MajorDto;
 import com.seoultech.ecc.member.repository.MajorRepository;

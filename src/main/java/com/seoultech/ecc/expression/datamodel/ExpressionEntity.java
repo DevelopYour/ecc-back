@@ -1,4 +1,4 @@
-package com.seoultech.ecc.expression;
+package com.seoultech.ecc.expression.datamodel;
 
 import jakarta.persistence.*;
 import lombok.*;
