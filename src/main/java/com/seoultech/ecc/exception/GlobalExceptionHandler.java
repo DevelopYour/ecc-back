@@ -1,6 +1,6 @@
 package com.seoultech.ecc.exception;
 
-import com.seoultech.ecc.dto.ResponseDto;
+import com.seoultech.ecc.member.dto.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

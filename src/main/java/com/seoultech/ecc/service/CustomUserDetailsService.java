@@ -1,8 +1,8 @@
 package com.seoultech.ecc.service;
 
-import com.seoultech.ecc.dto.CustomUserDetails;
-import com.seoultech.ecc.entity.MemberEntity;
-import com.seoultech.ecc.repository.MemberRepository;
+import com.seoultech.ecc.member.dto.CustomUserDetails;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
+import com.seoultech.ecc.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

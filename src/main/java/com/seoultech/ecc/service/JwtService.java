@@ -1,9 +1,9 @@
 package com.seoultech.ecc.service;
 
-import com.seoultech.ecc.dto.auth.TokenResponse;
-import com.seoultech.ecc.entity.MemberEntity;
-import com.seoultech.ecc.repository.MemberRepository;
-import com.seoultech.ecc.security.jwt.JwtTokenProvider;
+import com.seoultech.ecc.member.dto.TokenResponse;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
+import com.seoultech.ecc.member.repository.MemberRepository;
+import com.seoultech.ecc.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

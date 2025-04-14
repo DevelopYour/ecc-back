@@ -1,15 +1,15 @@
 package com.seoultech.ecc.service;
 
-import com.seoultech.ecc.dto.auth.LoginRequest;
-import com.seoultech.ecc.dto.auth.SignupRequest;
-import com.seoultech.ecc.dto.auth.TokenRefreshRequest;
-import com.seoultech.ecc.dto.auth.TokenResponse;
-import com.seoultech.ecc.dto.member.MemberResponse;
-import com.seoultech.ecc.entity.MajorEntity;
-import com.seoultech.ecc.entity.MemberEntity;
-import com.seoultech.ecc.entity.MemberStatus;
-import com.seoultech.ecc.repository.MajorRepository;
-import com.seoultech.ecc.repository.MemberRepository;
+import com.seoultech.ecc.member.dto.LoginRequest;
+import com.seoultech.ecc.member.dto.SignupRequest;
+import com.seoultech.ecc.member.dto.TokenRefreshRequest;
+import com.seoultech.ecc.member.dto.TokenResponse;
+import com.seoultech.ecc.member.dto.MemberResponse;
+import com.seoultech.ecc.member.datamodel.MajorEntity;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
+import com.seoultech.ecc.member.datamodel.MemberStatus;
+import com.seoultech.ecc.member.repository.MajorRepository;
+import com.seoultech.ecc.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
