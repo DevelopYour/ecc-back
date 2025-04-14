@@ -1,5 +1,9 @@
-package com.seoultech.ecc.global.security;
+package com.seoultech.ecc.global.config;
 
+import com.seoultech.ecc.global.security.JwtAccessDeniedHandler;
+import com.seoultech.ecc.global.security.JwtAuthenticationEntryPoint;
+import com.seoultech.ecc.global.security.JwtAuthenticationFilter;
+import com.seoultech.ecc.global.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

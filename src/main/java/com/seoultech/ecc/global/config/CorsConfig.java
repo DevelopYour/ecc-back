@@ -1,4 +1,4 @@
-package com.seoultech.ecc.global.security;
+package com.seoultech.ecc.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.seoultech.ecc.global.config;
+package com.seoultech.ecc.global.init;
 
 import com.seoultech.ecc.member.datamodel.College;
 import com.seoultech.ecc.member.datamodel.MajorEntity;
