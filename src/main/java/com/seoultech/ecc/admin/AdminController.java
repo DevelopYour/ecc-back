@@ -3,7 +3,6 @@ package com.seoultech.ecc.admin;
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.MemberResponse;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
-import com.seoultech.ecc.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

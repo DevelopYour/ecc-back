@@ -1,4 +1,4 @@
-package com.seoultech.ecc.service;
+package com.seoultech.ecc.member;
 
 import com.seoultech.ecc.member.dto.LoginRequest;
 import com.seoultech.ecc.member.dto.SignupRequest;
@@ -10,6 +10,7 @@ import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.repository.MajorRepository;
 import com.seoultech.ecc.member.repository.MemberRepository;
+import com.seoultech.ecc.global.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -1,7 +1,7 @@
-package com.seoultech.ecc.service;
+package com.seoultech.ecc.member;
 
 import com.seoultech.ecc.member.dto.SignupRequest;
-import com.seoultech.ecc.member.level.LevelChangeRequestDto;
+import com.seoultech.ecc.member.dto.level.LevelChangeRequestDto;
 import com.seoultech.ecc.member.dto.MemberResponse;
 import com.seoultech.ecc.member.datamodel.LevelChangeRequestEntity;
 import com.seoultech.ecc.member.datamodel.MajorEntity;

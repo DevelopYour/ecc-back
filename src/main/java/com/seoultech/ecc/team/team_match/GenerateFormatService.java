@@ -1,4 +1,4 @@
-package com.seoultech.ecc.service.team_match;
+package com.seoultech.ecc.team.team_match;
 
 import org.springframework.stereotype.Service;
 

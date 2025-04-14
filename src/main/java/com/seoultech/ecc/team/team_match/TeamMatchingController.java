@@ -1,6 +1,6 @@
-package com.seoultech.ecc.service.team_match;
+package com.seoultech.ecc.team.team_match;
 
-import com.seoultech.ecc.service.TeamService;
+import com.seoultech.ecc.team.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

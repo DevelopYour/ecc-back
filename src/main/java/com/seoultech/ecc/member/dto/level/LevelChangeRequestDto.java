@@ -1,4 +1,4 @@
-package com.seoultech.ecc.member.level;
+package com.seoultech.ecc.member.dto.level;
 
 import com.seoultech.ecc.member.datamodel.LevelChangeRequestEntity;
 import lombok.AllArgsConstructor;

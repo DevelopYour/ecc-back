@@ -1,4 +1,4 @@
-package com.seoultech.ecc.member.level;
+package com.seoultech.ecc.member.dto.level;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

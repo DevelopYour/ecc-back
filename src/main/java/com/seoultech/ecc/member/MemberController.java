@@ -4,7 +4,6 @@ import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.SignupRequest;
 import com.seoultech.ecc.member.dto.MemberResponse;
 import com.seoultech.ecc.member.dto.PasswordChangeRequest;
-import com.seoultech.ecc.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

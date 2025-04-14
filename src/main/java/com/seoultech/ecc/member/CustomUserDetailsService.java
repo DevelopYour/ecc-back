@@ -1,4 +1,4 @@
-package com.seoultech.ecc.service;
+package com.seoultech.ecc.member;
 
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.member.datamodel.MemberEntity;

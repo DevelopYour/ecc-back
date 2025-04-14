@@ -6,7 +6,6 @@ import com.seoultech.ecc.member.dto.SignupRequest;
 import com.seoultech.ecc.member.dto.TokenRefreshRequest;
 import com.seoultech.ecc.member.dto.TokenResponse;
 import com.seoultech.ecc.member.dto.MemberResponse;
-import com.seoultech.ecc.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
