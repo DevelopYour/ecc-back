@@ -1,7 +1,7 @@
 package com.seoultech.ecc.member;
 
-import com.seoultech.ecc.dto.MajorDto;
-import com.seoultech.ecc.repository.MajorRepository;
+import com.seoultech.ecc.member.dto.MajorDto;
+import com.seoultech.ecc.member.repository.MajorRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -26,10 +26,10 @@ public class LevelChangeRequestEntity extends BaseEntity {
     private MemberEntity member;
 
     @Column(nullable = false)
-    private Integer currentLevel;
+    private int currentLevel; // 요청 시점 레벨 기록
 
     @Column(nullable = false)
-    private Integer requestedLevel;
+    private int requestedLevel;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

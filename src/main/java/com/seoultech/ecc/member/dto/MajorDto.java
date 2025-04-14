@@ -1,6 +1,6 @@
 package com.seoultech.ecc.member.dto;
 
-import com.seoultech.ecc.entity.MajorEntity;
+import com.seoultech.ecc.member.datamodel.MajorEntity;
 import lombok.*;
 
 @Getter
