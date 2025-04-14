@@ -1,6 +1,5 @@
 package com.seoultech.ecc.config;
 
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
-        String jwt = "JWT";
+        String jwt = "Bearer Authentication";
 
         // 1. Security Requirement (global security setting)
         SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);

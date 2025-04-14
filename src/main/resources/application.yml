@@ -1,11 +1,8 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+  application:
+    name: ecc-back
+  profiles:
+    active: private
 
 logging:
   level:
@@ -22,7 +19,6 @@ springdoc:
 
 # JWT 설정
 jwt:
-  secret: ECC_JWT_SECRET_KEY_SEOULTECH_ENGLISH_CONVERSATION_CLUB # 실제 배포 시 더 복잡한 값 사용 권장
   access-token:
     expiration: 3600000 # 1시간 (밀리초 단위)
   refresh-token:
