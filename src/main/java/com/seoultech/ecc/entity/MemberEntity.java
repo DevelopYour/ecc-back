@@ -56,7 +56,7 @@ public class MemberEntity extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String motivation; // 지원 동기
 
-    // RefreshToken 관련 필드 추가
+    // RefreshToken 관련 필드
     @Column(name = "refresh_token")
     private String refreshToken;
 
@@ -68,8 +68,41 @@ public class MemberEntity extends BaseEntity {
         return refreshTokenExpiresAt != null && LocalDateTime.now().isAfter(refreshTokenExpiresAt);
     }
 
-    /* 카카오 로그인 보류
-    @Column(name = "kakao_uuid", nullable = false, unique = true)
-    private Integer kakaoUuid; // 카카오로그인ID
-     */
+    // 사용자가 특정 상태인지 확인하는 편의 메서드들
+    public boolean isActive() {
+        return this.status == MemberStatus.ACTIVE;
+    }
+
+    public boolean isPending() {
+        return this.status == MemberStatus.PENDING;
+    }
+
+    public boolean isSuspended() {
+        return this.status == MemberStatus.SUSPENDED;
+    }
+
+    public boolean isBanned() {
+        return this.status == MemberStatus.BANNED;
+    }
+
+    public boolean isWithdrawn() {
+        return this.status == MemberStatus.WITHDRAWN;
+    }
+
+    public boolean isDormant() {
+        return this.status == MemberStatus.DORMANT;
+    }
+
+    public boolean isDormantRequested() {
+        return this.status == MemberStatus.DORMANT_REQUESTED;
+    }
+
+    // Major 정보를 안전하게 가져오는 편의 메서드
+    public Long getMajorId() {
+        return major != null ? major.getId() : null;
+    }
+
+    public String getMajorName() {
+        return major != null ? major.getName() : null;
+    }
 }

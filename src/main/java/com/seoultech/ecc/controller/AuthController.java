@@ -28,34 +28,22 @@ public class AuthController {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "가입 신청 상태로 회원가입합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> signup(@Valid @RequestBody SignupRequest request) {
-        try {
-            MemberResponse response = authService.signup(request);
-            return ResponseEntity.ok(ResponseDto.success("회원가입이 완료되었습니다. 관리자 승인 후 로그인이 가능합니다.", response));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
-        }
+        MemberResponse response = authService.signup(request);
+        return ResponseEntity.ok(ResponseDto.success("회원가입이 완료되었습니다. 관리자 승인 후 로그인이 가능합니다.", response));
     }
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "학번과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
     public ResponseEntity<ResponseDto<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
-        try {
-            TokenResponse response = authService.login(request);
-            return ResponseEntity.ok(ResponseDto.success("로그인이 성공적으로 완료되었습니다.", response));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
-        }
+        TokenResponse response = authService.login(request);
+        return ResponseEntity.ok(ResponseDto.success("로그인이 성공적으로 완료되었습니다.", response));
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.")
     public ResponseEntity<ResponseDto<TokenResponse>> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
-        try {
-            TokenResponse response = authService.refreshToken(request);
-            return ResponseEntity.ok(ResponseDto.success("토큰이 갱신되었습니다.", response));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
-        }
+        TokenResponse response = authService.refreshToken(request);
+        return ResponseEntity.ok(ResponseDto.success("토큰이 갱신되었습니다.", response));
     }
 
     @PostMapping("/logout")
@@ -65,13 +53,10 @@ public class AuthController {
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
     public ResponseEntity<ResponseDto<Void>> logout() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String studentId = authentication.getName();
-            authService.logout(studentId);
-            return ResponseEntity.ok(ResponseDto.success("로그아웃이 완료되었습니다.", null));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+
+        authService.logout(studentId);
+        return ResponseEntity.ok(ResponseDto.success("로그아웃이 완료되었습니다.", null));
     }
 }

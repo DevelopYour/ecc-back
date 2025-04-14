@@ -1,17 +1,16 @@
 package com.seoultech.ecc.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
     @Column(name="created_at", nullable = false, updatable = false)
@@ -25,18 +24,4 @@ public abstract class BaseEntity {
 
     @Column(name = "updated_by")
     private String updatedBy; // 수정자
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.createdBy = "system"; // TODO: 실제 사용자 ID로 변경 필요
-        this.updatedBy = "system"; // TODO: 실제 사용자 ID로 변경 필요
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-        this.updatedBy = "system"; // TODO: 실제 사용자 ID로 변경 필요
-    }
 }

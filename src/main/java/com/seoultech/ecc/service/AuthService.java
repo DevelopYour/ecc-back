@@ -35,13 +35,13 @@ public class AuthService {
     @Transactional
     public MemberResponse signup(SignupRequest request) {
         // 이미 가입된 학번인지 확인
-        if (memberRepository.findByStudentId(request.getStudentId()).isPresent()) {
+        if (memberRepository.existsByStudentId(request.getStudentId())) {
             throw new RuntimeException("이미 가입된 학번입니다.");
         }
 
         // 전공 정보 조회
         MajorEntity major = majorRepository.findById(request.getMajorId())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 전공입니다."));
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 전공입니다. ID: " + request.getMajorId()));
 
         // 비밀번호 암호화 (초기 비밀번호는 전화번호)
         String hashedPassword = passwordEncoder.encode(request.getTel());
@@ -108,6 +108,10 @@ public class AuthService {
 
     @Transactional
     public TokenResponse refreshToken(TokenRefreshRequest request) {
-        return jwtService.refreshAccessToken(request.getRefreshToken());
+        try {
+            return jwtService.refreshAccessToken(request.getRefreshToken());
+        } catch (Exception e) {
+            throw new RuntimeException("토큰 갱신에 실패했습니다: " + e.getMessage());
+        }
     }
 }

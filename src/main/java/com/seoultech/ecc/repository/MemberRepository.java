@@ -15,4 +15,8 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
     boolean existsByStudentId(String studentId);
 
     List<MemberEntity> findByStatus(MemberStatus status);
+
+    List<MemberEntity> findByLevel(Integer level);
+
+    List<MemberEntity> findByStatusAndLevel(MemberStatus status, Integer level);
 }

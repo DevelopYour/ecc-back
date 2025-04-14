@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: private
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -39,3 +36,4 @@ admin:
   tel: "01012345678"      # 관리자 전화번호
   email: "admin@ecc.com"  # 관리자 이메일
   major-id: 1             # 관리자 전공 ID
+  auto-create: true       # 관리자 자동 생성 여부

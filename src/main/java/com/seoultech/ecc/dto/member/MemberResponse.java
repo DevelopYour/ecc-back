@@ -25,6 +25,7 @@ public class MemberResponse {
     private Long majorId;
     private String majorName; // 학과명
     private String motivation; // 지원 동기
+    private String role; // 역할 정보 추가
 
     // 카카오 로그인은 현재 미구현
     /*private Integer kakaoUuid; // 카카오로그인ID*/
@@ -43,6 +44,7 @@ public class MemberResponse {
                 .majorId(member.getMajor().getId())
                 .majorName(member.getMajor().getName())
                 .motivation(member.getMotivation())
+                .role(member.getRole()) // 역할 정보 추가
                 .build();
     }
 }

@@ -1,12 +1,14 @@
 package com.seoultech.ecc.dto;
 
 import com.seoultech.ecc.entity.MemberEntity;
+import com.seoultech.ecc.entity.MemberStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -16,10 +18,15 @@ public class CustomUserDetails implements UserDetails {
         this.memberEntity = memberEntity;
     }
 
-    // 사용자의 특정 권한 반환
+    // 사용자의 권한 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(memberEntity.getRole()));
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        // 기본 역할 추가 (ROLE_USER 또는 ROLE_ADMIN)
+        authorities.add(new SimpleGrantedAuthority(memberEntity.getRole()));
+
+        return authorities;
     }
 
     @Override
@@ -39,8 +46,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return memberEntity.getStatus() != com.seoultech.ecc.entity.MemberStatus.BANNED
-                && memberEntity.getStatus() != com.seoultech.ecc.entity.MemberStatus.SUSPENDED;
+        return memberEntity.getStatus() != MemberStatus.BANNED
+                && memberEntity.getStatus() != MemberStatus.SUSPENDED;
     }
 
     @Override
@@ -50,6 +57,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return memberEntity.getStatus() == com.seoultech.ecc.entity.MemberStatus.ACTIVE;
+        // PENDING 상태와 ACTIVE 상태 모두 로그인 허용
+        return memberEntity.getStatus() == MemberStatus.ACTIVE ||
+                memberEntity.getStatus() == MemberStatus.PENDING;
     }
 }
