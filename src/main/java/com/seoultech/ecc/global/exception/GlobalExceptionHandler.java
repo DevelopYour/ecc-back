@@ -1,4 +1,4 @@
-package com.seoultech.ecc.exception;
+package com.seoultech.ecc.global.exception;
 
 import com.seoultech.ecc.member.dto.ResponseDto;
 import org.springframework.http.HttpStatus;
