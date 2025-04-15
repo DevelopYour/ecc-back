@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<ReportEntity, Long> {
-    List<ReportEntity> findByTeam_TeamIdOrderByWeekAsc(Long teamId);
+    List<ReportEntity> findByTeamIdOrderByWeekAsc(Long teamId);
     ReportEntity findByReportId(Long reportId);
 }

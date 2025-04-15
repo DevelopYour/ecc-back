@@ -15,11 +15,11 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    public List<ReviewEntity> findAllByMemberId(Long memberId) {
+    public List<ReviewEntity> findAllByMemberId(int memberId) {
         return reviewRepository.findAllByMember_Uuid(memberId);
     }
 
-    public List<ReviewEntity> findAllByReportAndMember(Long reportId, Long memberId) {
+    public List<ReviewEntity> findAllByReportAndMember(Long reportId, int memberId) {
         return reviewRepository.findAllByReport_ReportIdAndMember_Uuid(reportId, memberId);
     }
 

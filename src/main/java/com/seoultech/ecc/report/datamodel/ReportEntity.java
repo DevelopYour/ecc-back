@@ -15,18 +15,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "report")
-public class ReportEntity extends BaseEntity { // TODO: Document로 바꿀 예정이므로 contents에 JSON 형식으로 데이터 저장함
+public class ReportEntity extends BaseEntity {
+    // TODO: Document로 바꿀 예정이므로 조인관계 모두 id로 처리하고 contents에 JSON 형식으로 데이터 저장함
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
 
-    @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false)
-    private TeamEntity team;
+    @Column(nullable = false)
+    private Long teamId;
 
-    @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
-    private SubjectEntity subject;
+    @Column(nullable = false)
+    private Long subjectId;
 
     @Column(nullable = false)
     private int week;

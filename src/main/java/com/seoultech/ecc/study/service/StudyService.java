@@ -1,8 +1,11 @@
 package com.seoultech.ecc.study.service;
 
+import com.seoultech.ecc.expression.ExpressionDto;
 import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.dto.ReportDto;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.study.datamodel.StudyStatus;
+import com.seoultech.ecc.study.dto.StudyDto;
 import com.seoultech.ecc.study.dto.StudySummaryDto;
 import com.seoultech.ecc.study.dto.WeeklySummaryDto;
 import com.seoultech.ecc.study.repository.StudyRepository;
@@ -45,5 +48,28 @@ public class StudyService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    public Long createStudyRoom(Long teamId) {
+        // 보고서 초안 생성 후 보고서 아이디 받기
+        Long reportId = reportService.createReport(teamId);
+        // TODO: 공부방 생성 로직 추가 (REDIS의 STUDY HASH). 아이디를 보고서 아이디와 동일하게 지정하기
+        return reportId;
+    }
+
+    public void submitReport(Long reportId, List<ExpressionDto> expressions) {
+        ReportEntity report = reportService.findByReportId(reportId);
+        // TODO: Expressions 저장
+        StringBuilder contents = new StringBuilder();
+        for(ExpressionDto expression : expressions){
+            contents.append(expression.getExpression()).append(": ").append(expression.getDescription()).append("\n");
+        }
+        report.setContents(contents.toString());
+        report.setSubmitted(true);
+        reportService.saveReport(report);
+    }
+
+    public ReportEntity getReport(Long reportId) {
+        return reportService.findByReportId(reportId);
     }
 }

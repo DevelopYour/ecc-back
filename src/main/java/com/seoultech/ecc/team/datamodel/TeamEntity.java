@@ -45,6 +45,9 @@ public class TeamEntity extends BaseEntity {
     @Column(name = "is_regular", columnDefinition = "boolean default false")
     private boolean isRegular;
 
+    @Column(name = "study_count", nullable = false, columnDefinition = "int default 0")
+    private int studyCount;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamMemberEntity> teamMembers = new ArrayList<>();
 }
