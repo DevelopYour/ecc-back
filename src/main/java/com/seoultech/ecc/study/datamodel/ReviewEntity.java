@@ -1,9 +1,10 @@
 package com.seoultech.ecc.study.datamodel;
 
-import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.global.BaseEntity;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.report.datamodel.ReportEntity;
 import com.seoultech.ecc.team.datamodel.SubjectEntity;
+import com.seoultech.ecc.team.datamodel.TeamEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,26 +16,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "study")
-public class StudyEntity extends BaseEntity {
+@Table(name = "review")
+public class ReviewEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "study_id")
-    private Long studyId;
+    private Long reviewId;
 
     @ManyToOne
-    @JoinColumn(name = "team_id", nullable = false)
-    private TeamEntity team;
+    @JoinColumn(name = "member_uuid", nullable = false)
+    private MemberEntity member;
 
     @ManyToOne
     @JoinColumn(name = "report_id", nullable = false)
     private ReportEntity report;
 
-    @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
-    private SubjectEntity subject;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private StudyStatus status;
+    private ReviewStatus status;
 }

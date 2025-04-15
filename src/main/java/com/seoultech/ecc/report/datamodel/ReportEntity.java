@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "report")
-public class ReportEntity extends BaseEntity {
+public class ReportEntity extends BaseEntity { // TODO: Document로 바꿀 예정이므로 contents에 JSON 형식으로 데이터 저장함
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
@@ -36,4 +36,7 @@ public class ReportEntity extends BaseEntity {
 
     @Column(nullable = false)
     private int grade;
+
+    @Column(nullable = false)
+    private boolean isSubmitted;
 }

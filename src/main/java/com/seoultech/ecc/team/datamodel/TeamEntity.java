@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,4 +44,7 @@ public class TeamEntity extends BaseEntity {
 
     @Column(name = "is_regular", columnDefinition = "boolean default false")
     private boolean isRegular;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamMemberEntity> teamMembers = new ArrayList<>();
 }

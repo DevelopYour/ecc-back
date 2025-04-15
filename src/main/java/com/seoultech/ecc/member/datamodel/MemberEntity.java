@@ -1,10 +1,13 @@
 package com.seoultech.ecc.member.datamodel;
 
 import com.seoultech.ecc.global.BaseEntity;
+import com.seoultech.ecc.team.datamodel.TeamMemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -68,6 +71,9 @@ public class MemberEntity extends BaseEntity {
     public boolean isRefreshTokenExpired() {
         return refreshTokenExpiresAt != null && LocalDateTime.now().isAfter(refreshTokenExpiresAt);
     }
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamMemberEntity> teamMembers = new ArrayList<>();
 
     // 사용자가 특정 상태인지 확인하는 편의 메서드들
     public boolean isActive() {
