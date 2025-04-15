@@ -33,6 +33,15 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * 학번 중복 확인
+     * @param studentId 확인할 학번
+     * @return 학번 사용 가능 여부 (true: 사용 가능, false: 이미 사용 중)
+     */
+    public Boolean checkStudentIdAvailability(String studentId) {
+        return memberRepository.findByStudentId(studentId).isEmpty();
+    }
+
     @Transactional
     public MemberResponse signup(SignupRequest request) {
         // 이미 가입된 학번인지 확인

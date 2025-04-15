@@ -25,6 +25,26 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping("/signup/check-id")
+    @Operation(summary = "아이디 중복 확인", description = "이미 가입된 학번(ID)인지 검사합니다.")
+    public ResponseEntity<ResponseDto<Boolean>> checkStudentIdAvailability(@RequestParam String studentId) {
+        try {
+            // 학번 형식 검증 (8자리 숫자)
+            if (studentId == null || !studentId.matches("^\\d{8}$")) {
+                return ResponseEntity.badRequest().body(ResponseDto.error("학번은 8자리 숫자여야 합니다."));
+            }
+            
+            Boolean isAvailable = authService.checkStudentIdAvailability(studentId);
+            if (isAvailable) {
+                return ResponseEntity.ok(ResponseDto.success("사용 가능한 학번입니다.", true));
+            } else {
+                return ResponseEntity.ok(ResponseDto.success("이미 사용중인 학번입니다.", false));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseDto.error(e.getMessage()));
+        }
+    }
+
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "가입 신청 상태로 회원가입합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> signup(@Valid @RequestBody SignupRequest request) {
