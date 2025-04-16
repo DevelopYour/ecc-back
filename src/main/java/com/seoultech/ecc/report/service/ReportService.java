@@ -6,6 +6,7 @@ import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.team.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,14 +35,17 @@ public class ReportService {
         return reportRepository.findByReportId(reportId).isSubmitted();
     }
 
+    @Transactional
     public Long createReport(Long teamId) {
         TeamEntity team = teamRepository.findById(teamId).orElse(null); // TODO: 추후 처리 필요
         ReportEntity entity = new ReportEntity();
         entity.setTeamId(teamId);
-        entity.setSubmitted(false);
+        entity.setSubjectId(1L); // TODO: 추후 처리 필요
         entity.setWeek(team.getStudyCount() + 1);
         team.setStudyCount(team.getStudyCount() + 1);
-//        entity.setContents(); TODO: AI
+        entity.setGrade(0);
+        entity.setSubmitted(false);
+        entity.setContents(""); //TODO: AI
         return reportRepository.save(entity).getReportId();
     }
 }

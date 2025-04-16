@@ -2,16 +2,18 @@ package com.seoultech.ecc.study.service;
 
 import com.seoultech.ecc.expression.ExpressionDto;
 import com.seoultech.ecc.report.datamodel.ReportEntity;
-import com.seoultech.ecc.report.dto.ReportDto;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.study.datamodel.StudyStatus;
-import com.seoultech.ecc.study.dto.StudyDto;
-import com.seoultech.ecc.study.dto.StudySummaryDto;
-import com.seoultech.ecc.study.dto.WeeklySummaryDto;
-import com.seoultech.ecc.study.repository.StudyRepository;
+import com.seoultech.ecc.study.datamodel.redis.ExpressionRedis;
+import com.seoultech.ecc.study.datamodel.redis.StudyRedis;
+import com.seoultech.ecc.study.datamodel.redis.TopicRedis;
+import com.seoultech.ecc.study.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,25 +21,26 @@ import java.util.List;
 public class StudyService {
 
     @Autowired
-    private StudyRepository studyRepository;
-
-    @Autowired
     private ReportService reportService;
 
     @Autowired
     private ReviewService reviewService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     public List<WeeklySummaryDto> getTeamProgress(Long teamId) {
         List<ReportEntity> reports = reportService.findReportsByTeamId(teamId);
         List<WeeklySummaryDto> dtos = new ArrayList<>();
-        List<StudySummaryDto> studyList = new ArrayList<>();
         for (ReportEntity report : reports) {
             WeeklySummaryDto dto = new WeeklySummaryDto();
             StudySummaryDto studyDto = new StudySummaryDto();
             studyDto.setTeamId(teamId);
             studyDto.setWeek(report.getWeek());
-            // TODO: 해당 reportId를 갖는 REDIS HASH 존재 시 ONGOING으로 처리 로직 추가하기
-            if(report.isSubmitted()){ // 보고서 제출 완료
+            if (redisTemplate.hasKey("study:" + report.getReportId())) { // 진행중
+                studyDto.setStudyStatus(StudyStatus.ONGOING);
+                dto.setReviewSummaries(null);
+            } else if(report.isSubmitted()){ // 보고서 제출 완료
                 studyDto.setStudyStatus(StudyStatus.COMPLETE);
                 dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getReportId()));
             } else { // 보고서 미제출
@@ -50,12 +53,90 @@ public class StudyService {
         return dtos;
     }
 
-    public Long createStudyRoom(Long teamId) {
-        // 보고서 초안 생성 후 보고서 아이디 받기
-        Long reportId = reportService.createReport(teamId);
-        // TODO: 공부방 생성 로직 추가 (REDIS의 STUDY HASH). 아이디를 보고서 아이디와 동일하게 지정하기
-        return reportId;
+    @Transactional
+    public StudyRedis getStudyRoom(Long teamId) {
+        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
+        String teamStudyKey = "team:" + teamId + ":study";
+        String existingStudyId = (String) redisTemplate.opsForValue().get(teamStudyKey);
+        if (existingStudyId != null) {
+            String redisKey = "study:" + existingStudyId;
+            StudyRedis existingStudy = (StudyRedis) redisTemplate.opsForValue().get(redisKey);
+            if (existingStudy != null) return existingStudy;
+            // 예외 처리 (키는 있는데 값은 없는 경우)
+            throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
+        }
+        // 없으면 생성
+        Long reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
+        StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성 (빈 topic 목록)
+        redisTemplate.opsForValue().set("study:" + reportId, studyRedis, Duration.ofHours(2)); // 3. Redis 저장
+        redisTemplate.opsForValue().set(teamStudyKey, reportId.toString(), Duration.ofHours(2)); // 인덱싱용 저장
+        return studyRedis;
     }
+
+    public StudyRedis addTopicToStudy(Long studyId, List<TopicDto> topicDtos) {
+        String redisKey = "study:" + studyId;
+
+        // 1. Redis에서 기존 StudyRedis 객체 불러오기
+        StudyRedis study = (StudyRedis) redisTemplate.opsForValue().get(redisKey);
+        if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);
+
+        // 2. topic 리스트에 추가
+        for (TopicDto dto : topicDtos) {
+            TopicRedis topic = new TopicRedis();
+            Long newTopicId = redisTemplate.opsForValue().increment(redisKey + ":topic:id");
+            topic.setTopicId(newTopicId);
+            topic.setTopic(dto.getTopic());
+            topic.setCategory(dto.getCategory());
+            topic.setExpressions(new ArrayList<>());
+            study.getTopics().add(topic);
+        }
+
+        // 3. 다시 Redis에 저장 (전체 객체 갱신)
+        redisTemplate.opsForValue().set(redisKey, study);
+        return study;
+    }
+
+    @Transactional
+    public StudyRedis getAiHelpAndAdd(Long studyId, ExpressionToAskDto questionDto) {
+        // TODO: AI에게 결과 받아오기
+
+        String redisKey = "study:" + studyId;
+
+        // 1. study 찾기
+        StudyRedis study = (StudyRedis) redisTemplate.opsForValue().get(redisKey);
+        if (study == null) {
+            throw new IllegalArgumentException("Study not found for id: " + studyId);
+        }
+
+        // 2. topic 찾기
+        Long topicId = questionDto.getTopicId();
+        TopicRedis targetTopic = study.getTopics().stream()
+                .filter(t -> t.getTopicId().equals(topicId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found in study"));
+
+        // 3. expression
+        ExpressionRedis expression = new ExpressionRedis();
+        Long newExpressionId = redisTemplate.opsForValue().increment(redisKey + ":topic:" + topicId + ":expression:id");
+        expression.setExpressionId(newExpressionId);
+        expression.setQuestion(questionDto.getQuestion());
+        expression.setEnglish("monkey");// TODO: AI에게 결과 받아오기
+        expression.setKorean("원숭이");// TODO: AI에게 결과 받아오기
+        expression.setExample("His monkey wanted a banana.");// TODO: AI에게 결과 받아오기
+
+        // 4. 추가
+        targetTopic.getExpressions().add(expression);
+
+        // 5. 수정된 Study 전체 다시 저장
+        redisTemplate.opsForValue().set(redisKey, study);
+        return study;
+    }
+
+
+
+//    public StudyRedis getAiHelp(Long studyId, String request){
+//
+//    }
 
     public void submitReport(Long reportId, List<ExpressionDto> expressions) {
         ReportEntity report = reportService.findByReportId(reportId);
