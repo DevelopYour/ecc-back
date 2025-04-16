@@ -26,8 +26,8 @@ public class ReportService {
         return reportRepository.findByReportId(reportId);
     }
 
-    public void saveReport(ReportEntity reportEntity) {
-        reportRepository.save(reportEntity);
+    public Long saveReport(ReportEntity reportEntity) {
+        return reportRepository.save(reportEntity).getReportId();
     }
 
     // 보고서 제출 여부 확인

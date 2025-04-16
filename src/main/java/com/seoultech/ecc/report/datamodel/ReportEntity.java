@@ -30,7 +30,8 @@ public class ReportEntity extends BaseEntity {
     @Column(nullable = false)
     private int week;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String contents;
 
     @Column(nullable = false)

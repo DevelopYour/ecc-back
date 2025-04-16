@@ -1,6 +1,7 @@
 package com.seoultech.ecc.study.service;
 
-import com.seoultech.ecc.expression.ExpressionDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seoultech.ecc.report.datamodel.ReportEntity;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.study.datamodel.StudyStatus;
@@ -62,7 +63,7 @@ public class StudyService {
             String redisKey = "study:" + existingStudyId;
             StudyRedis existingStudy = (StudyRedis) redisTemplate.opsForValue().get(redisKey);
             if (existingStudy != null) return existingStudy;
-            // 예외 처리 (키는 있는데 값은 없는 경우)
+            // 예외 처리 (키는 있는데 값은 없는 경우
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
         // 없으면 생성
@@ -71,6 +72,12 @@ public class StudyService {
         redisTemplate.opsForValue().set("study:" + reportId, studyRedis, Duration.ofHours(2)); // 3. Redis 저장
         redisTemplate.opsForValue().set(teamStudyKey, reportId.toString(), Duration.ofHours(2)); // 인덱싱용 저장
         return studyRedis;
+    }
+
+    public List<TopicRecommendationDto> getTopicRecommendations(Long studyId) {
+        List<TopicRecommendationDto> dtos = new ArrayList<>();
+        // TODO: AI에게 목록 요청
+        return dtos;
     }
 
     public StudyRedis addTopicToStudy(Long studyId, List<TopicDto> topicDtos) {
@@ -83,7 +90,7 @@ public class StudyService {
         // 2. topic 리스트에 추가
         for (TopicDto dto : topicDtos) {
             TopicRedis topic = new TopicRedis();
-            Long newTopicId = redisTemplate.opsForValue().increment(redisKey + ":topic:id");
+            Long newTopicId = (long) (study.getTopics().size() + 1);
             topic.setTopicId(newTopicId);
             topic.setTopic(dto.getTopic());
             topic.setCategory(dto.getCategory());
@@ -92,7 +99,7 @@ public class StudyService {
         }
 
         // 3. 다시 Redis에 저장 (전체 객체 갱신)
-        redisTemplate.opsForValue().set(redisKey, study);
+        redisTemplate.opsForValue().set(redisKey, study, Duration.ofHours(2));
         return study;
     }
 
@@ -117,7 +124,7 @@ public class StudyService {
 
         // 3. expression
         ExpressionRedis expression = new ExpressionRedis();
-        Long newExpressionId = redisTemplate.opsForValue().increment(redisKey + ":topic:" + topicId + ":expression:id");
+        Long newExpressionId = (long) (targetTopic.getExpressions().size() + 1);
         expression.setExpressionId(newExpressionId);
         expression.setQuestion(questionDto.getQuestion());
         expression.setEnglish("monkey");// TODO: AI에게 결과 받아오기
@@ -128,7 +135,7 @@ public class StudyService {
         targetTopic.getExpressions().add(expression);
 
         // 5. 수정된 Study 전체 다시 저장
-        redisTemplate.opsForValue().set(redisKey, study);
+        redisTemplate.opsForValue().set(redisKey, study, Duration.ofHours(2));
         return study;
     }
 
@@ -138,16 +145,37 @@ public class StudyService {
 //
 //    }
 
-    public void submitReport(Long reportId, List<ExpressionDto> expressions) {
-        ReportEntity report = reportService.findByReportId(reportId);
-        // TODO: Expressions 저장
-        StringBuilder contents = new StringBuilder();
-        for(ExpressionDto expression : expressions){
-            contents.append(expression.getExpression()).append(": ").append(expression.getDescription()).append("\n");
+    @Transactional
+    public Long finishStudy(Long studyId) {
+        StudyRedis study = (StudyRedis) redisTemplate.opsForValue().get("study:" + studyId);
+        if (study == null) {
+            throw new IllegalArgumentException("Study not found for id: " + studyId);
         }
-        report.setContents(contents.toString());
+
+        // StudyRedis → JSON 문자열로 변환
+        String contents;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            contents = objectMapper.writeValueAsString(study);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert StudyRedis to JSON", e);
+        }
+
+        // 3. 보고서에 contents 저장
+        ReportEntity report = reportService.findByReportId(studyId);
+        report.setContents(contents);
+
+        // 4. Redis 키 삭제 (study, team 인덱싱)
+        redisTemplate.delete("study:" + studyId);
+        redisTemplate.delete("team:" + study.getTeamId() + ":study");
+
+        return studyId;
+    }
+
+    public Long submitReport(Long reportId) {
+        ReportEntity report = reportService.findByReportId(reportId);
         report.setSubmitted(true);
-        reportService.saveReport(report);
+        return reportService.saveReport(report);
     }
 
     public ReportEntity getReport(Long reportId) {
