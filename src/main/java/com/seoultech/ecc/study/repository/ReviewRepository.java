@@ -8,7 +8,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     List<ReviewEntity> findAllByMember_Uuid(Integer memberId);
 
-    List<ReviewEntity> findAllByReport_ReportIdAndMember_Uuid(Long reportId, Integer memberId);
+    List<ReviewEntity> findAllByReportIdAndMember_Uuid(String reportId, Integer memberId);
 
-    List<ReviewEntity> findAllByReport_ReportId(Long reportId);
+    List<ReviewEntity> findAllByReportId(String reportId);
 }

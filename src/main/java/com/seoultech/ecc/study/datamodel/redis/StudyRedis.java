@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudyRedis {
-    private Long id;
+    private String id;
     private Long teamId;
     private List<TopicRedis> topics;
 }

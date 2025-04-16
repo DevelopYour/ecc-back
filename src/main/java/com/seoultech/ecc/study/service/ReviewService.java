@@ -19,13 +19,14 @@ public class ReviewService {
         return reviewRepository.findAllByMember_Uuid(memberId);
     }
 
-    public List<ReviewEntity> findAllByReportAndMember(Long reportId, int memberId) {
-        return reviewRepository.findAllByReport_ReportIdAndMember_Uuid(reportId, memberId);
+    public List<ReviewEntity> findAllByReportAndMember(String reportId, int memberId) {
+        return reviewRepository.findAllByReportIdAndMember_Uuid(reportId, memberId);
     }
 
     // reportId로 팀원별 복습 현황 상태 확인
-    public List<ReviewSummaryDto> getReviewStatusInfos(Long reportId) {
-        List<ReviewEntity> reviews = reviewRepository.findAllByReport_ReportId(reportId);
+    // TODO: MongoDB 교체 후 수정
+    public List<ReviewSummaryDto> getReviewStatusInfos(String reportId) {
+        List<ReviewEntity> reviews = reviewRepository.findAllByReportId(reportId);
         List<ReviewSummaryDto> dtos = new ArrayList<>();
         for (ReviewEntity review : reviews) {
             ReviewSummaryDto dto = new ReviewSummaryDto();

@@ -2,7 +2,7 @@ package com.seoultech.ecc.study.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.study.datamodel.StudyStatus;
 import com.seoultech.ecc.study.datamodel.redis.ExpressionRedis;
@@ -31,19 +31,19 @@ public class StudyService {
     private RedisTemplate<String, Object> redisTemplate;
 
     public List<WeeklySummaryDto> getTeamProgress(Long teamId) {
-        List<ReportEntity> reports = reportService.findReportsByTeamId(teamId);
+        List<ReportDocument> reports = reportService.findReportsByTeamId(teamId);
         List<WeeklySummaryDto> dtos = new ArrayList<>();
-        for (ReportEntity report : reports) {
+        for (ReportDocument report : reports) {
             WeeklySummaryDto dto = new WeeklySummaryDto();
             StudySummaryDto studyDto = new StudySummaryDto();
             studyDto.setTeamId(teamId);
             studyDto.setWeek(report.getWeek());
-            if (redisTemplate.hasKey("study:" + report.getReportId())) { // 진행중
+            if (redisTemplate.hasKey("study:" + report.getId())) { // 진행중
                 studyDto.setStudyStatus(StudyStatus.ONGOING);
                 dto.setReviewSummaries(null);
             } else if(report.isSubmitted()){ // 보고서 제출 완료
                 studyDto.setStudyStatus(StudyStatus.COMPLETE);
-                dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getReportId()));
+                dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getId()));
             } else { // 보고서 미제출
                 studyDto.setStudyStatus(StudyStatus.DRAFTING);
                 dto.setReviewSummaries(null);
@@ -67,10 +67,10 @@ public class StudyService {
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
         // 없으면 생성
-        Long reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
+        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
         StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성 (빈 topic 목록)
         redisTemplate.opsForValue().set("study:" + reportId, studyRedis, Duration.ofHours(2)); // 3. Redis 저장
-        redisTemplate.opsForValue().set(teamStudyKey, reportId.toString(), Duration.ofHours(2)); // 인덱싱용 저장
+        redisTemplate.opsForValue().set(teamStudyKey, reportId, Duration.ofHours(2)); // 인덱싱용 저장
         return studyRedis;
     }
 
@@ -80,7 +80,7 @@ public class StudyService {
         return dtos;
     }
 
-    public StudyRedis addTopicToStudy(Long studyId, List<TopicDto> topicDtos) {
+    public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
         String redisKey = "study:" + studyId;
 
         // 1. Redis에서 기존 StudyRedis 객체 불러오기
@@ -104,7 +104,7 @@ public class StudyService {
     }
 
     @Transactional
-    public StudyRedis getAiHelpAndAdd(Long studyId, ExpressionToAskDto questionDto) {
+    public StudyRedis getAiHelpAndAdd(String studyId, ExpressionToAskDto questionDto) {
         // TODO: AI에게 결과 받아오기
 
         String redisKey = "study:" + studyId;
@@ -146,7 +146,7 @@ public class StudyService {
 //    }
 
     @Transactional
-    public Long finishStudy(Long studyId) {
+    public String finishStudy(String studyId) {
         StudyRedis study = (StudyRedis) redisTemplate.opsForValue().get("study:" + studyId);
         if (study == null) {
             throw new IllegalArgumentException("Study not found for id: " + studyId);
@@ -162,8 +162,9 @@ public class StudyService {
         }
 
         // 3. 보고서에 contents 저장
-        ReportEntity report = reportService.findByReportId(studyId);
+        ReportDocument report = reportService.findByReportId(studyId);
         report.setContents(contents);
+        reportService.saveReport(report);
 
         // 4. Redis 키 삭제 (study, team 인덱싱)
         redisTemplate.delete("study:" + studyId);
@@ -172,13 +173,13 @@ public class StudyService {
         return studyId;
     }
 
-    public Long submitReport(Long reportId) {
-        ReportEntity report = reportService.findByReportId(reportId);
+    public String submitReport(String reportId) {
+        ReportDocument report = reportService.findByReportId(reportId);
         report.setSubmitted(true);
         return reportService.saveReport(report);
     }
 
-    public ReportEntity getReport(Long reportId) {
+    public ReportDocument getReport(String reportId) {
         return reportService.findByReportId(reportId);
     }
 }

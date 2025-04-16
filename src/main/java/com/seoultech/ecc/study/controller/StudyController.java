@@ -1,7 +1,7 @@
 package com.seoultech.ecc.study.controller;
 
 import com.seoultech.ecc.expression.ExpressionDto;
-import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.study.datamodel.redis.StudyRedis;
 import com.seoultech.ecc.study.dto.*;
 import com.seoultech.ecc.study.service.StudyService;
@@ -43,31 +43,31 @@ public class StudyController {
 
     @PostMapping("/{studyId}/topic")
     @Operation(summary = "주제 선정", description = "주제 목록을 저장합니다.")
-    public ResponseEntity<StudyRedis> saveTopics(@PathVariable Long studyId, @RequestBody List<TopicDto> topics) {
+    public ResponseEntity<StudyRedis> saveTopics(@PathVariable String studyId, @RequestBody List<TopicDto> topics) {
         return ResponseEntity.ok(studyService.addTopicToStudy(studyId, topics));
     }
 
     @PostMapping("/{studyId}/ai-help")
     @Operation(summary = "AI 도움 받기", description = "AI에게 표현 관련 질문 후 해당 데이터를 저장합니다.")
-    public ResponseEntity<StudyRedis> getExpressionByAiHelp(@PathVariable Long studyId, @RequestBody ExpressionToAskDto question) {
+    public ResponseEntity<StudyRedis> getExpressionByAiHelp(@PathVariable String studyId, @RequestBody ExpressionToAskDto question) {
         return ResponseEntity.ok(studyService.getAiHelpAndAdd(studyId, question));
     }
 
     @PutMapping("/{studyId}")
     @Operation(summary = "스터디 종료", description = "StudyRedis의 데이터를 ReportDocument로 옮긴 뒤 삭제합니다.")
-    public ResponseEntity<Long> finishStudy(@PathVariable Long studyId) {
+    public ResponseEntity<String> finishStudy(@PathVariable String studyId) {
         return ResponseEntity.ok(studyService.finishStudy(studyId));
     }
 
     @GetMapping("/report/{reportId}")
     @Operation(summary = "보고서 조회", description = "보고서를 조회합니다.")
-    public ResponseEntity<ReportEntity> getReport(@PathVariable Long reportId) {
+    public ResponseEntity<ReportDocument> getReport(@PathVariable String reportId) {
         return ResponseEntity.ok(studyService.getReport(reportId));
     }
 
     @PatchMapping("/report/{reportId}")
     @Operation(summary = "보고서 제출", description = "최종 보고서를 제출합니다.")
-    public ResponseEntity<Long> submitReport(@PathVariable Long reportId, @RequestBody List<ExpressionDto> expressions) {
+    public ResponseEntity<String> submitReport(@PathVariable String reportId) {
         return ResponseEntity.ok(studyService.submitReport(reportId));
     }
 }

@@ -1,11 +1,12 @@
 package com.seoultech.ecc.report.repository;
 
-import com.seoultech.ecc.report.datamodel.ReportEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.seoultech.ecc.report.datamodel.ReportDocument;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ReportRepository extends JpaRepository<ReportEntity, Long> {
-    List<ReportEntity> findByTeamIdOrderByWeekAsc(Long teamId);
-    ReportEntity findByReportId(Long reportId);
+public interface ReportRepository extends MongoRepository<ReportDocument, String> {
+    List<ReportDocument> findByTeamIdOrderByWeekAsc(Long teamId);
+    ReportDocument getById(String reportId);
 }
