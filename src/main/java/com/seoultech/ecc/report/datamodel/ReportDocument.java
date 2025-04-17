@@ -1,22 +1,22 @@
 package com.seoultech.ecc.report.datamodel;
 
+import com.seoultech.ecc.global.BaseDocument;
+import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "report")
-public class ReportDocument {
+public class ReportDocument extends BaseDocument {
 
     @Id
     private String id;
@@ -25,6 +25,8 @@ public class ReportDocument {
 
     private Long subjectId;
 
+    private List<MemberSimpleDto> members;
+
     private int week;
 
     private String contents;
@@ -32,14 +34,4 @@ public class ReportDocument {
     private int grade;
 
     private boolean isSubmitted;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    private String createdBy;
-
-    private String updatedBy;
 }

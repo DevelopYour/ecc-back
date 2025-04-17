@@ -9,8 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewSummaryDto {
-    private Long reviewId;
-    private String memberId; // 학번
+    private String reviewId;
+    private Integer memberId; // uuid
     private String memberName;
     private ReviewStatus reviewStatus;
 }

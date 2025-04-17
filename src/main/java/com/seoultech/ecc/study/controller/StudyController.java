@@ -1,6 +1,5 @@
 package com.seoultech.ecc.study.controller;
 
-import com.seoultech.ecc.expression.ExpressionDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.study.datamodel.redis.StudyRedis;
 import com.seoultech.ecc.study.dto.*;
@@ -68,7 +67,7 @@ public class StudyController {
     @PatchMapping("/report/{reportId}")
     @Operation(summary = "보고서 제출", description = "최종 보고서를 제출합니다.")
     public ResponseEntity<String> submitReport(@PathVariable String reportId) {
-        return ResponseEntity.ok(studyService.submitReport(reportId));
+        return ResponseEntity.ok(studyService.submitReportAndCreateReview(reportId));
     }
 }
 

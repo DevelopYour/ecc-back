@@ -60,8 +60,7 @@ public class SecurityConfig {
         // 접근 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 // 인증 없이 접근 가능한 경로
-                .requestMatchers("/api/**", "/api-test/**",
-                        "/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
+                .requestMatchers("/**").permitAll()
                 // 관리자 전용 경로
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // 그 외 모든 요청은 인증 필요

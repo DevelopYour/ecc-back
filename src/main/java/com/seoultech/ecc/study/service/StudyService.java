@@ -161,7 +161,7 @@ public class StudyService {
             throw new RuntimeException("Failed to convert StudyRedis to JSON", e);
         }
 
-        // 3. 보고서에 contents 저장
+        // 3. 보고서 contents에 StudyRedis JSON 문자열 그대로 저장
         ReportDocument report = reportService.findByReportId(studyId);
         report.setContents(contents);
         reportService.saveReport(report);
@@ -173,9 +173,11 @@ public class StudyService {
         return studyId;
     }
 
-    public String submitReport(String reportId) {
+    @Transactional
+    public String submitReportAndCreateReview(String reportId) {
         ReportDocument report = reportService.findByReportId(reportId);
         report.setSubmitted(true);
+        reviewService.createReviews(report);
         return reportService.saveReport(report);
     }
 
