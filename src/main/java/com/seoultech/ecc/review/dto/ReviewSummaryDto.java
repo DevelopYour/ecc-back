@@ -1,6 +1,6 @@
-package com.seoultech.ecc.study.dto;
+package com.seoultech.ecc.review.dto;
 
-import com.seoultech.ecc.study.datamodel.ReviewStatus;
+import com.seoultech.ecc.review.datamodel.ReviewStatus;
 import lombok.*;
 
 @Getter

@@ -1,10 +1,10 @@
-package com.seoultech.ecc.study.service;
+package com.seoultech.ecc.review.service;
 
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
-import com.seoultech.ecc.study.datamodel.ReviewDocument;
-import com.seoultech.ecc.study.dto.ReviewSummaryDto;
-import com.seoultech.ecc.study.repository.ReviewRepository;
+import com.seoultech.ecc.review.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.dto.ReviewSummaryDto;
+import com.seoultech.ecc.review.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

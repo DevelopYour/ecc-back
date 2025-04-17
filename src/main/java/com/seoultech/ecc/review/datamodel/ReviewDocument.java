@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study.datamodel;
+package com.seoultech.ecc.review.datamodel;
 
 import com.seoultech.ecc.global.BaseDocument;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;

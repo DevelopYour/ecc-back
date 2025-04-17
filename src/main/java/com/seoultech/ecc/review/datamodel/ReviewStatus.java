@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study.datamodel;
+package com.seoultech.ecc.review.datamodel;
 
 public enum ReviewStatus {
     NOT_READY,     // 복습 불가 (스터디 미완료)

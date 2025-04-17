@@ -1,6 +1,6 @@
-package com.seoultech.ecc.study.repository;
+package com.seoultech.ecc.review.repository;
 
-import com.seoultech.ecc.study.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.datamodel.ReviewDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
