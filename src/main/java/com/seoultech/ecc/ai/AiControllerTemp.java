@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/ai")
-public class AiController {
+@RequestMapping("/ai-test")
+public class AiControllerTemp {
 
     private final ChatModel chatModel;
 
     @Autowired
-    public AiController(ChatModel chatModel) {
+    public AiControllerTemp(ChatModel chatModel) {
         this.chatModel = chatModel;
     }
 
