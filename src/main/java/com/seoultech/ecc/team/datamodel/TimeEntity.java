@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study.datamodel;
+package com.seoultech.ecc.team.datamodel;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +14,7 @@ public class TimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "time_id")
-    private int timeId;
+    private Integer timeId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

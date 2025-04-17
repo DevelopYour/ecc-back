@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study.datamodel;
+package com.seoultech.ecc.team.datamodel;
 
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import jakarta.persistence.*;
