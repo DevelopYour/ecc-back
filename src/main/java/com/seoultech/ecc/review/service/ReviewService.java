@@ -21,8 +21,8 @@ public class ReviewService {
         return reviewRepository.findAllByMemberId(memberId);
     }
 
-    public ReviewDocument findAllByReportAndMember(String reportId, int memberId) {
-        return reviewRepository.findByReportIdAndMemberId(reportId, memberId);
+    public ReviewDocument findByReviewId(String reviewId) {
+        return reviewRepository.findById(reviewId).orElse(null);
     }
 
     // reportId로 팀원별 복습 현황 상태 확인
