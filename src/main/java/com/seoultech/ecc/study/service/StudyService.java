@@ -59,16 +59,16 @@ public class StudyService {
     public StudyRedis getStudyRoom(Long teamId) {
         // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
         String teamStudyKey = "team:" + teamId + ":study";
-        String existingStudyId = (String) redisTemplate.opsForValue().get(teamStudyKey);
+        String existingStudyId = (String) redisTemplate.opsForValue().get(teamStudyKey); // 해당 팀의 스터디 redis 존재 여부 확인
         if (existingStudyId != null) {
             String redisKey = "study:" + existingStudyId;
-            StudyRedis existingStudy = (StudyRedis) redisTemplate.opsForValue().get(redisKey);
+            StudyRedis existingStudy = (StudyRedis) redisTemplate.opsForValue().get(redisKey); // 스터디Id로 redis 내용 확인
             if (existingStudy != null) return existingStudy;
             // 예외 처리 (키는 있는데 값은 없는 경우
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
         // 없으면 생성
-        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
+        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성 TODO: 보고서 초안은 있지만 study redis가 없는 경우 처리 필요 (생성날짜로 판단?)
         StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성 (빈 topic 목록)
         redisTemplate.opsForValue().set("study:" + reportId, studyRedis, Duration.ofHours(2)); // 3. Redis 저장
         redisTemplate.opsForValue().set(teamStudyKey, reportId, Duration.ofHours(2)); // 인덱싱용 저장
