@@ -2,6 +2,7 @@ package com.seoultech.ecc.review.controller;
 
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.datamodel.ReviewTestDocument;
 import com.seoultech.ecc.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,17 +36,16 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.findByReviewId(reviewId));
     }
 
-//    @PostMapping("/me/{reviewId}/test")
-//    @Operation(summary = "복습 테스트 문제 요청", description = "특정 복습자료에 대한 테스트 문제를 요청합니다.")
-//    public ResponseEntity<ReviewTestResponseDto> requestReviewTest(@PathVariable String reviewId) {
-//        return ResponseEntity.ok(reviewService.generateReviewTest(reviewId));
-//    }
-//
-//    @PatchMapping("/me/{reviewId}/test")
-//    @Operation(summary = "복습 테스트 제출", description = "사용자의 테스트 답안을 제출합니다.")
-//    public ResponseEntity<ReviewTestResponseDto> submitReviewTest(
-//            @PathVariable String reviewId,
-//            @RequestBody ReviewTestRequestDto requestDto) {
-//        return ResponseEntity.ok(reviewService.submitReviewTest(reviewId, requestDto));
-//    }
+    @PostMapping("/me/{reviewId}/test")
+    @Operation(summary = "복습 테스트 문제 요청", description = "특정 복습자료에 대한 테스트 문제를 요청합니다.")
+    public ResponseEntity<ReviewTestDocument> requestReviewTest(@PathVariable String reviewId,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(reviewService.getReviewTest(userDetails.getId(), reviewId));
+    }
+
+    @PatchMapping("/me/{reviewId}/test")
+    @Operation(summary = "복습 테스트 제출", description = "사용자의 테스트 답안을 제출합니다.")
+    public ResponseEntity<ReviewTestDocument> submitReviewTest(@RequestBody ReviewTestDocument test) {
+        return ResponseEntity.ok(reviewService.submitReviewTest(test));
+    }
 }
