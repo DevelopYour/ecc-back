@@ -1,7 +1,6 @@
 package com.seoultech.ecc.team.datamodel;
 
 import com.seoultech.ecc.global.BaseEntity;
-import com.seoultech.ecc.study.datamodel.TimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
