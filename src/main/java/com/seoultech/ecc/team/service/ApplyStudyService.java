@@ -6,7 +6,7 @@ import com.seoultech.ecc.member.repository.MemberRepository;
 import com.seoultech.ecc.team.datamodel.ApplyRegularStudyEntity;
 import com.seoultech.ecc.team.datamodel.SubjectEntity;
 import com.seoultech.ecc.team.datamodel.TimeEntity;
-import com.seoultech.ecc.team.dto.RegularStudyDto;
+import com.seoultech.ecc.team.dto.ApplyStudyDto;
 import com.seoultech.ecc.team.repository.ApplyRegularStudyRepository;
 import com.seoultech.ecc.team.repository.SubjectRepository;
 import com.seoultech.ecc.team.repository.TimeRepository;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RegularStudyService {
+public class ApplyStudyService {
 
     private final MemberRepository memberRepository;
     private final SubjectRepository subjectRepository;
@@ -30,7 +30,7 @@ public class RegularStudyService {
      * 정규 스터디 신청
      */
     @Transactional
-    public RegularStudyDto.ApplyListResponse applyRegularStudy(String studentId, RegularStudyDto.ApplyRequest request) {
+    public ApplyStudyDto.ApplyListResponse applyRegularStudy(String studentId, ApplyStudyDto.ApplyRequest request) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(studentId);
 
@@ -54,28 +54,28 @@ public class RegularStudyService {
             }
         }
 
-        return RegularStudyDto.ApplyListResponse.fromEntityList(savedEntities);
+        return ApplyStudyDto.ApplyListResponse.fromEntityList(savedEntities);
     }
 
     /**
      * 정규 스터디 신청 내역 조회
      */
     @Transactional(readOnly = true)
-    public RegularStudyDto.ApplyListResponse getRegularStudyApplications(String studentId) {
+    public ApplyStudyDto.ApplyListResponse getRegularStudyApplications(String studentId) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(studentId);
 
         // 신청 내역 조회
         List<ApplyRegularStudyEntity> applications = applyRegularStudyRepository.findByMember(member);
 
-        return RegularStudyDto.ApplyListResponse.fromEntityList(applications);
+        return ApplyStudyDto.ApplyListResponse.fromEntityList(applications);
     }
 
     /**
      * 정규 스터디 신청 내역 수정
      */
     @Transactional
-    public RegularStudyDto.ApplyListResponse updateRegularStudyApplications(String studentId, RegularStudyDto.UpdateRequest request) {
+    public ApplyStudyDto.ApplyListResponse updateRegularStudyApplications(String studentId, ApplyStudyDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(studentId);
 
@@ -101,7 +101,7 @@ public class RegularStudyService {
             }
         }
 
-        return RegularStudyDto.ApplyListResponse.fromEntityList(savedEntities);
+        return ApplyStudyDto.ApplyListResponse.fromEntityList(savedEntities);
     }
 
     /**

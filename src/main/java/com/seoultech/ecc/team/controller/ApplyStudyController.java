@@ -1,8 +1,8 @@
 package com.seoultech.ecc.team.controller;
 
 import com.seoultech.ecc.member.dto.ResponseDto;
-import com.seoultech.ecc.team.dto.RegularStudyDto;
-import com.seoultech.ecc.team.service.RegularStudyService;
+import com.seoultech.ecc.team.dto.ApplyStudyDto;
+import com.seoultech.ecc.team.service.ApplyStudyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "정규 스터디 API", description = "정규 스터디 신청 관련 API")
 @SecurityRequirement(name = "Bearer Authentication")
-public class RegularStudyController {
+public class ApplyStudyController {
 
-    private final RegularStudyService regularStudyService;
+    private final ApplyStudyService regularStudyService;
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청", description = "ACTIVE 상태의 회원이 정규 스터디를 신청합니다.")
-    public ResponseEntity<ResponseDto<RegularStudyDto.ApplyListResponse>> applyRegularStudy(
-            @Valid @RequestBody RegularStudyDto.ApplyRequest request) {
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> applyRegularStudy(
+            @Valid @RequestBody ApplyStudyDto.ApplyRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
 
-        RegularStudyDto.ApplyListResponse response = regularStudyService.applyRegularStudy(studentId, request);
+        ApplyStudyDto.ApplyListResponse response = regularStudyService.applyRegularStudy(studentId, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청이 완료되었습니다.", response));
     }
@@ -40,12 +40,12 @@ public class RegularStudyController {
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청 내역 조회", description = "현재 로그인한 회원의 정규 스터디 신청 내역을 조회합니다.")
-    public ResponseEntity<ResponseDto<RegularStudyDto.ApplyListResponse>> getRegularStudyApplications() {
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> getRegularStudyApplications() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
 
-        RegularStudyDto.ApplyListResponse response = regularStudyService.getRegularStudyApplications(studentId);
+        ApplyStudyDto.ApplyListResponse response = regularStudyService.getRegularStudyApplications(studentId);
 
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -53,13 +53,13 @@ public class RegularStudyController {
     @PutMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청 내역 수정", description = "현재 로그인한 회원의 정규 스터디 신청 내역을 수정합니다.")
-    public ResponseEntity<ResponseDto<RegularStudyDto.ApplyListResponse>> updateRegularStudyApplications(
-            @Valid @RequestBody RegularStudyDto.UpdateRequest request) {
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> updateRegularStudyApplications(
+            @Valid @RequestBody ApplyStudyDto.UpdateRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
 
-        RegularStudyDto.ApplyListResponse response = regularStudyService.updateRegularStudyApplications(studentId, request);
+        ApplyStudyDto.ApplyListResponse response = regularStudyService.updateRegularStudyApplications(studentId, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청 내역이 수정되었습니다.", response));
     }

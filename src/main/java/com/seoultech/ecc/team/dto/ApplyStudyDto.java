@@ -3,13 +3,12 @@ package com.seoultech.ecc.team.dto;
 import com.seoultech.ecc.team.datamodel.ApplyRegularStudyEntity;
 import com.seoultech.ecc.team.datamodel.TimeEntity;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RegularStudyDto {
+public class ApplyStudyDto {
 
     @Getter
     @Setter
