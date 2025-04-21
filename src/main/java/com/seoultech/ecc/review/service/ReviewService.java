@@ -3,11 +3,14 @@ package com.seoultech.ecc.review.service;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.datamodel.ReviewTestDocument;
 import com.seoultech.ecc.review.dto.ReviewSummaryDto;
 import com.seoultech.ecc.review.repository.ReviewRepository;
+import com.seoultech.ecc.review.repository.ReviewTestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +20,15 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private ReviewTestRepository reviewTestRepository;
+
     public List<ReviewDocument> findAllByMemberId(int memberId) {
         return reviewRepository.findAllByMemberId(memberId);
     }
 
-    public ReviewDocument findAllByReportAndMember(String reportId, int memberId) {
-        return reviewRepository.findByReportIdAndMemberId(reportId, memberId);
+    public ReviewDocument findByReviewId(String reviewId) {
+        return reviewRepository.findById(reviewId).orElse(null);
     }
 
     // reportId로 팀원별 복습 현황 상태 확인
@@ -50,4 +56,30 @@ public class ReviewService {
             reviewRepository.save(review);
         }
     }
+
+    public ReviewTestDocument getReviewTest(Integer userId, String reviewId) {
+        // reviewId로 이미 진행 중인 reviewTest Redis 확인 후 있으면 반환
+        ReviewTestDocument test = reviewTestRepository.findById(reviewId).orElse(null);
+        if(test == null){
+            test = new ReviewTestDocument();
+            test.setId(reviewId);
+            test.setUserId(userId);
+            test.setComplete(false);
+            // TODO: ai
+            //test.setQuestions(new ArrayList<>());
+            test = reviewTestRepository.save(test);
+        }
+        return test;
+
+    }
+
+    public ReviewTestDocument submitReviewTest(ReviewTestDocument test) {
+        // TODO: ai
+//        ReviewDocument test = aiService.gradeTest(test);
+        test.setComplete(true);
+        return test;
+    }
+
+
+
 }
