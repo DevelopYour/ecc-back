@@ -1,7 +1,26 @@
 package com.seoultech.ecc.team.repository;
 
 import com.seoultech.ecc.team.datamodel.TeamEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface TeamRepository extends JpaRepository<TeamEntity, Long> {
+    // 정규/번개 스터디 조회
+    List<TeamEntity> findByIsRegular(boolean isRegular, Sort sort);
+
+    // 생성자로 팀 조회
+    @Query("SELECT t FROM TeamEntity t WHERE t.createdBy = :studentId")
+    List<TeamEntity> findTeamsByCreator(@Param("studentId") String studentId, Sort sort);
+
+    // 팀원으로 팀 조회
+    @Query("SELECT t FROM TeamEntity t JOIN t.teamMembers tm JOIN tm.member m " +
+            "WHERE m.studentId = :studentId")
+    List<TeamEntity> findTeamsByMember(@Param("studentId") String studentId, Sort sort);
+
+    // 년도, 학기로 팀 조회
+    List<TeamEntity> findByYearAndSemester(int year, int semester, Sort sort);
 }
