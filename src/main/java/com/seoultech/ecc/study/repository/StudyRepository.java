@@ -1,6 +1,6 @@
-package com.seoultech.ecc.study;
+package com.seoultech.ecc.study.repository;
 
-import com.seoultech.ecc.study.datamodel.redis.StudyRedis;
+import com.seoultech.ecc.study.datamodel.StudyRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

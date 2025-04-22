@@ -1,5 +1,4 @@
-package com.seoultech.ecc.study.datamodel.redis;
-import com.seoultech.ecc.study.datamodel.TopicCategory;
+package com.seoultech.ecc.study.datamodel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

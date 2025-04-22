@@ -1,4 +1,4 @@
-package com.seoultech.ecc.study.datamodel.redis;
+package com.seoultech.ecc.study.datamodel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

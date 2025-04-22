@@ -1,7 +1,7 @@
 package com.seoultech.ecc.study.controller;
 
 import com.seoultech.ecc.report.datamodel.ReportDocument;
-import com.seoultech.ecc.study.datamodel.redis.StudyRedis;
+import com.seoultech.ecc.study.datamodel.StudyRedis;
 import com.seoultech.ecc.study.dto.*;
 import com.seoultech.ecc.study.service.StudyService;
 import io.swagger.v3.oas.annotations.Operation;
