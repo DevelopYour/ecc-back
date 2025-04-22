@@ -118,7 +118,7 @@ public class OneTimeTeamController {
         return ResponseEntity.ok(ResponseDto.success("번개 스터디 신청이 취소되었습니다.", response));
     }
 
-    @DeleteMapping("/{teamId}/cancel")
+    @DeleteMapping("/{teamId}")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "번개 스터디 취소", description = "번개 스터디를 취소합니다. 생성자만 취소 가능합니다.")
     public ResponseEntity<ResponseDto<Void>> cancelOneTimeTeam(
@@ -129,18 +129,5 @@ public class OneTimeTeamController {
 
         oneTimeTeamService.cancelOneTimeTeam(teamId, studentId);
         return ResponseEntity.ok(ResponseDto.success("번개 스터디가 취소되었습니다.", null));
-    }
-
-    @DeleteMapping("/{teamId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "번개 스터디 삭제", description = "번개 스터디를 데이터베이스에서 완전히 삭제합니다. 관리자만 삭제 가능합니다.")
-    public ResponseEntity<ResponseDto<Void>> deleteOneTimeTeam(
-            @PathVariable Long teamId
-    ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String studentId = authentication.getName();
-
-        oneTimeTeamService.deleteOneTimeTeam(teamId, studentId);
-        return ResponseEntity.ok(ResponseDto.success("번개 스터디가 삭제되었습니다.", null));
     }
 }

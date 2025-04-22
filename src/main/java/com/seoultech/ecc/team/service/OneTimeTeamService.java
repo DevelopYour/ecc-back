@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -148,7 +147,7 @@ public class OneTimeTeamService {
 
     /**
      * 번개 스터디 수정
-    */
+     */
     @Transactional
     public OneTimeTeamDto.Response updateOneTimeTeam(Long teamId, String studentId, OneTimeTeamDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
@@ -159,7 +158,7 @@ public class OneTimeTeamService {
         OneTimeTeamInfoEntity oneTimeInfo = team.getOneTimeInfo();
 
         // 권한 확인 (생성자 또는 관리자만 수정 가능)
-        checkUpdateDeletePermission(team, studentId);
+        checkUpdatePermission(team, studentId);
 
         // 이미 취소되었거나 완료된 스터디는 수정 불가
         if (oneTimeInfo.getStatus() == OneTimeTeamStatus.CANCELED ||
@@ -315,7 +314,7 @@ public class OneTimeTeamService {
 
         // 생성자는 취소할 수 없음 (삭제만 가능)
         if (team.getCreatedBy().equals(studentId)) {
-            throw new IllegalStateException("스터디 생성자는 신청 취소 대신 스터디를 삭제해야 합니다.");
+            throw new IllegalStateException("스터디 생성자는 신청 취소 대신 스터디를 취소해야 합니다.");
         }
 
         // 신청 취소 (팀원 삭제)
@@ -356,32 +355,6 @@ public class OneTimeTeamService {
         oneTimeInfo.setStatus(OneTimeTeamStatus.CANCELED);
         oneTimeInfo.setCanceledAt(LocalDateTime.now());
         teamRepository.save(team);
-    }
-
-    /**
-     * 번개 스터디 삭제 (관리자만 가능)
-     */
-    @Transactional
-    public void deleteOneTimeTeam(Long teamId, String studentId) {
-        // 회원 조회 및 상태 확인
-        getMemberAndCheckStatus(studentId);
-
-        // 관리자 권한 확인
-        if (!isAdmin(studentId)) {
-            throw new IllegalStateException("관리자만 번개 스터디를 삭제할 수 있습니다.");
-        }
-
-        // 팀 조회
-        TeamEntity team = getOneTimeTeam(teamId);
-
-        // 번개 스터디 정보 먼저 삭제 (외래 키 제약으로 인해)
-        oneTimeTeamInfoRepository.delete(team.getOneTimeInfo());
-
-        // 팀 멤버 정보 삭제 (외래 키 제약으로 인해)
-        teamMemberRepository.deleteAll(team.getTeamMembers());
-
-        // 팀 정보 삭제
-        teamRepository.delete(team);
     }
 
     /**
@@ -474,11 +447,11 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 수정/삭제 권한 확인 (생성자 또는 관리자만 가능)
+     * 수정 권한 확인 (생성자 또는 관리자만 가능)
      */
-    private void checkUpdateDeletePermission(TeamEntity team, String studentId) {
+    private void checkUpdatePermission(TeamEntity team, String studentId) {
         if (!team.getCreatedBy().equals(studentId) && !isAdmin(studentId)) {
-            throw new IllegalStateException("번개 스터디 생성자 또는 관리자만 수정/삭제할 수 있습니다.");
+            throw new IllegalStateException("번개 스터디 생성자 또는 관리자만 수정할 수 있습니다.");
         }
     }
 
