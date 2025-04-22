@@ -16,6 +16,7 @@ import com.seoultech.ecc.team.repository.TeamMemberRepository;
 import com.seoultech.ecc.team.repository.TeamRepository;
 import com.seoultech.ecc.team.repository.TimeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OneTimeTeamService {
@@ -41,23 +43,6 @@ public class OneTimeTeamService {
 
     // 기본 시간대 설정 (한국 시간)
     private static final ZoneId ZONE_ID = ZoneId.of("Asia/Seoul");
-
-    /**
-     * 모집 중인 번개 스터디 목록 조회
-     */
-    @Transactional(readOnly = true)
-    public OneTimeTeamDto.ListResponse getOneTimeTeams() {
-        List<OneTimeTeamInfoEntity> oneTimeInfos = oneTimeTeamInfoRepository.findByStatusIn(
-                List.of(OneTimeTeamStatus.RECRUITING, OneTimeTeamStatus.UPCOMING),
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
-
-        List<TeamEntity> teams = oneTimeInfos.stream()
-                .map(OneTimeTeamInfoEntity::getTeam)
-                .collect(Collectors.toList());
-
-        return OneTimeTeamDto.ListResponse.fromEntities(teams);
-    }
 
     /**
      * 전체 번개 스터디 목록 조회
@@ -207,11 +192,23 @@ public class OneTimeTeamService {
         }
 
         if (request.getMinMembers() != null) {
-            // 최소 인원은 현재 참여 인원보다 많게 설정할 수 없음
-            if (request.getMinMembers() > team.getTeamMembers().size()) {
-                throw new IllegalArgumentException("최소 인원은 현재 참여 중인 인원보다 많게 설정할 수 없습니다.");
+            // 최소 인원은 1명 이상이어야 함
+            if (request.getMinMembers() < 1) {
+                throw new IllegalArgumentException("최소 인원은 1명 이상이어야 합니다.");
             }
+
+            // 최소 인원은 최대 인원보다 클 수 없음
+            int maxMembers = request.getMaxMembers() != null ?
+                    request.getMaxMembers() : oneTimeInfo.getMaxMembers();
+            if (request.getMinMembers() > maxMembers) {
+                throw new IllegalArgumentException("최소 인원은 최대 인원보다 클 수 없습니다.");
+            }
+
+            // 최소 인원 설정
             oneTimeInfo.setMinMembers(request.getMinMembers());
+
+            // 상태 업데이트 (인원 변경으로 인한 상태 변화 반영)
+            oneTimeInfo.updateStatus();
         }
 
         // 시간 변경은 스터디가 시작되지 않은 경우에만 가능
@@ -333,10 +330,10 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 삭제 (개설자만 가능)
+     * 번개 스터디 취소 (생성자만 가능)
      */
     @Transactional
-    public void deleteOneTimeTeam(Long teamId, String studentId) {
+    public void cancelOneTimeTeam(Long teamId, String studentId) {
         // 회원 조회 및 상태 확인
         getMemberAndCheckStatus(studentId);
 
@@ -344,12 +341,77 @@ public class OneTimeTeamService {
         TeamEntity team = getOneTimeTeam(teamId);
         OneTimeTeamInfoEntity oneTimeInfo = team.getOneTimeInfo();
 
-        // 권한 확인 (생성자 또는 관리자만 삭제 가능)
-        checkUpdateDeletePermission(team, studentId);
+        // 권한 확인 (생성자만 취소 가능)
+        if (!team.getCreatedBy().equals(studentId)) {
+            throw new IllegalStateException("번개 스터디 생성자만 취소할 수 있습니다.");
+        }
 
-        // 삭제 대신 취소 상태로 변경
+        // 이미 시작된 스터디는 취소할 수 없음
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(oneTimeInfo.getStartTime())) {
+            throw new IllegalStateException("이미 시작된 번개 스터디는 취소할 수 없습니다.");
+        }
+
+        // 취소 상태로 변경 및 취소 시간 기록
         oneTimeInfo.setStatus(OneTimeTeamStatus.CANCELED);
+        oneTimeInfo.setCanceledAt(LocalDateTime.now());
         teamRepository.save(team);
+    }
+
+    /**
+     * 번개 스터디 삭제 (관리자만 가능)
+     */
+    @Transactional
+    public void deleteOneTimeTeam(Long teamId, String studentId) {
+        // 회원 조회 및 상태 확인
+        getMemberAndCheckStatus(studentId);
+
+        // 관리자 권한 확인
+        if (!isAdmin(studentId)) {
+            throw new IllegalStateException("관리자만 번개 스터디를 삭제할 수 있습니다.");
+        }
+
+        // 팀 조회
+        TeamEntity team = getOneTimeTeam(teamId);
+
+        // 번개 스터디 정보 먼저 삭제 (외래 키 제약으로 인해)
+        oneTimeTeamInfoRepository.delete(team.getOneTimeInfo());
+
+        // 팀 멤버 정보 삭제 (외래 키 제약으로 인해)
+        teamMemberRepository.deleteAll(team.getTeamMembers());
+
+        // 팀 정보 삭제
+        teamRepository.delete(team);
+    }
+
+    /**
+     * 취소된 번개 스터디 자동 삭제 스케줄러 (매일 새벽 3시에 실행)
+     */
+    @Scheduled(cron = "0 0 3 * * ?")
+    @Transactional
+    public void cleanupCanceledOneTimeTeams() {
+        LocalDateTime thresholdTime = LocalDateTime.now().minusDays(3);
+
+        // 3일 이상 경과된 취소 상태의 번개 스터디 조회
+        List<OneTimeTeamInfoEntity> canceledTeams = oneTimeTeamInfoRepository.findByCanceledBeforeAndStatus(
+                thresholdTime, OneTimeTeamStatus.CANCELED);
+
+        for (OneTimeTeamInfoEntity oneTimeInfo : canceledTeams) {
+            TeamEntity team = oneTimeInfo.getTeam();
+
+            // 번개 스터디 정보 먼저 삭제 (외래 키 제약으로 인해)
+            oneTimeTeamInfoRepository.delete(oneTimeInfo);
+
+            // 팀 멤버 정보 삭제 (외래 키 제약으로 인해)
+            teamMemberRepository.deleteAll(team.getTeamMembers());
+
+            // 팀 정보 삭제
+            teamRepository.delete(team);
+        }
+
+        if (!canceledTeams.isEmpty()) {
+            log.info("자동 정리: {} 개의 취소된 번개 스터디가 삭제되었습니다.", canceledTeams.size());
+        }
     }
 
     /**

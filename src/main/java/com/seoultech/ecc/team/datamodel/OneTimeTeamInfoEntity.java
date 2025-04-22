@@ -48,6 +48,9 @@ public class OneTimeTeamInfoEntity extends BaseEntity {
     @Column(name = "location")
     private String location;
 
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
     // 편의 메서드: 번개 스터디 신청 가능 여부 체크
     public boolean isApplicable() {
         LocalDateTime now = LocalDateTime.now();
@@ -66,18 +69,37 @@ public class OneTimeTeamInfoEntity extends BaseEntity {
 
     // 편의 메서드: 번개 스터디 상태 업데이트
     public void updateStatus() {
+        // 이미 취소된 상태는 변경하지 않음
         if (status == OneTimeTeamStatus.CANCELED) {
             return;
         }
 
         LocalDateTime now = LocalDateTime.now();
 
+        // 종료 시간이 지났으면 완료 상태로 변경
         if (now.isAfter(endTime)) {
             status = OneTimeTeamStatus.COMPLETED;
-        } else if (now.isAfter(startTime)) {
+        }
+        // 시작 시간이 지났으면 진행 중 상태로 변경
+        else if (now.isAfter(startTime)) {
             status = OneTimeTeamStatus.IN_PROGRESS;
-        } else if (team.getTeamMembers().size() >= minMembers) {
-            status = OneTimeTeamStatus.UPCOMING;
+        }
+        // 시작 전이라면, 인원수에 따라 상태 변경
+        else {
+            int currentMembers = team.getTeamMembers().size();
+
+            // 최대 인원이 충족되었으면 UPCOMING으로 변경
+            if (currentMembers >= maxMembers) {
+                status = OneTimeTeamStatus.UPCOMING;
+            }
+            // 최소 인원보다 적으면 항상 RECRUITING으로 변경 (기존 상태가 UPCOMING이더라도)
+            else if (currentMembers < minMembers) {
+                status = OneTimeTeamStatus.RECRUITING;
+            }
+            // 그 외(최소 인원은 충족, 최대 인원은 아직)는 RECRUITING 유지
+            else {
+                status = OneTimeTeamStatus.RECRUITING;
+            }
         }
     }
 }

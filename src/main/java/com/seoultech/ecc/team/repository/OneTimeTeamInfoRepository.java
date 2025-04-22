@@ -26,4 +26,12 @@ public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfo
     @Query("SELECT o FROM OneTimeTeamInfoEntity o JOIN o.team t JOIN t.teamMembers tm JOIN tm.member m " +
             "WHERE m.studentId = :studentId")
     List<OneTimeTeamInfoEntity> findOneTimeTeamsByMember(@Param("studentId") String studentId, Sort sort);
+
+    /**
+     * 지정된 날짜 이전에 취소된 번개 스터디 목록 조회
+     */
+    @Query("SELECT o FROM OneTimeTeamInfoEntity o WHERE o.status = :status AND o.canceledAt < :threshold")
+    List<OneTimeTeamInfoEntity> findByCanceledBeforeAndStatus(
+            @Param("threshold") LocalDateTime threshold,
+            @Param("status") OneTimeTeamStatus status);
 }

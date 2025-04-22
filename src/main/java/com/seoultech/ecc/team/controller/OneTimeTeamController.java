@@ -5,6 +5,8 @@ import com.seoultech.ecc.team.datamodel.OneTimeTeamStatus;
 import com.seoultech.ecc.team.dto.OneTimeTeamDto;
 import com.seoultech.ecc.team.service.OneTimeTeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,15 +27,8 @@ public class OneTimeTeamController {
     private final OneTimeTeamService oneTimeTeamService;
 
     @GetMapping
-    @Operation(summary = "모집 중인 번개 스터디 목록 조회", description = "모집 중인 번개 스터디 목록을 조회합니다.")
+    @Operation(summary = "전체 번개 스터디 목록 조회", description = "모든 번개 스터디 목록을 조회합니다.")
     public ResponseEntity<ResponseDto<OneTimeTeamDto.ListResponse>> getOneTimeTeams() {
-        OneTimeTeamDto.ListResponse response = oneTimeTeamService.getOneTimeTeams();
-        return ResponseEntity.ok(ResponseDto.success(response));
-    }
-
-    @GetMapping("/all")
-    @Operation(summary = "전체 번개 스터디 목록 조회", description = "완료된 스터디를 포함한 모든 번개 스터디 목록을 조회합니다.")
-    public ResponseEntity<ResponseDto<OneTimeTeamDto.ListResponse>> getAllOneTimeTeams() {
         OneTimeTeamDto.ListResponse response = oneTimeTeamService.getAllOneTimeTeams();
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -79,6 +74,13 @@ public class OneTimeTeamController {
             description = "번개 스터디 정보를 수정합니다. 생성자 또는 관리자만 수정 가능합니다. " +
                     "이미 시작된 스터디는 종료 시간, 위치, 설명만 수정 가능합니다."
     )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "번개 스터디 수정 정보",
+            required = true,
+            content = @Content(
+                    schema = @Schema(implementation = OneTimeTeamDto.UpdateRequest.class)
+            )
+    )
     public ResponseEntity<ResponseDto<OneTimeTeamDto.Response>> updateOneTimeTeam(
             @PathVariable Long teamId,
             @Valid @RequestBody OneTimeTeamDto.UpdateRequest request
@@ -116,9 +118,22 @@ public class OneTimeTeamController {
         return ResponseEntity.ok(ResponseDto.success("번개 스터디 신청이 취소되었습니다.", response));
     }
 
+    @DeleteMapping("/{teamId}/cancel")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "번개 스터디 취소", description = "번개 스터디를 취소합니다. 생성자만 취소 가능합니다.")
+    public ResponseEntity<ResponseDto<Void>> cancelOneTimeTeam(
+            @PathVariable Long teamId
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+
+        oneTimeTeamService.cancelOneTimeTeam(teamId, studentId);
+        return ResponseEntity.ok(ResponseDto.success("번개 스터디가 취소되었습니다.", null));
+    }
+
     @DeleteMapping("/{teamId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @Operation(summary = "번개 스터디 삭제", description = "번개 스터디를 삭제합니다. 생성자 또는 관리자만 삭제 가능합니다.")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "번개 스터디 삭제", description = "번개 스터디를 데이터베이스에서 완전히 삭제합니다. 관리자만 삭제 가능합니다.")
     public ResponseEntity<ResponseDto<Void>> deleteOneTimeTeam(
             @PathVariable Long teamId
     ) {
