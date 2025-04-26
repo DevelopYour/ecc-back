@@ -41,12 +41,32 @@ public class TeamEntity extends BaseEntity {
     @Column(nullable = false)
     private int semester;
 
-    @Column(name = "is_regular", columnDefinition = "boolean default false")
-    private boolean isRegular;
+    @Column(name = "is_regular", nullable = false, columnDefinition = "boolean default true")
+    private boolean isRegular = true;
 
     @Column(name = "study_count", nullable = false, columnDefinition = "int default 0")
     private int studyCount;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamMemberEntity> teamMembers = new ArrayList<>();
+
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private OneTimeTeamInfoEntity oneTimeInfo;
+
+    // 편의 메서드: 팀 멤버 수 반환
+    public int getMemberCount() {
+        return teamMembers.size();
+    }
+
+    // 편의 메서드: 번개 스터디 여부 확인
+    public boolean isOneTimeTeam() {
+        return !isRegular;
+    }
+
+    // 편의 메서드: 번개 스터디 상태 업데이트
+    public void updateOneTimeTeamStatus() {
+        if (isOneTimeTeam() && oneTimeInfo != null) {
+            oneTimeInfo.updateStatus();
+        }
+    }
 }

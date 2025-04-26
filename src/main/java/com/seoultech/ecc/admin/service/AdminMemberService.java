@@ -1,4 +1,4 @@
-package com.seoultech.ecc.admin;
+package com.seoultech.ecc.admin.service;
 
 import com.seoultech.ecc.member.dto.level.LevelChangeRequestDto;
 import com.seoultech.ecc.member.dto.MemberResponse;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class AdminMemberService {
 
     private final MemberRepository memberRepository;
     private final LevelChangeRequestRepository levelChangeRequestRepository;
