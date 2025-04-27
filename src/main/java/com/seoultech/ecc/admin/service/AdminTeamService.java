@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,7 +56,7 @@ public class AdminTeamService {
             if (isRegular != null) {
                 teams = teams.stream()
                         .filter(team -> team.isRegular() == isRegular)
-                        .collect(Collectors.toList());
+                        .toList();
             }
         } else if (isRegular != null) {
             // 정규 스터디 여부로만 필터링
@@ -71,7 +70,7 @@ public class AdminTeamService {
         // TeamDto 리스트로 변환하여 반환
         return teams.stream()
                 .map(TeamDto::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -89,7 +88,7 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀의 주차별 상세 정보 조회
+     * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용)
      */
     @Transactional(readOnly = true)
     public Object getTeamWeekDetail(Long teamId, int week, String adminId) {
@@ -98,6 +97,9 @@ public class AdminTeamService {
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
+
+        // 번개 스터디 체크
+        checkRegularStudy(team);
 
         // 주차별 보고서 조회
         List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
@@ -126,7 +128,7 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀의 주차별 보고서 조회
+     * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용)
      */
     @Transactional(readOnly = true)
     public ReportDocument getTeamWeekReport(Long teamId, int week, String adminId) {
@@ -134,7 +136,10 @@ public class AdminTeamService {
         checkAdminPermission(adminId);
 
         // 팀 조회
-        getTeamById(teamId);
+        TeamEntity team = getTeamById(teamId);
+
+        // 번개 스터디 체크
+        checkRegularStudy(team);
 
         // 주차별 보고서 조회
         List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
@@ -147,7 +152,33 @@ public class AdminTeamService {
     }
 
     /**
-     * 보고서 평가 점수 수정
+     * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재)
+     */
+    @Transactional(readOnly = true)
+    public ReportDocument getOneTimeTeamReport(Long teamId, String adminId) {
+        // 관리자 권한 확인
+        checkAdminPermission(adminId);
+
+        // 팀 조회
+        TeamEntity team = getTeamById(teamId);
+
+        // 정규 스터디 체크 (번개 스터디만 가능)
+        if (team.isRegular()) {
+            throw new IllegalArgumentException("번개 스터디가 아닙니다. 정규 스터디는 주차별 보고서 조회를 이용해주세요.");
+        }
+
+        // 번개 스터디 보고서 조회 (항상 첫 번째 보고서만 사용)
+        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+
+        if (reports.isEmpty()) {
+            throw new RuntimeException("해당 번개 스터디의 보고서가 존재하지 않습니다.");
+        }
+
+        return reports.get(0);
+    }
+
+    /**
+     * 보고서 평가 점수 수정 (정규 스터디 전용)
      */
     @Transactional
     public ReportDocument updateReportGrade(Long teamId, int week, int grade, String adminId) {
@@ -160,10 +191,36 @@ public class AdminTeamService {
         }
 
         // 팀 조회
-        getTeamById(teamId);
+        TeamEntity team = getTeamById(teamId);
+
+        // 번개 스터디 체크
+        checkRegularStudy(team);
 
         // 주차별 보고서 조회
         ReportDocument report = getTeamWeekReport(teamId, week, adminId);
+
+        // 점수 업데이트
+        report.setGrade(grade);
+
+        // 저장
+        return reportRepository.save(report);
+    }
+
+    /**
+     * 번개 스터디 보고서 평가 점수 수정
+     */
+    @Transactional
+    public ReportDocument updateOneTimeReportGrade(Long teamId, int grade, String adminId) {
+        // 관리자 권한 확인
+        checkAdminPermission(adminId);
+
+        // 점수 유효성 검사
+        if (grade < 0 || grade > 100) {
+            throw new IllegalArgumentException("평가 점수는 0-100 사이의 값이어야 합니다.");
+        }
+
+        // 번개 스터디 보고서 조회
+        ReportDocument report = getOneTimeTeamReport(teamId, adminId);
 
         // 점수 업데이트
         report.setGrade(grade);
@@ -202,7 +259,7 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 점수 수동 조정
+     * 팀 점수 수동 조정 (정규 스터디 전용)
      */
     @Transactional
     public TeamDto updateTeamScore(Long teamId, int score, String adminId) {
@@ -216,6 +273,9 @@ public class AdminTeamService {
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
+
+        // 번개 스터디 체크
+        checkRegularStudy(team);
 
         // 점수 업데이트
         team.setScore(score);
@@ -240,11 +300,12 @@ public class AdminTeamService {
         // 팀 멤버 조회 및 반환
         List<MemberSimpleDto> members = team.getTeamMembers().stream()
                 .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
-                .collect(Collectors.toList());
+                .toList();
 
         Map<String, Object> result = new HashMap<>();
         result.put("teamId", teamId);
         result.put("teamName", team.getName());
+        result.put("isRegular", team.isRegular());
         result.put("members", members);
 
         return result;
@@ -319,7 +380,7 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 출석/참여율 통계
+     * 팀 출석/참여율 통계 (정규 스터디 전용)
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getTeamAttendanceStats(Long teamId, String adminId) {
@@ -328,6 +389,9 @@ public class AdminTeamService {
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
+
+        // 번개 스터디 체크
+        checkRegularStudy(team);
 
         // 팀 보고서 조회
         List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
@@ -393,7 +457,7 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 보고서 제출/평가 현황 조회
+     * 팀 보고서 제출/평가 현황 조회 (정규 스터디 전용)
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getTeamReportsStatus(Integer year, Integer semester, String adminId) {
@@ -404,9 +468,12 @@ public class AdminTeamService {
         int currentYear = year != null ? year : LocalDateTime.now().getYear();
         int currentSemester = semester != null ? semester : (LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
 
-        // 필터에 맞는 팀 조회
+        // 필터에 맞는 팀 조회 (정규 스터디만)
         List<TeamEntity> teams = teamRepository.findByYearAndSemester(
-                currentYear, currentSemester, Sort.by(Sort.Direction.DESC, "createdAt"));
+                        currentYear, currentSemester, Sort.by(Sort.Direction.DESC, "createdAt"))
+                .stream()
+                .filter(TeamEntity::isRegular)
+                .toList();
 
         // 결과 저장 맵
         Map<String, Object> result = new HashMap<>();
@@ -515,6 +582,15 @@ public class AdminTeamService {
     private TeamEntity getTeamById(Long teamId) {
         return teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
+    }
+
+    /**
+     * 정규 스터디인지 확인 (번개 스터디인 경우 예외 발생)
+     */
+    private void checkRegularStudy(TeamEntity team) {
+        if (!team.isRegular()) {
+            throw new IllegalArgumentException("이 기능은 정규 스터디에만 제공됩니다. 번개 스터디에는 적용할 수 없습니다.");
+        }
     }
 
     /**

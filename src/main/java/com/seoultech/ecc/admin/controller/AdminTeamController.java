@@ -28,7 +28,7 @@ public class AdminTeamController {
     private final AdminTeamService adminTeamService;
 
     @GetMapping
-    @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다.")
+    @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다. 정규 스터디와 번개 스터디를 필터링할 수 있습니다.")
     public ResponseEntity<ResponseDto<List<TeamDto>>> getAllTeams(
             @RequestParam(required = false) Boolean isRegular,
             @RequestParam(required = false) Integer year,
@@ -42,7 +42,7 @@ public class AdminTeamController {
     }
 
     @GetMapping("/{teamId}")
-    @Operation(summary = "팀 상세 정보 조회", description = "특정 팀의 상세 정보를 조회합니다.")
+    @Operation(summary = "팀 상세 정보 조회", description = "특정 팀의 상세 정보를 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다.")
     public ResponseEntity<ResponseDto<TeamDto>> getTeamDetail(@PathVariable Long teamId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
@@ -52,7 +52,10 @@ public class AdminTeamController {
     }
 
     @GetMapping("/{teamId}/{week}")
-    @Operation(summary = "팀 주차별 상세 정보 조회", description = "특정 팀의 주차별 상세 정보를 조회합니다.")
+    @Operation(
+            summary = "팀 주차별 상세 정보 조회",
+            description = "특정 팀의 주차별 상세 정보를 조회합니다. 정규 스터디만 주차별 조회가 가능합니다."
+    )
     public ResponseEntity<ResponseDto<Object>> getTeamWeekDetail(
             @PathVariable Long teamId,
             @PathVariable int week) {
@@ -60,12 +63,36 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        Object weekDetail = adminTeamService.getTeamWeekDetail(teamId, week, adminId);
-        return ResponseEntity.ok(ResponseDto.success(weekDetail));
+        try {
+            Object weekDetail = adminTeamService.getTeamWeekDetail(teamId, week, adminId);
+            return ResponseEntity.ok(ResponseDto.success(weekDetail));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/one-time/{teamId}/report")
+    @Operation(
+            summary = "번개 스터디 보고서 조회",
+            description = "번개 스터디의 보고서를 조회합니다. 번개 스터디는 단일 보고서만 존재합니다."
+    )
+    public ResponseEntity<ResponseDto<ReportDocument>> getOneTimeTeamReport(@PathVariable Long teamId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String adminId = authentication.getName();
+
+        try {
+            ReportDocument report = adminTeamService.getOneTimeTeamReport(teamId, adminId);
+            return ResponseEntity.ok(ResponseDto.success(report));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @GetMapping("/{teamId}/{week}/report")
-    @Operation(summary = "팀 주차별 보고서 조회", description = "특정 팀의 주차별 보고서를 조회합니다.")
+    @Operation(
+            summary = "팀 주차별 보고서 조회",
+            description = "특정 팀의 주차별 보고서를 조회합니다. 정규 스터디만 주차별 보고서 조회가 가능합니다."
+    )
     public ResponseEntity<ResponseDto<ReportDocument>> getTeamWeekReport(
             @PathVariable Long teamId,
             @PathVariable int week) {
@@ -73,12 +100,19 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        ReportDocument report = adminTeamService.getTeamWeekReport(teamId, week, adminId);
-        return ResponseEntity.ok(ResponseDto.success(report));
+        try {
+            ReportDocument report = adminTeamService.getTeamWeekReport(teamId, week, adminId);
+            return ResponseEntity.ok(ResponseDto.success(report));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @PatchMapping("/{teamId}/{week}/report/grade")
-    @Operation(summary = "팀 보고서 평가 점수 수정", description = "특정 팀의 보고서 평가 점수를 수정합니다.")
+    @Operation(
+            summary = "정규 스터디 보고서 평가 점수 수정",
+            description = "정규 스터디의 주차별 보고서 평가 점수를 수정합니다."
+    )
     public ResponseEntity<ResponseDto<ReportDocument>> updateReportGrade(
             @PathVariable Long teamId,
             @PathVariable int week,
@@ -87,8 +121,32 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        ReportDocument updatedReport = adminTeamService.updateReportGrade(teamId, week, grade, adminId);
-        return ResponseEntity.ok(ResponseDto.success("보고서 평가 점수가 수정되었습니다.", updatedReport));
+        try {
+            ReportDocument updatedReport = adminTeamService.updateReportGrade(teamId, week, grade, adminId);
+            return ResponseEntity.ok(ResponseDto.success("보고서 평가 점수가 수정되었습니다.", updatedReport));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/one-time/{teamId}/report/grade")
+    @Operation(
+            summary = "번개 스터디 보고서 평가 점수 수정",
+            description = "번개 스터디의 보고서 평가 점수를 수정합니다."
+    )
+    public ResponseEntity<ResponseDto<ReportDocument>> updateOneTimeReportGrade(
+            @PathVariable Long teamId,
+            @RequestParam int grade) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String adminId = authentication.getName();
+
+        try {
+            ReportDocument updatedReport = adminTeamService.updateOneTimeReportGrade(teamId, grade, adminId);
+            return ResponseEntity.ok(ResponseDto.success("번개 스터디 보고서 평가 점수가 수정되었습니다.", updatedReport));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @DeleteMapping("/one-time/{teamId}")
@@ -100,12 +158,19 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        adminTeamService.deleteOneTimeTeam(teamId, adminId);
-        return ResponseEntity.ok(ResponseDto.success("번개 스터디가 삭제되었습니다.", null));
+        try {
+            adminTeamService.deleteOneTimeTeam(teamId, adminId);
+            return ResponseEntity.ok(ResponseDto.success("번개 스터디가 삭제되었습니다.", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @PatchMapping("/{teamId}/score")
-    @Operation(summary = "팀 점수 수동 조정", description = "특정 팀의 점수를 수동으로 조정합니다.")
+    @Operation(
+            summary = "팀 점수 수동 조정",
+            description = "정규 스터디 팀의 점수를 수동으로 조정합니다. 번개 스터디에는 적용되지 않습니다."
+    )
     public ResponseEntity<ResponseDto<TeamDto>> updateTeamScore(
             @PathVariable Long teamId,
             @RequestParam int score) {
@@ -113,12 +178,19 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        TeamDto updatedTeam = adminTeamService.updateTeamScore(teamId, score, adminId);
-        return ResponseEntity.ok(ResponseDto.success("팀 점수가 수정되었습니다.", updatedTeam));
+        try {
+            TeamDto updatedTeam = adminTeamService.updateTeamScore(teamId, score, adminId);
+            return ResponseEntity.ok(ResponseDto.success("팀 점수가 수정되었습니다.", updatedTeam));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @GetMapping("/{teamId}/members")
-    @Operation(summary = "팀 멤버 조회", description = "특정 팀의 멤버 목록을 조회합니다.")
+    @Operation(
+            summary = "팀 멤버 조회",
+            description = "특정 팀의 멤버 목록을 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다."
+    )
     public ResponseEntity<ResponseDto<Object>> getTeamMembers(@PathVariable Long teamId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
@@ -128,7 +200,10 @@ public class AdminTeamController {
     }
 
     @PostMapping("/{teamId}/members")
-    @Operation(summary = "팀 멤버 추가", description = "특정 팀에 멤버를 추가합니다.")
+    @Operation(
+            summary = "팀 멤버 추가",
+            description = "특정 팀에 멤버를 추가합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
+    )
     public ResponseEntity<ResponseDto<Object>> addTeamMember(
             @PathVariable Long teamId,
             @RequestParam String studentId) {
@@ -136,12 +211,19 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        Object result = adminTeamService.addTeamMember(teamId, studentId, adminId);
-        return ResponseEntity.ok(ResponseDto.success("팀원이 추가되었습니다.", result));
+        try {
+            Object result = adminTeamService.addTeamMember(teamId, studentId, adminId);
+            return ResponseEntity.ok(ResponseDto.success("팀원이 추가되었습니다.", result));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{teamId}/members/{studentId}")
-    @Operation(summary = "팀 멤버 삭제", description = "특정 팀에서 멤버를 삭제합니다.")
+    @Operation(
+            summary = "팀 멤버 삭제",
+            description = "특정 팀에서 멤버를 삭제합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
+    )
     public ResponseEntity<ResponseDto<Object>> removeTeamMember(
             @PathVariable Long teamId,
             @PathVariable String studentId) {
@@ -149,22 +231,36 @@ public class AdminTeamController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        Object result = adminTeamService.removeTeamMember(teamId, studentId, adminId);
-        return ResponseEntity.ok(ResponseDto.success("팀원이 삭제되었습니다.", result));
+        try {
+            Object result = adminTeamService.removeTeamMember(teamId, studentId, adminId);
+            return ResponseEntity.ok(ResponseDto.success("팀원이 삭제되었습니다.", result));
+        } catch (RuntimeException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @GetMapping("/{teamId}/attendance")
-    @Operation(summary = "팀 출석/참여율 통계", description = "특정 팀의 출석 및 참여율 통계를 조회합니다.")
+    @Operation(
+            summary = "팀 출석/참여율 통계",
+            description = "정규 스터디 팀의 출석 및 참여율 통계를 조회합니다. 번개 스터디에는 적용되지 않습니다."
+    )
     public ResponseEntity<ResponseDto<Map<String, Object>>> getTeamAttendanceStats(@PathVariable Long teamId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String adminId = authentication.getName();
 
-        Map<String, Object> stats = adminTeamService.getTeamAttendanceStats(teamId, adminId);
-        return ResponseEntity.ok(ResponseDto.success(stats));
+        try {
+            Map<String, Object> stats = adminTeamService.getTeamAttendanceStats(teamId, adminId);
+            return ResponseEntity.ok(ResponseDto.success(stats));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
+        }
     }
 
     @GetMapping("/reports/status")
-    @Operation(summary = "팀 보고서 제출/평가 현황 조회", description = "모든 팀의 보고서 제출 및 평가 현황을 조회합니다.")
+    @Operation(
+            summary = "정규 스터디 보고서 제출/평가 현황 조회",
+            description = "모든 정규 스터디 팀의 보고서 제출 및 평가 현황을 조회합니다. 번개 스터디는 포함되지 않습니다."
+    )
     public ResponseEntity<ResponseDto<Map<String, Object>>> getTeamReportsStatus(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester) {
