@@ -41,6 +41,15 @@ public class AdminMemberService {
     }
 
     /**
+     * 특정 회원 상세 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public MemberResponse getMemberDetail(String studentId) {
+        MemberEntity member = getMemberByStudentId(studentId);
+        return MemberResponse.fromEntity(member);
+    }
+
+    /**
      * 상태별 회원 조회
      */
     @Transactional(readOnly = true)
@@ -134,6 +143,7 @@ public class AdminMemberService {
 
     /**
      * 레벨 변경 요청 거절
+     * 거절 시 회원의 레벨을 변경하지 않고 요청 상태만 REJECTED로 변경
      */
     @Transactional
     public void rejectLevelChangeRequest(Long requestId) {
@@ -144,6 +154,7 @@ public class AdminMemberService {
             throw new RuntimeException("승인 대기 상태의 요청만 거절할 수 있습니다.");
         }
 
+        // 회원의 레벨은 변경하지 않고 요청 상태만 REJECTED로 변경
         request.setStatus(LevelChangeRequestEntity.RequestStatus.REJECTED);
         levelChangeRequestRepository.save(request);
     }
