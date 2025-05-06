@@ -52,15 +52,20 @@ public class TeamDto {
 
     /**
      * 상세 정보를 포함한 DTO 생성 (상세 조회용)
+     * uuid를 사용하도록 변경
      */
-    public static TeamDto fromEntityWithDetails(TeamEntity team, String currentUserId) {
+    public static TeamDto fromEntityWithDetails(TeamEntity team, Integer uuid) {
         // 팀 멤버 정보 변환
         List<MemberSimpleDto> members = team.getTeamMembers().stream()
                 .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
                 .collect(Collectors.toList());
 
         // 현재 사용자가 팀 생성자인지 확인
-        boolean isCreator = team.getCreatedBy().equals(currentUserId);
+        // team.getCreatedBy()는 문자열(studentId)이므로
+        // 팀 멤버에서 uuid로 멤버를 찾고 그 멤버의 studentId가 createdBy와 일치하는지 확인
+        boolean isCreator = team.getTeamMembers().stream()
+                .anyMatch(tm -> tm.getMember().getUuid().equals(uuid) &&
+                        tm.getMember().getStudentId().equals(team.getCreatedBy()));
 
         return TeamDto.builder()
                 .teamId(team.getTeamId())

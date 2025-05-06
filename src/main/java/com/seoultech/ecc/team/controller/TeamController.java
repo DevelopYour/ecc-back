@@ -69,8 +69,9 @@ public class TeamController {
     public ResponseEntity<ResponseDto<TeamDto>> getTeamDetail(@PathVariable Long teamId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
+        Integer uuid = (Integer) authentication.getCredentials();
 
-        TeamDto teamDetail = teamService.getTeamDetail(teamId, studentId);
+        TeamDto teamDetail = teamService.getTeamDetail(teamId, uuid);
         return ResponseEntity.ok(ResponseDto.success(teamDetail));
     }
 }

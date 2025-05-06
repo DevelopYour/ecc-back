@@ -82,7 +82,7 @@ public class AuthService {
     @Transactional
     public TokenResponse login(LoginRequest request) {
         try {
-            // 학번으로 회원 조회
+            // 학번으로 회원 조회 (로그인 시 studentId 사용은 유지)
             MemberEntity member = memberRepository.findByStudentId(request.getStudentId())
                     .orElseThrow(() -> new RuntimeException("등록되지 않은 학번입니다."));
 
@@ -99,7 +99,7 @@ public class AuthService {
             // 인증 정보 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 토큰 생성 및 반환
+            // 토큰 생성 및 반환 (JwtService에서는 uuid와 studentId 모두 사용)
             return jwtService.generateTokens(member);
 
         } catch (BadCredentialsException e) {
@@ -109,7 +109,7 @@ public class AuthService {
 
     @Transactional
     public void logout(Integer uuid) {
-        // Refresh Token 삭제
+        // Refresh Token 삭제 - UUID 사용
         jwtService.logout(uuid);
 
         // 현재 인증 정보 삭제

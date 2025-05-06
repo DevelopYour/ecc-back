@@ -179,12 +179,19 @@ public class OneTimeTeamDto {
         private boolean canCancel;
         private boolean isCreator;
 
-        public static DetailResponse fromEntity(TeamEntity entity, String currentUserId) {
+        public static DetailResponse fromEntity(TeamEntity entity, Integer uuid) {
             if (entity == null || entity.getOneTimeInfo() == null) {
                 throw new IllegalArgumentException("유효하지 않은 번개 스터디 엔티티입니다.");
             }
 
-            boolean isCreator = entity.getCreatedBy().equals(currentUserId);
+            // 로그인한 회원(uuid)이 팀의 생성자인지 확인
+            // createdBy 필드는 문자열(studentId)이므로,
+            // 팀 멤버 중 uuid가 일치하는 경우를 찾아 체크해야 할 수 있음
+            // 간단하게는 팀의 teamMembers 중에서 member.getUuid()가 현재 uuid와 일치하는지 확인하고,
+            // 해당 멤버의 studentId가 team.getCreatedBy()와 일치하는지 확인
+            boolean isCreator = entity.getTeamMembers().stream()
+                    .anyMatch(tm -> tm.getMember().getUuid().equals(uuid) &&
+                            tm.getMember().getStudentId().equals(entity.getCreatedBy()));
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
                     .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))

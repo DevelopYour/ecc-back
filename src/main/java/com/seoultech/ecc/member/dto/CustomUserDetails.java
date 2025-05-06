@@ -29,7 +29,11 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    public Integer getId(){
+    /**
+     * UUID 반환 (memberEntity.getUuid())
+     * 회원 식별 시 항상 이 메서드를 사용
+     */
+    public Integer getId() {
         return memberEntity.getUuid();
     }
 
@@ -38,9 +42,20 @@ public class CustomUserDetails implements UserDetails {
         return memberEntity.getPassword();
     }
 
+    /**
+     * 로그인 ID(학번) 반환
+     * Security 인증에만 사용되고 엔티티 참조에는 사용하지 않음
+     */
     @Override
     public String getUsername() {
         return memberEntity.getStudentId();
+    }
+
+    /**
+     * 멤버 이름 반환 (표시용)
+     */
+    public String getName() {
+        return memberEntity.getName();
     }
 
     @Override

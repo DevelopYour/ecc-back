@@ -37,12 +37,12 @@ public class AdminTeamService {
     private final ReviewRepository reviewRepository;
 
     /**
-     * 전체 팀 목록 조회 (필터링 옵션 포함)
+     * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getAllTeams(String adminId, Boolean isRegular, Integer year, Integer semester) {
+    public List<TeamDto> getAllTeams(Integer adminUuid, Boolean isRegular, Integer year, Integer semester) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 필터 조합에 따른 조회 로직
         List<TeamEntity> teams;
@@ -74,26 +74,26 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀 상세 정보 조회
+     * 특정 팀 상세 정보 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Long teamId, String adminId) {
+    public TeamDto getTeamDetail(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
 
-        return TeamDto.fromEntityWithDetails(team, adminId);
+        return TeamDto.fromEntityWithDetails(team, adminUuid);
     }
 
     /**
-     * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용)
+     * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamWeekDetail(Long teamId, int week, String adminId) {
+    public Object getTeamWeekDetail(Long teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -128,12 +128,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용)
+     * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getTeamWeekReport(Long teamId, int week, String adminId) {
+    public ReportDocument getTeamWeekReport(Long teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -152,12 +152,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재)
+     * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getOneTimeTeamReport(Long teamId, String adminId) {
+    public ReportDocument getOneTimeTeamReport(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -178,12 +178,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 보고서 평가 점수 수정 (정규 스터디 전용)
+     * 보고서 평가 점수 수정 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateReportGrade(Long teamId, int week, int grade, String adminId) {
+    public ReportDocument updateReportGrade(Long teamId, int week, int grade, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 점수 유효성 검사
         if (grade < 0 || grade > 100) {
@@ -197,7 +197,7 @@ public class AdminTeamService {
         checkRegularStudy(team);
 
         // 주차별 보고서 조회
-        ReportDocument report = getTeamWeekReport(teamId, week, adminId);
+        ReportDocument report = getTeamWeekReport(teamId, week, adminUuid);
 
         // 점수 업데이트
         report.setGrade(grade);
@@ -207,12 +207,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 번개 스터디 보고서 평가 점수 수정
+     * 번개 스터디 보고서 평가 점수 수정 (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateOneTimeReportGrade(Long teamId, int grade, String adminId) {
+    public ReportDocument updateOneTimeReportGrade(Long teamId, int grade, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 점수 유효성 검사
         if (grade < 0 || grade > 100) {
@@ -220,7 +220,7 @@ public class AdminTeamService {
         }
 
         // 번개 스터디 보고서 조회
-        ReportDocument report = getOneTimeTeamReport(teamId, adminId);
+        ReportDocument report = getOneTimeTeamReport(teamId, adminUuid);
 
         // 점수 업데이트
         report.setGrade(grade);
@@ -230,12 +230,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 관리자 전용 - 번개 스터디 완전 삭제
+     * 관리자 전용 - 번개 스터디 완전 삭제 (UUID 사용)
      */
     @Transactional
-    public void deleteOneTimeTeam(Long teamId, String adminId) {
+    public void deleteOneTimeTeam(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -259,12 +259,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 점수 수동 조정 (정규 스터디 전용)
+     * 팀 점수 수동 조정 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional
-    public TeamDto updateTeamScore(Long teamId, int score, String adminId) {
+    public TeamDto updateTeamScore(Long teamId, int score, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 점수 유효성 검사
         if (score < 0 || score > 100) {
@@ -283,16 +283,16 @@ public class AdminTeamService {
         // 저장
         TeamEntity updatedTeam = teamRepository.save(team);
 
-        return TeamDto.fromEntityWithDetails(updatedTeam, adminId);
+        return TeamDto.fromEntityWithDetails(updatedTeam, adminUuid);
     }
 
     /**
-     * 팀 멤버 조회
+     * 팀 멤버 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamMembers(Long teamId, String adminId) {
+    public Object getTeamMembers(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -312,23 +312,23 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀에 멤버 추가
+     * 팀에 멤버 추가 (UUID 사용)
      */
     @Transactional
-    public Object addTeamMember(Long teamId, String studentId, String adminId) {
+    public Object addTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
 
-        // 추가할 회원 조회
-        MemberEntity member = memberRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. 학번: " + studentId));
+        // 추가할 회원 조회 (UUID 사용)
+        MemberEntity member = memberRepository.findById(memberUuid)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + memberUuid));
 
         // 이미 팀에 속해 있는지 확인
         boolean alreadyInTeam = team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getStudentId().equals(studentId));
+                .anyMatch(tm -> tm.getMember().getUuid().equals(memberUuid));
 
         if (alreadyInTeam) {
             throw new IllegalStateException("이미 팀에 속해 있는 회원입니다.");
@@ -347,23 +347,23 @@ public class AdminTeamService {
         teamMemberRepository.save(teamMember);
 
         // 결과 반환을 위해 다시 조회
-        return getTeamMembers(teamId, adminId);
+        return getTeamMembers(teamId, adminUuid);
     }
 
     /**
-     * 팀에서 멤버 삭제
+     * 팀에서 멤버 삭제 (UUID 사용)
      */
     @Transactional
-    public Object removeTeamMember(Long teamId, String studentId, String adminId) {
+    public Object removeTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
 
         // 팀에서 해당 멤버 찾기
         Optional<TeamMemberEntity> teamMemberOpt = team.getTeamMembers().stream()
-                .filter(tm -> tm.getMember().getStudentId().equals(studentId))
+                .filter(tm -> tm.getMember().getUuid().equals(memberUuid))
                 .findFirst();
 
         if (teamMemberOpt.isEmpty()) {
@@ -376,16 +376,16 @@ public class AdminTeamService {
         teamMemberRepository.delete(teamMember);
 
         // 결과 반환을 위해 다시 조회
-        return getTeamMembers(teamId, adminId);
+        return getTeamMembers(teamId, adminUuid);
     }
 
     /**
-     * 팀 출석/참여율 통계 (정규 스터디 전용)
+     * 팀 출석/참여율 통계 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamAttendanceStats(Long teamId, String adminId) {
+    public Map<String, Object> getTeamAttendanceStats(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 팀 조회
         TeamEntity team = getTeamById(teamId);
@@ -457,12 +457,12 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 보고서 제출/평가 현황 조회 (정규 스터디 전용)
+     * 팀 보고서 제출/평가 현황 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamReportsStatus(Integer year, Integer semester, String adminId) {
+    public Map<String, Object> getTeamReportsStatus(Integer year, Integer semester, Integer adminUuid) {
         // 관리자 권한 확인
-        checkAdminPermission(adminId);
+        checkAdminPermission(adminUuid);
 
         // 현재 기본 연도와 학기 설정 (필터링을 위한 기본값)
         int currentYear = year != null ? year : LocalDateTime.now().getYear();
@@ -594,10 +594,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 관리자 권한 확인
+     * 관리자 권한 확인 (UUID 사용)
      */
-    private void checkAdminPermission(String studentId) {
-        MemberEntity admin = memberRepository.findByStudentId(studentId)
+    private void checkAdminPermission(Integer uuid) {
+        MemberEntity admin = memberRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 관리자입니다."));
 
         if (!"ROLE_ADMIN".equals(admin.getRole())) {

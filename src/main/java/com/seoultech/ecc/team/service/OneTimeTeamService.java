@@ -73,21 +73,21 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 상세 조회
+     * 번개 스터디 상세 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Long teamId, String currentUserId) {
+    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Long teamId, Integer uuid) {
         TeamEntity team = getOneTimeTeam(teamId);
-        return OneTimeTeamDto.DetailResponse.fromEntity(team, currentUserId);
+        return OneTimeTeamDto.DetailResponse.fromEntity(team, uuid);
     }
 
     /**
-     * 번개 스터디 생성
+     * 번개 스터디 생성 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response createOneTimeTeam(String studentId, OneTimeTeamDto.CreateRequest request) {
+    public OneTimeTeamDto.Response createOneTimeTeam(Integer uuid, OneTimeTeamDto.CreateRequest request) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 현재 시간 (서버 시간대 기준)
         LocalDateTime now = LocalDateTime.now();
@@ -137,6 +137,11 @@ public class OneTimeTeamService {
 
         team.setOneTimeInfo(oneTimeInfo);
 
+        // 생성자를 CreatedBy 필드에 저장 (UUID 대신 studentId 사용)
+        // CreatedBy 필드가 문자열이므로 studentId를 사용
+        String studentId = member.getStudentId();
+        team.setCreatedBy(studentId);
+
         TeamEntity savedTeam = teamRepository.save(team);
 
         // 생성자를 팀원으로 자동 추가
@@ -146,19 +151,19 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 수정
+     * 번개 스터디 수정 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response updateOneTimeTeam(Long teamId, String studentId, OneTimeTeamDto.UpdateRequest request) {
+    public OneTimeTeamDto.Response updateOneTimeTeam(Long teamId, Integer uuid, OneTimeTeamDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
-        getMemberAndCheckStatus(studentId);
+        getMemberAndCheckStatus(uuid);
 
         // 팀 조회
         TeamEntity team = getOneTimeTeam(teamId);
         OneTimeTeamInfoEntity oneTimeInfo = team.getOneTimeInfo();
 
         // 권한 확인 (생성자 또는 관리자만 수정 가능)
-        checkUpdatePermission(team, studentId);
+        checkUpdatePermission(team, uuid);
 
         // 이미 취소되었거나 완료된 스터디는 수정 불가
         if (oneTimeInfo.getStatus() == OneTimeTeamStatus.CANCELED ||
@@ -252,12 +257,12 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 신청
+     * 번개 스터디 신청 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response applyToOneTimeTeam(Long teamId, String studentId) {
+    public OneTimeTeamDto.Response applyToOneTimeTeam(Long teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 팀 조회
         TeamEntity team = getOneTimeTeam(teamId);
@@ -270,7 +275,7 @@ public class OneTimeTeamService {
 
         // 이미 신청한 회원인지 확인
         boolean alreadyApplied = team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getStudentId().equals(studentId));
+                .anyMatch(tm -> tm.getMember().getUuid().equals(uuid));
 
         if (alreadyApplied) {
             throw new IllegalStateException("이미 신청한 번개 스터디입니다.");
@@ -287,12 +292,12 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 신청 취소
+     * 번개 스터디 신청 취소 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Long teamId, String studentId) {
+    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Long teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 팀 조회
         TeamEntity team = getOneTimeTeam(teamId);
@@ -305,7 +310,7 @@ public class OneTimeTeamService {
 
         // 팀원인지 확인
         Optional<TeamMemberEntity> teamMember = team.getTeamMembers().stream()
-                .filter(tm -> tm.getMember().getStudentId().equals(studentId))
+                .filter(tm -> tm.getMember().getUuid().equals(uuid))
                 .findFirst();
 
         if (teamMember.isEmpty()) {
@@ -313,7 +318,7 @@ public class OneTimeTeamService {
         }
 
         // 생성자는 취소할 수 없음 (삭제만 가능)
-        if (team.getCreatedBy().equals(studentId)) {
+        if (isCreator(team, uuid)) {
             throw new IllegalStateException("스터디 생성자는 신청 취소 대신 스터디를 취소해야 합니다.");
         }
 
@@ -329,19 +334,19 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 취소 (생성자만 가능)
+     * 번개 스터디 취소 (생성자만 가능) (UUID 사용)
      */
     @Transactional
-    public void cancelOneTimeTeam(Long teamId, String studentId) {
+    public void cancelOneTimeTeam(Long teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
-        getMemberAndCheckStatus(studentId);
+        getMemberAndCheckStatus(uuid);
 
         // 팀 조회
         TeamEntity team = getOneTimeTeam(teamId);
         OneTimeTeamInfoEntity oneTimeInfo = team.getOneTimeInfo();
 
         // 권한 확인 (생성자만 취소 가능)
-        if (!team.getCreatedBy().equals(studentId)) {
+        if (!isCreator(team, uuid)) {
             throw new IllegalStateException("번개 스터디 생성자만 취소할 수 있습니다.");
         }
 
@@ -425,11 +430,11 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 회원 조회 및 상태 확인 (ACTIVE만 가능)
+     * 회원 조회 및 상태 확인 (ACTIVE만 가능) (UUID 사용)
      */
-    private MemberEntity getMemberAndCheckStatus(String studentId) {
-        MemberEntity member = memberRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. 학번: " + studentId));
+    private MemberEntity getMemberAndCheckStatus(Integer uuid) {
+        MemberEntity member = memberRepository.findById(uuid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. UUID: " + uuid));
 
         if (member.getStatus() != MemberStatus.ACTIVE) {
             throw new IllegalStateException("ACTIVE 상태의 회원만 번개 스터디를 이용할 수 있습니다.");
@@ -447,19 +452,28 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 수정 권한 확인 (생성자 또는 관리자만 가능)
+     * 수정 권한 확인 (생성자 또는 관리자만 가능) (UUID 사용)
      */
-    private void checkUpdatePermission(TeamEntity team, String studentId) {
-        if (!team.getCreatedBy().equals(studentId) && !isAdmin(studentId)) {
+    private void checkUpdatePermission(TeamEntity team, Integer uuid) {
+        if (!isCreator(team, uuid) && !isAdmin(uuid)) {
             throw new IllegalStateException("번개 스터디 생성자 또는 관리자만 수정할 수 있습니다.");
         }
     }
 
     /**
-     * 관리자 여부 확인
+     * 생성자 여부 확인 (UUID 사용)
+     * 참고: CreatedBy 필드는 문자열로 studentId를 저장하므로 uuid로 확인하기 위해 추가 로직 필요
      */
-    private boolean isAdmin(String studentId) {
-        MemberEntity member = memberRepository.findByStudentId(studentId).orElse(null);
+    private boolean isCreator(TeamEntity team, Integer uuid) {
+        MemberEntity member = memberRepository.findById(uuid).orElse(null);
+        return member != null && team.getCreatedBy().equals(member.getStudentId());
+    }
+
+    /**
+     * 관리자 여부 확인 (UUID 사용)
+     */
+    private boolean isAdmin(Integer uuid) {
+        MemberEntity member = memberRepository.findById(uuid).orElse(null);
         return member != null && "ROLE_ADMIN".equals(member.getRole());
     }
 

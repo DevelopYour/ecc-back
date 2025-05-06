@@ -32,10 +32,10 @@ public class AdminMemberController {
         return ResponseEntity.ok(ResponseDto.success(members));
     }
 
-    @GetMapping("/{studentId}")
-    @Operation(summary = "회원 상세 정보 조회", description = "특정 회원의 상세 정보를 조회합니다.")
-    public ResponseEntity<ResponseDto<MemberResponse>> getMemberDetail(@PathVariable String studentId) {
-        MemberResponse member = adminService.getMemberDetail(studentId);
+    @GetMapping("/{uuid}")
+    @Operation(summary = "회원 상세 정보 조회", description = "특정 회원의 상세 정보를 조회합니다. (UUID 사용)")
+    public ResponseEntity<ResponseDto<MemberResponse>> getMemberDetail(@PathVariable Integer uuid) {
+        MemberResponse member = adminService.getMemberDetail(uuid);
         return ResponseEntity.ok(ResponseDto.success(member));
     }
 
@@ -96,41 +96,41 @@ public class AdminMemberController {
         return ResponseEntity.ok(ResponseDto.success(members));
     }
 
-    @PatchMapping("/{studentId}/approve")
-    @Operation(summary = "회원 가입 승인", description = "대기 중인 회원의 가입을 승인합니다.")
+    @PatchMapping("/{uuid}/approve")
+    @Operation(summary = "회원 가입 승인 (UUID)", description = "대기 중인 회원의 가입을 승인합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> approveApplication(
-            @PathVariable String studentId
+            @PathVariable Integer uuid
     ) {
-        MemberResponse response = adminService.approveApplication(studentId);
+        MemberResponse response = adminService.approveApplication(uuid);
         return ResponseEntity.ok(ResponseDto.success("회원 가입이 승인되었습니다.", response));
     }
 
-    @DeleteMapping("/{studentId}/reject")
-    @Operation(summary = "회원 가입 거절", description = "대기 중인 회원의 가입을 거절하고 회원 정보를 삭제합니다.")
+    @DeleteMapping("/{uuid}/reject")
+    @Operation(summary = "회원 가입 거절 (UUID)", description = "대기 중인 회원의 가입을 거절하고 회원 정보를 삭제합니다.")
     public ResponseEntity<ResponseDto<Void>> rejectApplication(
-            @PathVariable String studentId
+            @PathVariable Integer uuid
     ) {
-        adminService.rejectApplication(studentId);
+        adminService.rejectApplication(uuid);
         return ResponseEntity.ok(ResponseDto.success("회원 가입이 거절되었습니다.", null));
     }
 
-    @PatchMapping("/{studentId}/status")
-    @Operation(summary = "회원 상태 변경", description = "회원의 상태를 변경합니다.")
+    @PatchMapping("/{uuid}/status")
+    @Operation(summary = "회원 상태 변경 (UUID)", description = "회원의 상태를 변경합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> updateMemberStatus(
-            @PathVariable String studentId,
+            @PathVariable Integer uuid,
             @RequestParam MemberStatus status
     ) {
-        MemberResponse response = adminService.updateMemberStatus(studentId, status);
+        MemberResponse response = adminService.updateMemberStatus(uuid, status);
         return ResponseEntity.ok(ResponseDto.success("회원 상태가 변경되었습니다.", response));
     }
 
-    @PatchMapping("/{studentId}/level")
-    @Operation(summary = "회원 영어 레벨 변경", description = "회원의 영어 레벨을 변경합니다.")
+    @PatchMapping("/{uuid}/level")
+    @Operation(summary = "회원 영어 레벨 변경 (UUID)", description = "회원의 영어 레벨을 변경합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> updateMemberLevel(
-            @PathVariable String studentId,
+            @PathVariable Integer uuid,
             @RequestParam Integer level
     ) {
-        MemberResponse response = adminService.updateMemberLevel(studentId, level);
+        MemberResponse response = adminService.updateMemberLevel(uuid, level);
         return ResponseEntity.ok(ResponseDto.success("회원의 영어 레벨이 변경되었습니다.", response));
     }
 

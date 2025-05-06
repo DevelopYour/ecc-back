@@ -18,6 +18,10 @@ public class TeamMemberChecker {
     /**
      * 현재 사용자가 특정 팀의 멤버인지 확인
      * 관리자는 항상 접근 가능하도록 설정
+     *
+     * @param teamId 확인할 팀 ID
+     * @param uuid 사용자 UUID
+     * @return 팀 멤버 여부
      */
     public boolean isTeamMember(Long teamId, Integer uuid) {
         // 관리자 체크
