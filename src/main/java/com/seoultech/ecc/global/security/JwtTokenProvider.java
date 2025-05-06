@@ -73,8 +73,14 @@ public class JwtTokenProvider {
 
     // 토큰에서 인증 정보 추출
     public Authentication getAuthentication(String token) {
+        // 토큰에서 UUID 추출
+        Integer uuid = getUuid(token);
+
+        // 사용자 이름으로 UserDetails 로드
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+        // Authentication 객체를 생성할 때 UUID를 credentials에 설정
+        return new UsernamePasswordAuthenticationToken(userDetails, uuid, userDetails.getAuthorities());
     }
 
     // 토큰에서 사용자명 추출
