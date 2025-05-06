@@ -13,13 +13,13 @@ public interface TeamRepository extends JpaRepository<TeamEntity, Long> {
     List<TeamEntity> findByIsRegular(boolean isRegular, Sort sort);
 
     // 생성자로 팀 조회
-    @Query("SELECT t FROM TeamEntity t WHERE t.createdBy = :studentId")
-    List<TeamEntity> findTeamsByCreator(@Param("studentId") String studentId, Sort sort);
+    @Query("SELECT t FROM TeamEntity t WHERE t.createdBy = :uuid")
+    List<TeamEntity> findTeamsByCreator(@Param("uuid") Integer uuid, Sort sort);
 
     // 팀원으로 팀 조회
     @Query("SELECT t FROM TeamEntity t JOIN t.teamMembers tm JOIN tm.member m " +
-            "WHERE m.studentId = :studentId")
-    List<TeamEntity> findTeamsByMember(@Param("studentId") String studentId, Sort sort);
+            "WHERE m.uuid = :uuid")
+    List<TeamEntity> findTeamsByMember(@Param("uuid") Integer uuid, Sort sort);
 
     // 년도, 학기로 팀 조회
     List<TeamEntity> findByYearAndSemester(int year, int semester, Sort sort);

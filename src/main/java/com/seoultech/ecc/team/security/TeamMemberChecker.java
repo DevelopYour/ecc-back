@@ -19,13 +19,13 @@ public class TeamMemberChecker {
      * 현재 사용자가 특정 팀의 멤버인지 확인
      * 관리자는 항상 접근 가능하도록 설정
      */
-    public boolean isTeamMember(Long teamId, String studentId) {
+    public boolean isTeamMember(Long teamId, Integer uuid) {
         // 관리자 체크
-        boolean isAdmin = memberRepository.findByStudentId(studentId)
+        boolean isAdmin = memberRepository.findById(uuid)
                 .map(member -> "ROLE_ADMIN".equals(member.getRole()))
                 .orElse(false);
 
         // 관리자이거나 팀 멤버인 경우 접근 허용
-        return isAdmin || teamService.isTeamMember(teamId, studentId);
+        return isAdmin || teamService.isTeamMember(teamId, uuid);
     }
 }

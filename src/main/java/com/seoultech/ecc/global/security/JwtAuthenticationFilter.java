@@ -25,6 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Authentication auth = jwtTokenProvider.getAuthentication(token);
+            // 요청 속성에 추가적인 정보 저장 - uuid 활용하도록 추가
+            request.setAttribute("uuid", jwtTokenProvider.getUuid(token));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

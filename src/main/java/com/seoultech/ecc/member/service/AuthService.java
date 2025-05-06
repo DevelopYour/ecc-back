@@ -108,9 +108,9 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String studentId) {
+    public void logout(Integer uuid) {
         // Refresh Token 삭제
-        jwtService.logout(studentId);
+        jwtService.logout(uuid);
 
         // 현재 인증 정보 삭제
         SecurityContextHolder.clearContext();

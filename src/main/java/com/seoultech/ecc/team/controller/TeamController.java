@@ -33,8 +33,9 @@ public class TeamController {
     public ResponseEntity<ResponseDto<List<TeamDto>>> getMyTeams() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
+        Integer uuid = (Integer) authentication.getCredentials();
 
-        List<TeamDto> teams = teamService.getTeamsByMember(studentId);
+        List<TeamDto> teams = teamService.getTeamsByMember(uuid);
         return ResponseEntity.ok(ResponseDto.success(teams));
     }
 
@@ -44,8 +45,9 @@ public class TeamController {
     public ResponseEntity<ResponseDto<List<TeamDto>>> getMyRegularTeams() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
+        Integer uuid = (Integer) authentication.getCredentials();
 
-        List<TeamDto> teams = teamService.getRegularTeamsByMember(studentId);
+        List<TeamDto> teams = teamService.getRegularTeamsByMember(uuid);
         return ResponseEntity.ok(ResponseDto.success(teams));
     }
 
@@ -55,8 +57,9 @@ public class TeamController {
     public ResponseEntity<ResponseDto<List<TeamDto>>> getMyOneTimeTeams() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
+        Integer uuid = (Integer) authentication.getCredentials();
 
-        List<TeamDto> teams = teamService.getOneTimeTeamsByMember(studentId);
+        List<TeamDto> teams = teamService.getOneTimeTeamsByMember(uuid);
         return ResponseEntity.ok(ResponseDto.success(teams));
     }
 

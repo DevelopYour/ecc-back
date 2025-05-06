@@ -24,9 +24,9 @@ public class TeamService {
      * 회원이 속한 모든 팀 조회
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getTeamsByMember(String studentId) {
+    public List<TeamDto> getTeamsByMember(Integer uuid) {
         List<TeamEntity> teams = teamRepository.findTeamsByMember(
-                studentId,
+                uuid,
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
@@ -39,9 +39,9 @@ public class TeamService {
      * 회원이 속한 정규 스터디 팀 조회
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getRegularTeamsByMember(String studentId) {
+    public List<TeamDto> getRegularTeamsByMember(Integer uuid) {
         List<TeamEntity> allTeams = teamRepository.findTeamsByMember(
-                studentId,
+                uuid,
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
@@ -55,9 +55,9 @@ public class TeamService {
      * 회원이 속한 번개 스터디 팀 조회
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getOneTimeTeamsByMember(String studentId) {
+    public List<TeamDto> getOneTimeTeamsByMember(Integer uuid) {
         List<TeamEntity> allTeams = teamRepository.findTeamsByMember(
-                studentId,
+                uuid,
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
@@ -82,11 +82,11 @@ public class TeamService {
      * 회원이 해당 팀에 속해있는지 확인
      */
     @Transactional(readOnly = true)
-    public boolean isTeamMember(Long teamId, String studentId) {
+    public boolean isTeamMember(Long teamId, Integer uuid) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 
         return team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getStudentId().equals(studentId));
+                .anyMatch(tm -> tm.getMember().getUuid().equals(uuid));
     }
 }

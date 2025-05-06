@@ -41,19 +41,21 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(encodedKey.getBytes());
     }
 
-    // AccessToken 생성
-    public String createAccessToken(String username, String role) {
-        return createToken(username, role, accessTokenValidityInMilliseconds);
+    // AccessToken 생성 - uuid 추가
+    public String createAccessToken(String username, Integer uuid, String role) {
+        return createToken(username, uuid, role, accessTokenValidityInMilliseconds);
     }
 
-    // RefreshToken 생성
-    public String createRefreshToken(String username) {
-        return createToken(username, null, refreshTokenValidityInMilliseconds);
+    // RefreshToken 생성 - uuid 추가
+    public String createRefreshToken(String username, Integer uuid) {
+        return createToken(username, uuid, null, refreshTokenValidityInMilliseconds);
     }
 
-    // 토큰 생성 공통 메서드
-    private String createToken(String username, String role, long validityInMilliseconds) {
+    // 토큰 생성 공통 메서드 - uuid 추가
+    private String createToken(String username, Integer uuid, String role, long validityInMilliseconds) {
         Claims claims = Jwts.claims().setSubject(username);
+        // uuid 추가
+        claims.put("uuid", uuid);
         if (role != null) {
             claims.put("role", role);
         }
@@ -83,6 +85,16 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    // 토큰에서 UUID 추출
+    public Integer getUuid(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("uuid", Integer.class);
     }
 
     // 토큰 유효성 검증

@@ -25,11 +25,11 @@ public class JwtService {
      */
     @Transactional
     public TokenResponse generateTokens(MemberEntity member) {
-        // Access Token 생성
-        String accessToken = jwtTokenProvider.createAccessToken(member.getStudentId(), member.getRole());
+        // Access Token 생성 - uuid 추가
+        String accessToken = jwtTokenProvider.createAccessToken(member.getStudentId(), member.getUuid(), member.getRole());
 
-        // Refresh Token 생성
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getStudentId());
+        // Refresh Token 생성 - uuid 추가
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getStudentId(), member.getUuid());
 
         // Access Token 만료 시간 계산
         Date expirationDate = jwtTokenProvider.getExpirationDate(accessToken);
@@ -70,12 +70,13 @@ public class JwtService {
             throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
         }
 
-        // 사용자명 추출
+        // 사용자 학번 및 UUID 추출
         String studentId = jwtTokenProvider.getUsername(refreshToken);
+        Integer uuid = jwtTokenProvider.getUuid(refreshToken);
 
-        // 회원 정보 조회
-        MemberEntity member = memberRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+        // 회원 정보 조회 - uuid 사용
+        MemberEntity member = memberRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + uuid));
 
         // 저장된 Refresh Token과 일치하는지 확인
         if (member.getRefreshToken() == null ||
@@ -92,7 +93,7 @@ public class JwtService {
         }
 
         // 새 Access Token 생성
-        String newAccessToken = jwtTokenProvider.createAccessToken(studentId, member.getRole());
+        String newAccessToken = jwtTokenProvider.createAccessToken(studentId, member.getUuid(), member.getRole());
 
         // Access Token 만료 시간 계산
         Date expirationDate = jwtTokenProvider.getExpirationDate(newAccessToken);
@@ -116,8 +117,8 @@ public class JwtService {
      * 로그아웃 처리 (Refresh Token 제거)
      */
     @Transactional
-    public void logout(String studentId) {
-        MemberEntity member = memberRepository.findByStudentId(studentId)
+    public void logout(Integer uuid) {
+        MemberEntity member = memberRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
         // Refresh Token 제거

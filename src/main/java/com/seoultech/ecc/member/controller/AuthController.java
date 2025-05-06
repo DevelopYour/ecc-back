@@ -75,8 +75,9 @@ public class AuthController {
     public ResponseEntity<ResponseDto<Void>> logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
+        Integer uuid = (Integer) authentication.getCredentials();
 
-        authService.logout(studentId);
+        authService.logout(uuid);
         return ResponseEntity.ok(ResponseDto.success("로그아웃이 완료되었습니다.", null));
     }
 }
