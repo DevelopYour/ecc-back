@@ -47,6 +47,7 @@ public class TeamDto {
                 .year(team.getYear())
                 .semester(team.getSemester())
                 .subjectId(team.getSubject().getSubjectId())
+                .isRegular(team.isRegular())
                 .build();
     }
 
