@@ -14,16 +14,21 @@ import java.util.Optional;
 public class AuditConfig {
 
     @Bean
-    public AuditorAware<String> auditorProvider() {
+    public AuditorAware<Integer> auditorProvider() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication == null || !authentication.isAuthenticated() ||
                     authentication.getPrincipal().equals("anonymousUser")) {
-                return Optional.of("system");
+                return Optional.empty(); // 시스템 처리인 경우 null 허용
             }
 
-            return Optional.of(authentication.getName());
+            // Authentication의 credentials에서 uuid 가져오기
+            if (authentication.getCredentials() instanceof Integer) {
+                return Optional.of((Integer) authentication.getCredentials());
+            }
+
+            return Optional.empty();
         };
     }
 }

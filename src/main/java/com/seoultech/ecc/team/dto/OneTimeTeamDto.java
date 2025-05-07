@@ -114,7 +114,7 @@ public class OneTimeTeamDto {
         private OneTimeTeamStatus status;
         private String description;
         private String location;
-        private String createdBy;
+        private Integer createdBy;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         private LocalDateTime createdAt;
@@ -169,7 +169,7 @@ public class OneTimeTeamDto {
         private OneTimeTeamStatus status;
         private String description;
         private String location;
-        private String createdBy;
+        private Integer createdBy;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         private LocalDateTime createdAt;
@@ -185,13 +185,7 @@ public class OneTimeTeamDto {
             }
 
             // 로그인한 회원(uuid)이 팀의 생성자인지 확인
-            // createdBy 필드는 문자열(studentId)이므로,
-            // 팀 멤버 중 uuid가 일치하는 경우를 찾아 체크해야 할 수 있음
-            // 간단하게는 팀의 teamMembers 중에서 member.getUuid()가 현재 uuid와 일치하는지 확인하고,
-            // 해당 멤버의 studentId가 team.getCreatedBy()와 일치하는지 확인
-            boolean isCreator = entity.getTeamMembers().stream()
-                    .anyMatch(tm -> tm.getMember().getUuid().equals(uuid) &&
-                            tm.getMember().getStudentId().equals(entity.getCreatedBy()));
+            boolean isCreator = uuid.equals(entity.getCreatedBy());
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
                     .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))

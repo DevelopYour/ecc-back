@@ -137,10 +137,8 @@ public class OneTimeTeamService {
 
         team.setOneTimeInfo(oneTimeInfo);
 
-        // 생성자를 CreatedBy 필드에 저장 (UUID 대신 studentId 사용)
-        // CreatedBy 필드가 문자열이므로 studentId를 사용
-        String studentId = member.getStudentId();
-        team.setCreatedBy(studentId);
+        // 생성자를 CreatedBy 필드에 저장 (UUID 사용)
+        team.setCreatedBy(uuid);
 
         TeamEntity savedTeam = teamRepository.save(team);
 
@@ -465,8 +463,7 @@ public class OneTimeTeamService {
      * 참고: CreatedBy 필드는 문자열로 studentId를 저장하므로 uuid로 확인하기 위해 추가 로직 필요
      */
     private boolean isCreator(TeamEntity team, Integer uuid) {
-        MemberEntity member = memberRepository.findById(uuid).orElse(null);
-        return member != null && team.getCreatedBy().equals(member.getStudentId());
+        return team.getCreatedBy() != null && team.getCreatedBy().equals(uuid);
     }
 
     /**
