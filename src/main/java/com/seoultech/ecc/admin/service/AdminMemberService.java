@@ -22,11 +22,11 @@ public class AdminMemberService {
     private final LevelChangeRequestRepository levelChangeRequestRepository;
 
     /**
-     * 학번으로 회원 조회 (존재하지 않으면 예외 발생)
+     * UUID로 회원 조회 (존재하지 않으면 예외 발생)
      */
-    private MemberEntity getMemberByStudentId(String studentId) {
-        return memberRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. 학번: " + studentId));
+    private MemberEntity getMemberByUuid(Integer uuid) {
+        return memberRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + uuid));
     }
 
     /**
@@ -38,6 +38,15 @@ public class AdminMemberService {
         return members.stream()
                 .map(MemberResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 회원 상세 정보 조회 (UUID 사용)
+     */
+    @Transactional(readOnly = true)
+    public MemberResponse getMemberDetail(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
+        return MemberResponse.fromEntity(member);
     }
 
     /**
@@ -74,22 +83,22 @@ public class AdminMemberService {
     }
 
     /**
-     * 회원 상태 업데이트
+     * 회원 상태 업데이트 (UUID 사용)
      */
     @Transactional
-    public MemberResponse updateMemberStatus(String studentId, MemberStatus status) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public MemberResponse updateMemberStatus(Integer uuid, MemberStatus status) {
+        MemberEntity member = getMemberByUuid(uuid);
         member.setStatus(status);
         MemberEntity updatedMember = memberRepository.save(member);
         return MemberResponse.fromEntity(updatedMember);
     }
 
     /**
-     * 회원 영어 레벨 업데이트
+     * 회원 영어 레벨 업데이트 (UUID 사용)
      */
     @Transactional
-    public MemberResponse updateMemberLevel(String studentId, Integer level) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public MemberResponse updateMemberLevel(Integer uuid, Integer level) {
+        MemberEntity member = getMemberByUuid(uuid);
         member.setLevel(level);
         MemberEntity updatedMember = memberRepository.save(member);
         return MemberResponse.fromEntity(updatedMember);
@@ -134,6 +143,7 @@ public class AdminMemberService {
 
     /**
      * 레벨 변경 요청 거절
+     * 거절 시 회원의 레벨을 변경하지 않고 요청 상태만 REJECTED로 변경
      */
     @Transactional
     public void rejectLevelChangeRequest(Long requestId) {
@@ -144,16 +154,17 @@ public class AdminMemberService {
             throw new RuntimeException("승인 대기 상태의 요청만 거절할 수 있습니다.");
         }
 
+        // 회원의 레벨은 변경하지 않고 요청 상태만 REJECTED로 변경
         request.setStatus(LevelChangeRequestEntity.RequestStatus.REJECTED);
         levelChangeRequestRepository.save(request);
     }
 
     /**
-     * 회원 가입 승인
+     * 회원 가입 승인 (UUID 사용)
      */
     @Transactional
-    public MemberResponse approveApplication(String studentId) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public MemberResponse approveApplication(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.PENDING) {
             throw new RuntimeException("승인 대기 상태의 회원만 승인할 수 있습니다.");
@@ -166,11 +177,11 @@ public class AdminMemberService {
     }
 
     /**
-     * 회원 가입 거절
+     * 회원 가입 거절 (UUID 사용)
      */
     @Transactional
-    public void rejectApplication(String studentId) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public void rejectApplication(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.PENDING) {
             throw new RuntimeException("승인 대기 상태의 회원만 거절할 수 있습니다.");

@@ -13,17 +13,27 @@ import java.util.Optional;
 @EnableJpaAuditing
 public class AuditConfig {
 
+    // 시스템 처리를 나타내는 상수
+    private static final Integer SYSTEM_USER_ID = -1;
+
     @Bean
-    public AuditorAware<String> auditorProvider() {
+    public AuditorAware<Integer> auditorProvider() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication == null || !authentication.isAuthenticated() ||
                     authentication.getPrincipal().equals("anonymousUser")) {
-                return Optional.of("system");
+                // 시스템 처리인 경우 상수값 반환 (null 대신)
+                return Optional.of(SYSTEM_USER_ID);
             }
 
-            return Optional.of(authentication.getName());
+            // Authentication의 credentials에서 uuid 가져오기
+            if (authentication.getCredentials() instanceof Integer) {
+                return Optional.of((Integer) authentication.getCredentials());
+            }
+
+            // 예외 상황에도 기본값 반환
+            return Optional.of(SYSTEM_USER_ID);
         };
     }
 }

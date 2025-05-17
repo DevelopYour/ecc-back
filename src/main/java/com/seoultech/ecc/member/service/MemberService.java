@@ -28,7 +28,15 @@ public class MemberService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     /**
-     * 학번으로 회원 조회 (존재하지 않으면 예외 발생)
+     * UUID로 회원 조회 (존재하지 않으면 예외 발생)
+     */
+    private MemberEntity getMemberByUuid(Integer uuid) {
+        return memberRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + uuid));
+    }
+
+    /**
+     * 학번으로 회원 조회 (존재하지 않으면 예외 발생) - 로그인 ID 찾기용으로만 사용
      */
     private MemberEntity getMemberByStudentId(String studentId) {
         return memberRepository.findByStudentId(studentId)
@@ -36,20 +44,29 @@ public class MemberService {
     }
 
     /**
-     * 회원 정보 조회 - 상태에 따라 적절한 정보 반환
+     * 회원 정보 조회 - 상태에 따라 적절한 정보 반환 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public MemberResponse getMemberInfo(String studentId) {
+    public MemberResponse getMemberInfo(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
+        return MemberResponse.fromEntity(member);
+    }
+
+    /**
+     * 회원 정보 조회 - 상태에 따라 적절한 정보 반환 (학번 사용 - 기존 호환성 유지용)
+     */
+    @Transactional(readOnly = true)
+    public MemberResponse getMemberInfoByStudentId(String studentId) {
         MemberEntity member = getMemberByStudentId(studentId);
         return MemberResponse.fromEntity(member);
     }
 
     /**
-     * PENDING 상태 회원의 가입 신청서 수정
+     * PENDING 상태 회원의 가입 신청서 수정 (UUID 사용)
      */
     @Transactional
-    public MemberResponse updatePendingApplication(String studentId, SignupRequest request) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public MemberResponse updatePendingApplication(Integer uuid, SignupRequest request) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.PENDING) {
             throw new RuntimeException("가입 신청 상태인 회원만 신청서를 수정할 수 있습니다.");
@@ -75,11 +92,11 @@ public class MemberService {
     }
 
     /**
-     * PENDING 상태 회원의 가입 신청 취소
+     * PENDING 상태 회원의 가입 신청 취소 (UUID 사용)
      */
     @Transactional
-    public void cancelPendingApplication(String studentId) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public void cancelPendingApplication(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.PENDING) {
             throw new RuntimeException("가입 신청 상태인 회원만 신청을 취소할 수 있습니다.");
@@ -89,11 +106,11 @@ public class MemberService {
     }
 
     /**
-     * 비밀번호 변경
+     * 비밀번호 변경 (UUID 사용)
      */
     @Transactional
-    public void updatePassword(String studentId, String currentPassword, String newPassword) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public void updatePassword(Integer uuid, String currentPassword, String newPassword) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.ACTIVE) {
             throw new RuntimeException("승인된 회원만 비밀번호를 변경할 수 있습니다.");
@@ -110,11 +127,11 @@ public class MemberService {
     }
 
     /**
-     * 영어 레벨 변경 신청
+     * 영어 레벨 변경 신청 (UUID 사용)
      */
     @Transactional
-    public void requestLevelChange(String studentId, Integer requestedLevel, String reason) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public void requestLevelChange(Integer uuid, Integer requestedLevel, String reason) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.ACTIVE) {
             throw new RuntimeException("승인된 회원만 레벨 변경을 신청할 수 있습니다.");
@@ -147,19 +164,19 @@ public class MemberService {
     }
 
     /**
-     * 영어 레벨 변경 신청(간단 버전)
+     * 영어 레벨 변경 신청(간단 버전) (UUID 사용)
      */
     @Transactional
-    public void requestLevelChange(String studentId, Integer requestedLevel) {
-        requestLevelChange(studentId, requestedLevel, null);
+    public void requestLevelChange(Integer uuid, Integer requestedLevel) {
+        requestLevelChange(uuid, requestedLevel, null);
     }
 
     /**
-     * 회원의 레벨 변경 요청 목록 조회
+     * 회원의 레벨 변경 요청 목록 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public List<LevelChangeRequestDto> getMemberLevelChangeRequests(String studentId) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public List<LevelChangeRequestDto> getMemberLevelChangeRequests(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         List<LevelChangeRequestEntity> requests = levelChangeRequestRepository.findByMember(member);
         return requests.stream()
@@ -168,11 +185,11 @@ public class MemberService {
     }
 
     /**
-     * 회원 탈퇴
+     * 회원 탈퇴 (UUID 사용)
      */
     @Transactional
-    public void withdrawMembership(String studentId) {
-        MemberEntity member = getMemberByStudentId(studentId);
+    public void withdrawMembership(Integer uuid) {
+        MemberEntity member = getMemberByUuid(uuid);
 
         if (member.getStatus() != MemberStatus.ACTIVE) {
             throw new RuntimeException("승인된 회원만 탈퇴할 수 있습니다.");

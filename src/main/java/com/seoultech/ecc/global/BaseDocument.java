@@ -24,10 +24,10 @@ public abstract class BaseDocument {
 
     @CreatedBy
     @Field("created_by")
-    private String createdBy;
+    private Integer createdBy;  // 변경: String -> Integer (uuid 사용)
 
     @LastModifiedBy
     @Field("updated_by")
-    private String updatedBy;
+    private Integer updatedBy;  // 변경: String -> Integer (uuid 사용)
 }
 

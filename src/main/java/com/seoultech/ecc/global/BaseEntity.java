@@ -27,9 +27,9 @@ public abstract class BaseEntity {
 
     @CreatedBy
     @Column(name = "created_by", updatable = false)
-    private String createdBy;
+    private Integer createdBy;  // 변경: String -> Integer (uuid 사용)
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private String updatedBy;
+    private Integer updatedBy;  // 변경: String -> Integer (uuid 사용)
 }

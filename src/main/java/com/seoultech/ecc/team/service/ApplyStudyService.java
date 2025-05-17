@@ -27,12 +27,12 @@ public class ApplyStudyService {
     private final ApplyRegularStudyRepository applyRegularStudyRepository;
 
     /**
-     * 정규 스터디 신청
+     * 정규 스터디 신청 (UUID 사용)
      */
     @Transactional
-    public ApplyStudyDto.ApplyListResponse applyRegularStudy(String studentId, ApplyStudyDto.ApplyRequest request) {
+    public ApplyStudyDto.ApplyListResponse applyRegularStudy(Integer uuid, ApplyStudyDto.ApplyRequest request) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         List<ApplyRegularStudyEntity> savedEntities = new ArrayList<>();
 
@@ -58,12 +58,12 @@ public class ApplyStudyService {
     }
 
     /**
-     * 정규 스터디 신청 내역 조회
+     * 정규 스터디 신청 내역 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ApplyStudyDto.ApplyListResponse getRegularStudyApplications(String studentId) {
+    public ApplyStudyDto.ApplyListResponse getRegularStudyApplications(Integer uuid) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 신청 내역 조회
         List<ApplyRegularStudyEntity> applications = applyRegularStudyRepository.findByMember(member);
@@ -72,12 +72,12 @@ public class ApplyStudyService {
     }
 
     /**
-     * 정규 스터디 신청 내역 수정
+     * 정규 스터디 신청 내역 수정 (UUID 사용)
      */
     @Transactional
-    public ApplyStudyDto.ApplyListResponse updateRegularStudyApplications(String studentId, ApplyStudyDto.UpdateRequest request) {
+    public ApplyStudyDto.ApplyListResponse updateRegularStudyApplications(Integer uuid, ApplyStudyDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 기존 신청 내역 모두 삭제
         applyRegularStudyRepository.deleteAllByMemberUuid(member.getUuid());
@@ -105,23 +105,23 @@ public class ApplyStudyService {
     }
 
     /**
-     * 정규 스터디 신청 내역 취소 (전체)
+     * 정규 스터디 신청 내역 취소 (전체) (UUID 사용)
      */
     @Transactional
-    public void cancelRegularStudyApplications(String studentId) {
+    public void cancelRegularStudyApplications(Integer uuid) {
         // 회원 조회 및 상태 확인
-        MemberEntity member = getMemberAndCheckStatus(studentId);
+        MemberEntity member = getMemberAndCheckStatus(uuid);
 
         // 모든 신청 내역 삭제
         applyRegularStudyRepository.deleteAllByMemberUuid(member.getUuid());
     }
 
     /**
-     * 회원 조회 및 상태 확인 (ACTIVE만 가능)
+     * 회원 조회 및 상태 확인 (ACTIVE만 가능) (UUID 사용)
      */
-    private MemberEntity getMemberAndCheckStatus(String studentId) {
-        MemberEntity member = memberRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. 학번: " + studentId));
+    private MemberEntity getMemberAndCheckStatus(Integer uuid) {
+        MemberEntity member = memberRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + uuid));
 
         if (member.getStatus() != MemberStatus.ACTIVE) {
             throw new RuntimeException("ACTIVE 상태의 회원만 정규 스터디를 신청할 수 있습니다.");

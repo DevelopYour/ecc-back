@@ -114,7 +114,7 @@ public class OneTimeTeamDto {
         private OneTimeTeamStatus status;
         private String description;
         private String location;
-        private String createdBy;
+        private Integer createdBy;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         private LocalDateTime createdAt;
@@ -169,7 +169,7 @@ public class OneTimeTeamDto {
         private OneTimeTeamStatus status;
         private String description;
         private String location;
-        private String createdBy;
+        private Integer createdBy;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         private LocalDateTime createdAt;
@@ -179,12 +179,13 @@ public class OneTimeTeamDto {
         private boolean canCancel;
         private boolean isCreator;
 
-        public static DetailResponse fromEntity(TeamEntity entity, String currentUserId) {
+        public static DetailResponse fromEntity(TeamEntity entity, Integer uuid) {
             if (entity == null || entity.getOneTimeInfo() == null) {
                 throw new IllegalArgumentException("유효하지 않은 번개 스터디 엔티티입니다.");
             }
 
-            boolean isCreator = entity.getCreatedBy().equals(currentUserId);
+            // 로그인한 회원(uuid)이 팀의 생성자인지 확인
+            boolean isCreator = uuid.equals(entity.getCreatedBy());
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
                     .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
