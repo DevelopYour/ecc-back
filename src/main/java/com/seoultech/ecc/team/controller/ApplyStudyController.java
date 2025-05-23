@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/teams/regular/apply")
+@RequestMapping("/api/teams/regular/apply")
 @RequiredArgsConstructor
 @Tag(name = "정규 스터디 API", description = "정규 스터디 신청 관련 API")
 @SecurityRequirement(name = "Bearer Authentication")

@@ -83,7 +83,7 @@ public class AuthService {
     public TokenResponse login(LoginRequest request) {
         try {
             // 학번으로 회원 조회 (로그인 시 studentId 사용은 유지)
-            MemberEntity member = memberRepository.findByStudentId(request.getStudentId())
+            MemberEntity member = memberRepository.findByStudentId(request.getUsername())
                     .orElseThrow(() -> new RuntimeException("등록되지 않은 학번입니다."));
 
             // 회원 상태 검증
@@ -93,7 +93,7 @@ public class AuthService {
 
             // Spring Security의 인증 처리
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getStudentId(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
             // 인증 정보 저장

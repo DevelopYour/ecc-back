@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/teams")
+@RequestMapping("/api/teams")
 @RequiredArgsConstructor
 @Tag(name = "팀 API", description = "팀 정보 조회 등 팀 관련 API")
 @SecurityRequirement(name = "Bearer Authentication")

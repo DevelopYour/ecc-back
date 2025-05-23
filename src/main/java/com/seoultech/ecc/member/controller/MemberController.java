@@ -18,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "회원 API", description = "회원 정보 조회, 수정 등 회원 관련 API")
 @SecurityRequirement(name = "Bearer Authentication")

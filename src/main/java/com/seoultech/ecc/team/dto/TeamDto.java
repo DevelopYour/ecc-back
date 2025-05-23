@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL) // null 값 필드는 JSON 변환 시 제외
 public class TeamDto {
-    private Long teamId;
+    private Long id;
     private String name;
     private int score;
     private int year;
@@ -41,7 +41,7 @@ public class TeamDto {
      */
     public static TeamDto fromEntity(TeamEntity team) {
         return TeamDto.builder()
-                .teamId(team.getTeamId())
+                .id(team.getTeamId())
                 .name(team.getName())
                 .score(team.getScore())
                 .year(team.getYear())
@@ -65,7 +65,7 @@ public class TeamDto {
         boolean isCreator = uuid.equals(team.getCreatedBy());
 
         return TeamDto.builder()
-                .teamId(team.getTeamId())
+                .id(team.getTeamId())
                 .name(team.getName())
                 .subjectId(team.getSubject().getSubjectId())
                 .subjectName(team.getSubject().getName())
