@@ -101,6 +101,7 @@ public class OneTimeTeamDto {
         private String name;
         private Long subjectId;
         private String subjectName;
+        private List<MemberSimpleDto> members;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         private LocalDateTime startTime;
@@ -124,6 +125,10 @@ public class OneTimeTeamDto {
                 throw new IllegalArgumentException("유효하지 않은 번개 스터디 엔티티입니다.");
             }
 
+            List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
+                    .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
+                    .collect(Collectors.toList());
+
             return Response.builder()
                     .teamId(entity.getTeamId())
                     .name(entity.getName())
@@ -139,6 +144,7 @@ public class OneTimeTeamDto {
                     .location(entity.getOneTimeInfo().getLocation())
                     .createdBy(entity.getCreatedBy())
                     .createdAt(entity.getCreatedAt())
+                    .members(memberDtos)
                     .build();
         }
     }
