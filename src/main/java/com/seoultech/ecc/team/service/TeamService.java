@@ -2,8 +2,11 @@ package com.seoultech.ecc.team.service;
 
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.repository.MemberRepository;
+import com.seoultech.ecc.team.datamodel.SubjectEntity;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
+import com.seoultech.ecc.team.dto.SubjectDto;
 import com.seoultech.ecc.team.dto.TeamDto;
+import com.seoultech.ecc.team.repository.SubjectRepository;
 import com.seoultech.ecc.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private final SubjectRepository subjectRepository;
     private final MemberRepository memberRepository;
 
     /**
@@ -88,5 +92,9 @@ public class TeamService {
 
         return team.getTeamMembers().stream()
                 .anyMatch(tm -> tm.getMember().getUuid().equals(uuid));
+    }
+
+    public List<SubjectDto> getAllSubjects() {
+        return subjectRepository.findAll().stream().map(SubjectDto::fromEntity).collect(Collectors.toList());
     }
 }

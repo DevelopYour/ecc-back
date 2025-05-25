@@ -2,6 +2,7 @@ package com.seoultech.ecc.team.controller;
 
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
+import com.seoultech.ecc.team.dto.SubjectDto;
 import com.seoultech.ecc.team.dto.TeamDto;
 import com.seoultech.ecc.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,5 +71,11 @@ public class TeamController {
 
         TeamDto teamDetail = teamService.getTeamDetail(teamId, uuid);
         return ResponseEntity.ok(ResponseDto.success(teamDetail));
+    }
+
+    @GetMapping("/subjects")
+    @Operation(summary = "신청 가능한 과목 목록 조회", description = "전체 과목 목록을 조회합니다.")
+    public ResponseEntity<ResponseDto<List<SubjectDto>>> getAllSubjects() {
+        return ResponseEntity.ok(ResponseDto.success(teamService.getAllSubjects()));
     }
 }

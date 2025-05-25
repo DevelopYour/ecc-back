@@ -5,11 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.service.ReviewService;
+import com.seoultech.ecc.study.datamodel.*;
 import com.seoultech.ecc.study.repository.StudyRepository;
-import com.seoultech.ecc.study.datamodel.StudyStatus;
-import com.seoultech.ecc.study.datamodel.ExpressionRedis;
-import com.seoultech.ecc.study.datamodel.StudyRedis;
-import com.seoultech.ecc.study.datamodel.TopicRedis;
 import com.seoultech.ecc.study.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,9 +71,16 @@ public class StudyService {
         return studyRedis;
     }
 
-    public List<TopicRecommendationDto> getTopicRecommendations(Long studyId) {
+    public List<TopicRecommendationDto> getTopicRecommendations(String studyId) {
         List<TopicRecommendationDto> dtos = new ArrayList<>();
+        TopicRecommendationDto topic1 = new TopicRecommendationDto();
         // TODO: AI에게 목록 요청
+        topic1.setCategory(TopicCategory.RANDOM);
+        List<String> topics = new ArrayList<>();
+        topics.add("주제1");
+        topics.add("주제2");
+        topic1.setTopic(topics);
+        dtos.add(topic1);
         return dtos;
     }
 

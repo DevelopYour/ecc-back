@@ -20,6 +20,8 @@ public class ReviewDocument extends BaseDocument {
 
     private String reportId;
 
+    private int week;
+
     private MemberSimpleDto member;
 
     private ReviewStatus status;

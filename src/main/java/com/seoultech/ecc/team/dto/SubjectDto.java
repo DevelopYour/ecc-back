@@ -1,5 +1,6 @@
 package com.seoultech.ecc.team.dto;
 
+import com.seoultech.ecc.team.datamodel.SubjectEntity;
 import lombok.*;
 
 @Getter
@@ -10,6 +11,11 @@ import lombok.*;
 public class SubjectDto {
     private Long subjectId;
     private String name;
-    private String template;
-    private String prompt;
+
+    public static SubjectDto fromEntity(SubjectEntity subject) {
+        return SubjectDto.builder()
+                .subjectId(subject.getSubjectId())
+                .name(subject.getName())
+                .build();
+    }
 }

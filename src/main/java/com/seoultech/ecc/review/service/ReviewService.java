@@ -51,6 +51,7 @@ public class ReviewService {
         for(MemberSimpleDto member: report.getMembers()){
             ReviewDocument review = new ReviewDocument();
             review.setMember(member);
+            review.setWeek(report.getWeek());
             review.setReportId(report.getId());
             review.setContents(report.getContents()); // TODO: 추후 수정 필요
             reviewRepository.save(review);
