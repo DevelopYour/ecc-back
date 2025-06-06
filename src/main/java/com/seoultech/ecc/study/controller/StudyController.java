@@ -35,10 +35,10 @@ public class StudyController {
         return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
     }
 
-    @GetMapping("/{studyId}/topic")
-    @Operation(summary = "추천 주제 목록 조회", description = "AI에게 추천 주제 목록을 요청합니다.")
-    public ResponseEntity<ResponseDto<List<TopicRecommendationDto>>> getTopicsByAiHelp(@PathVariable String studyId) {
-        return ResponseEntity.ok(ResponseDto.success(studyService.getTopicRecommendations(studyId)));
+    @GetMapping("/{teamId}/topic")
+    @Operation(summary = "추천 주제 목록 조회", description = "추천 주제 목록을 요청합니다.")
+    public ResponseEntity<ResponseDto<List<TopicRecommendationDto>>> getTopicsByAiHelp(@PathVariable Long teamId) {
+        return ResponseEntity.ok(ResponseDto.success(studyService.getTopicRecommendations(teamId)));
     }
 
     @PostMapping("/{studyId}/topic")

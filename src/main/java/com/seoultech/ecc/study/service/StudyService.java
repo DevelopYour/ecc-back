@@ -71,21 +71,34 @@ public class StudyService {
         return studyRedis;
     }
 
-    public List<TopicRecommendationDto> getTopicRecommendations(String studyId) {
+    public List<TopicRecommendationDto> getTopicRecommendations(Long teamId) {
         List<TopicRecommendationDto> dtos = new ArrayList<>();
+        // TODO: teamId로 스터디 과목 조회
+        // TODO: ERD 수정 (Subject_Topic)
+
+        // 자유 주제
         TopicRecommendationDto topic1 = new TopicRecommendationDto();
-        // TODO: AI에게 목록 요청
         topic1.setCategory(TopicCategory.RANDOM);
-        List<String> topics = new ArrayList<>();
-        topics.add("주제1");
-        topics.add("주제2");
-        topic1.setTopic(topics);
+        List<String> topics1 = new ArrayList<>();
+        topics1.add("What's your favorite time of the day and why?");
+        topics1.add("Would you rather travel to the past or the future?");
+        topics1.add("What's the most useless thing you’ve ever bought?");
+        topic1.setTopic(topics1);
+
+        // 밸런스 게임
+        TopicRecommendationDto topic2 = new TopicRecommendationDto();
+        topic2.setCategory(TopicCategory.BALANCE_GAME);
+        List<String> topics2 = new ArrayList<>();
+        topics2.add("No internet for a year vs No friends for a year");
+        topics2.add("Have unlimited time vs Have unlimited money");
+        topic2.setTopic(topics2);
+
         dtos.add(topic1);
+        dtos.add(topic2);
         return dtos;
     }
 
     public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
-        String redisKey = "study:" + studyId;
 
         // 1. Redis에서 기존 StudyRedis 객체 불러오기
         StudyRedis study = studyRepository.findByStudyId(studyId);
@@ -110,8 +123,6 @@ public class StudyService {
     @Transactional
     public StudyRedis getAiHelpAndAdd(String studyId, ExpressionToAskDto questionDto) {
         // TODO: AI에게 결과 받아오기
-
-        String redisKey = "study:" + studyId;
 
         // 1. study 찾기
         StudyRedis study = studyRepository.findByStudyId(studyId);
@@ -142,12 +153,6 @@ public class StudyService {
         studyRepository.save(study);
         return study;
     }
-
-
-
-//    public StudyRedis getAiHelp(Long studyId, String request){
-//
-//    }
 
     @Transactional
     public String finishStudy(String studyId) {

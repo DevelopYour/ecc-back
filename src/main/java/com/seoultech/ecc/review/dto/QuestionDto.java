@@ -9,5 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 public class QuestionDto {
     private String question;
+    private String answer;
     private boolean isCorrect;
 }

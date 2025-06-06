@@ -1,6 +1,7 @@
 package com.seoultech.ecc.member.controller;
 
 import com.seoultech.ecc.member.dto.MajorDto;
+import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.repository.MajorRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class MajorController {
 
     @GetMapping
     @Operation(summary = "학과 목록 조회", description = "학과 목록을 조회합니다.")
-    public ResponseEntity<List<MajorDto>> findAllMajor() {
-        return ResponseEntity.ok(majorRepository.findAll().stream().map(MajorDto::fromEntity).toList());
+    public ResponseEntity<ResponseDto<List<MajorDto>>> findAllMajor() {
+        return ResponseEntity.ok(ResponseDto.success(majorRepository.findAll().stream().map(MajorDto::fromEntity).toList()));
     }
 }

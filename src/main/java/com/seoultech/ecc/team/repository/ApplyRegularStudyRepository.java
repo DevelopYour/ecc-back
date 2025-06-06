@@ -21,4 +21,6 @@ public interface ApplyRegularStudyRepository extends JpaRepository<ApplyRegularS
     @Modifying
     @Query("DELETE FROM ApplyRegularStudyEntity a WHERE a.member.uuid = :memberUuid")
     void deleteAllByMemberUuid(@Param("memberUuid") Integer memberUuid);
+
+    List<ApplyRegularStudyEntity> findAllBySubject_SubjectId(Long subjectId);
 }

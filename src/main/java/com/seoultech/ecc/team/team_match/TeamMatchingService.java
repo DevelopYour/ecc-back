@@ -5,19 +5,33 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import com.seoultech.ecc.team.datamodel.ApplyRegularStudyEntity;
+import com.seoultech.ecc.team.dto.ApplyRegularStudyDto;
+import com.seoultech.ecc.team.dto.TeamMatchDto;
+import com.seoultech.ecc.team.dto.TeamMatchResultDto;
+import com.seoultech.ecc.team.repository.ApplyRegularStudyRepository;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamMatchingService {
 
     @Autowired
+    ApplyRegularStudyRepository applyRegularStudyRepository;
+
+    @Autowired
     GenerateFormatService initService;
 
+    public List<ApplyRegularStudyDto> showApply(){
+        return applyRegularStudyRepository.findAll().stream().map(ApplyRegularStudyDto::fromEntity).collect(Collectors.toList());
+    }
+
     // 방법A: ILP(정수선형계획): MPSolver 엔진
-    public void teamMatch(Map<String, List<Integer>> studentTimeMap) {
+    public void tempTeamMatch(Map<String, List<Integer>> studentTimeMap) {
         Loader.loadNativeLibraries(); // native 라이브러리 로드
 
         List<List<String>> teamCandidates = initService.init(studentTimeMap);
@@ -67,6 +81,74 @@ public class TeamMatchingService {
         } else {
             System.out.println("해결 불가능하거나 오류 발생");
         }
+    }
+
+    @Autowired
+    MaximizeAssignmentTeamMatcher teamMatcher;
+
+    public List<TeamMatchResultDto> teamMatch() {
+        List<TeamMatchResultDto> result = new ArrayList<>();
+
+        // 과목 1
+        List<ApplyRegularStudyDto> applies1 = applyRegularStudyRepository
+                .findAllBySubject_SubjectId(1L)
+                .stream()
+                .map(ApplyRegularStudyDto::fromEntity)
+                .toList();
+        TeamMatchResultDto result1 = teamMatcher.optimizeTeamMatching(applies1, result);
+        result.add(result1);
+
+        // 과목 2 - 이전 결과(result)를 전달하여 필터링
+        List<ApplyRegularStudyDto> applies2 = applyRegularStudyRepository
+                .findAllBySubject_SubjectId(2L)
+                .stream()
+                .map(ApplyRegularStudyDto::fromEntity)
+                .toList();
+        TeamMatchResultDto result2 = teamMatcher.optimizeTeamMatching(applies2, result);
+        result.add(result2);
+
+        // 과목 3 - 이전 결과들(result)을 전달하여 필터링
+        List<ApplyRegularStudyDto> applies3 = applyRegularStudyRepository
+                .findAllBySubject_SubjectId(3L)
+                .stream()
+                .map(ApplyRegularStudyDto::fromEntity)
+                .toList();
+        TeamMatchResultDto result3 = teamMatcher.optimizeTeamMatching(applies3, result);
+        result.add(result3);
+
+        // 과목 4 - 이전 결과들(result)을 전달하여 필터링
+        List<ApplyRegularStudyDto> applies4 = applyRegularStudyRepository
+                .findAllBySubject_SubjectId(4L)
+                .stream()
+                .map(ApplyRegularStudyDto::fromEntity)
+                .toList();
+        TeamMatchResultDto result4 = teamMatcher.optimizeTeamMatching(applies4, result);
+        result.add(result4);
+
+        // 과목 5 - 이전 결과들(result)을 전달하여 필터링
+        List<ApplyRegularStudyDto> applies5 = applyRegularStudyRepository
+                .findAllBySubject_SubjectId(5L)
+                .stream()
+                .map(ApplyRegularStudyDto::fromEntity)
+                .toList();
+        TeamMatchResultDto result5 = teamMatcher.optimizeTeamMatching(applies5, result);
+        result.add(result5);
+
+        // 전체 결과 요약 출력
+        System.out.println("\n=== 전체 팀매칭 완료 ===");
+        int totalTeams = result.stream().mapToInt(r -> r.getTeamMatchDtoList().size()).sum();
+        int totalFailed = result.stream().mapToInt(r -> r.getFailedMemberIdList().size()).sum();
+        System.out.println("총 생성된 팀: " + totalTeams + "개");
+        System.out.println("총 실패한 학생: " + totalFailed + "명");
+
+        // 과목별 결과 요약
+        for (TeamMatchResultDto teamResult : result) {
+            System.out.println("과목 " + teamResult.getSubjectId() +
+                    ": " + teamResult.getTeamMatchDtoList().size() + "개 팀, " +
+                    teamResult.getFailedMemberIdList().size() + "명 실패");
+        }
+
+        return result;
     }
 
 
