@@ -1,19 +1,25 @@
 package com.seoultech.ecc.review.service;
 
-import com.seoultech.ecc.member.dto.MemberSimpleDto;
-import com.seoultech.ecc.report.datamodel.ReportDocument;
-import com.seoultech.ecc.review.datamodel.ReviewDocument;
-import com.seoultech.ecc.review.datamodel.ReviewTestDocument;
+import com.seoultech.ecc.member.repository.MemberRepository;
+import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.datamodel.ReportMemberEntity;
+import com.seoultech.ecc.review.datamodel.ReviewEntity;
+import com.seoultech.ecc.review.datamodel.ReviewStatus;
+import com.seoultech.ecc.review.datamodel.ReviewTestEntity;
+import com.seoultech.ecc.review.datamodel.ReviewTestQuestionEntity;
 import com.seoultech.ecc.review.dto.QuestionDto;
+import com.seoultech.ecc.review.dto.ReviewResponseDto;
 import com.seoultech.ecc.review.dto.ReviewSummaryDto;
+import com.seoultech.ecc.review.dto.ReviewTestResponseDto;
 import com.seoultech.ecc.review.repository.ReviewRepository;
 import com.seoultech.ecc.review.repository.ReviewTestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -24,70 +30,154 @@ public class ReviewService {
     @Autowired
     private ReviewTestRepository reviewTestRepository;
 
-    public List<ReviewDocument> findAllByMemberId(int memberId) {
-        return reviewRepository.findAllByMemberId(memberId);
+    @Autowired
+    private MemberRepository memberRepository;
+
+    public List<ReviewResponseDto> findAllByMemberId(Integer memberId) {
+        List<ReviewEntity> entities = reviewRepository.findAllByMemberId(memberId);
+        return entities.stream()
+                .map(ReviewResponseDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public ReviewDocument findByReviewId(String reviewId) {
-        return reviewRepository.findById(reviewId).orElse(null);
+    public ReviewResponseDto findByReviewId(String reviewId) {
+        try {
+            Integer id = Integer.parseInt(reviewId);
+            ReviewEntity entity = reviewRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
+            return ReviewResponseDto.fromEntity(entity);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid review ID format: " + reviewId);
+        }
+    }
+
+    public ReviewEntity findEntityByReviewId(String reviewId) {
+        try {
+            Integer id = Integer.parseInt(reviewId);
+            return reviewRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid review ID format: " + reviewId);
+        }
     }
 
     // reportId로 팀원별 복습 현황 상태 확인
-    // TODO: MongoDB 교체 후 수정
     public List<ReviewSummaryDto> getReviewStatusInfos(String reportId) {
-        List<ReviewDocument> reviews = reviewRepository.findAllByReportId(reportId);
-        List<ReviewSummaryDto> dtos = new ArrayList<>();
-        for (ReviewDocument review : reviews) {
-            ReviewSummaryDto dto = new ReviewSummaryDto();
-            dto.setReviewId(review.getId());
-            dto.setMemberId(review.getMember().getId());
-            dto.setMemberName(review.getMember().getName());
-            dto.setReviewStatus(review.getStatus());
-            dtos.add(dto);
+        try {
+            Integer id = Integer.parseInt(reportId);
+            List<ReviewEntity> reviews = reviewRepository.findAllByReportId(id);
+
+            return reviews.stream()
+                    .map(review -> ReviewSummaryDto.builder()
+                            .reviewId(review.getId().toString())
+                            .memberId(review.getMember().getUuid())
+                            .memberName(review.getMember().getName())
+                            .reviewStatus(review.getStatus())
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid report ID format: " + reportId);
         }
-        return dtos;
     }
 
-    public void createReviews(ReportDocument report){
-        for(MemberSimpleDto member: report.getMembers()){
-            ReviewDocument review = new ReviewDocument();
-            review.setMember(member);
+    @Transactional
+    public void createReviews(ReportEntity report) {
+        for (ReportMemberEntity reportMember : report.getReportMembers()) {
+            ReviewEntity review = new ReviewEntity();
+            review.setMember(reportMember.getMember());
             review.setWeek(report.getWeek());
-            review.setReportId(report.getId());
-            review.setContents(report.getContents()); // TODO: 추후 수정 필요
+            review.setReport(report);
+            review.setContents(report.getContents());
+            review.setStatus(ReviewStatus.INCOMPLETE); // 보고서가 제출되면 복습 가능 상태
+
             reviewRepository.save(review);
         }
     }
 
-    public ReviewTestDocument getReviewTest(Integer userId, String reviewId) {
-        System.out.println("복습테스트 만들겡");
-        // reviewId로 이미 진행 중인 reviewTest Redis 확인 후 있으면 반환
-        ReviewTestDocument test = reviewTestRepository.findById(reviewId).orElse(null);
-        if(test == null){
-            System.out.println("null이라 복습테스트 만들겡");
-            test = new ReviewTestDocument();
-            test.setId(reviewId);
-            test.setUserId(userId);
+    @Transactional
+    public ReviewTestResponseDto getReviewTest(Integer userId, String reviewId) {
+        try {
+            Integer id = Integer.parseInt(reviewId);
+
+            // 기존 테스트가 있는지 확인
+            ReviewTestEntity existingTest = reviewTestRepository.findByReviewId(id).orElse(null);
+
+            if (existingTest != null) {
+                return ReviewTestResponseDto.fromEntity(existingTest);
+            }
+
+            // 새로운 테스트 생성
+            ReviewEntity review = reviewRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
+
+            ReviewTestEntity test = new ReviewTestEntity();
+            test.setReview(review);
             test.setComplete(false);
-            // TODO: ai
-            List<QuestionDto> questions = new ArrayList<>();
-            questions.add(new QuestionDto("질문1 예시 --", null, false));
-            questions.add(new QuestionDto("질문2 예시 --", null, false));
-            questions.add(new QuestionDto("질문3 예시 --", null, false));
+
+            // TODO: AI로 질문 생성
+            List<ReviewTestQuestionEntity> questions = new ArrayList<>();
+            String[] sampleQuestions = {
+                    "질문1 예시 --",
+                    "질문2 예시 --",
+                    "질문3 예시 --"
+            };
+
+            for (int i = 0; i < sampleQuestions.length; i++) {
+                ReviewTestQuestionEntity question = new ReviewTestQuestionEntity();
+                question.setReviewTest(test);
+                question.setQuestion(sampleQuestions[i]);
+                question.setQuestionOrder(i + 1);
+                question.setCorrect(false);
+                questions.add(question);
+            }
+
             test.setQuestions(questions);
-            test = reviewTestRepository.save(test);
+            ReviewTestEntity saved = reviewTestRepository.save(test);
+
+            return ReviewTestResponseDto.fromEntity(saved);
+
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid review ID format: " + reviewId);
         }
-        return test;
-
     }
 
-    public ReviewTestDocument submitReviewTest(ReviewTestDocument test) {
-        // TODO: ai
-//        ReviewDocument test = aiService.gradeTest(test);
-        test.setComplete(true);
-        return test;
+    @Transactional
+    public ReviewTestResponseDto submitReviewTest(ReviewTestResponseDto testDto) {
+        try {
+            Integer id = Integer.parseInt(testDto.getId());
+            ReviewTestEntity test = reviewTestRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Review test not found with id: " + testDto.getId()));
+
+            // 답안 업데이트
+            List<QuestionDto> submittedQuestions = testDto.getQuestions();
+            List<ReviewTestQuestionEntity> existingQuestions = test.getQuestions();
+
+            for (int i = 0; i < Math.min(submittedQuestions.size(), existingQuestions.size()); i++) {
+                ReviewTestQuestionEntity existing = existingQuestions.get(i);
+                QuestionDto submitted = submittedQuestions.get(i);
+
+                existing.setAnswer(submitted.getAnswer());
+                existing.setCorrect(submitted.isCorrect());
+            }
+
+            // TODO: AI로 채점
+            test.setComplete(true);
+
+            // 복습 완료 상태로 변경
+            ReviewEntity review = test.getReview();
+            review.setStatus(ReviewStatus.COMPLETED);
+            reviewRepository.save(review);
+
+            ReviewTestEntity saved = reviewTestRepository.save(test);
+            return ReviewTestResponseDto.fromEntity(saved);
+
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid test ID format: " + testDto.getId());
+        }
     }
 
-
-
+    // 호환성을 위한 추가 메서드들
+    public ReviewTestResponseDto submitReviewTestByEntity(ReviewTestEntity testEntity) {
+        return ReviewTestResponseDto.fromEntity(testEntity);
+    }
 }

@@ -4,9 +4,10 @@ import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.member.repository.MemberRepository;
-import com.seoultech.ecc.report.datamodel.ReportDocument;
+import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.dto.ReportResponseDto;
 import com.seoultech.ecc.report.repository.ReportRepository;
-import com.seoultech.ecc.review.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.datamodel.ReviewEntity;
 import com.seoultech.ecc.review.datamodel.ReviewStatus;
 import com.seoultech.ecc.review.repository.ReviewRepository;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
@@ -102,10 +103,10 @@ public class AdminTeamService {
         checkRegularStudy(team);
 
         // 주차별 보고서 조회
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
 
         // 요청한 주차의 보고서 찾기
-        Optional<ReportDocument> reportOpt = reports.stream()
+        Optional<ReportEntity> reportOpt = reports.stream()
                 .filter(report -> report.getWeek() == week)
                 .findFirst();
 
@@ -113,16 +114,23 @@ public class AdminTeamService {
             throw new RuntimeException("해당 주차의 보고서가 존재하지 않습니다.");
         }
 
-        ReportDocument report = reportOpt.get();
+        ReportEntity report = reportOpt.get();
 
         // 주차별 복습 상태 정보 조회
-        List<ReviewDocument> reviews = reviewRepository.findAllByReportId(report.getId());
+        List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
 
         // 주차별 상세 정보 구성 (보고서 + 복습 상태)
         Map<String, Object> weekDetail = new HashMap<>();
         weekDetail.put("teamInfo", TeamDto.fromEntity(team));
-        weekDetail.put("report", report);
-        weekDetail.put("reviews", reviews);
+        weekDetail.put("report", ReportResponseDto.fromEntity(report));
+        weekDetail.put("reviews", reviews.stream()
+                .map(review -> Map.of(
+                        "id", review.getId().toString(),
+                        "memberId", review.getMember().getUuid(),
+                        "memberName", review.getMember().getName(),
+                        "status", review.getStatus()
+                ))
+                .toList());
 
         return weekDetail;
     }
@@ -131,7 +139,7 @@ public class AdminTeamService {
      * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getTeamWeekReport(Long teamId, int week, Integer adminUuid) {
+    public ReportResponseDto getTeamWeekReport(Long teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -142,20 +150,22 @@ public class AdminTeamService {
         checkRegularStudy(team);
 
         // 주차별 보고서 조회
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
 
         // 요청한 주차의 보고서 찾기
-        return reports.stream()
-                .filter(report -> report.getWeek() == week)
+        ReportEntity report = reports.stream()
+                .filter(r -> r.getWeek() == week)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("해당 주차의 보고서가 존재하지 않습니다."));
+
+        return ReportResponseDto.fromEntity(report);
     }
 
     /**
      * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getOneTimeTeamReport(Long teamId, Integer adminUuid) {
+    public ReportResponseDto getOneTimeTeamReport(Long teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -168,20 +178,20 @@ public class AdminTeamService {
         }
 
         // 번개 스터디 보고서 조회 (항상 첫 번째 보고서만 사용)
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
 
         if (reports.isEmpty()) {
             throw new RuntimeException("해당 번개 스터디의 보고서가 존재하지 않습니다.");
         }
 
-        return reports.get(0);
+        return ReportResponseDto.fromEntity(reports.get(0));
     }
 
     /**
      * 보고서 평가 점수 수정 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateReportGrade(Long teamId, int week, int grade, Integer adminUuid) {
+    public ReportResponseDto updateReportGrade(Long teamId, int week, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -197,20 +207,23 @@ public class AdminTeamService {
         checkRegularStudy(team);
 
         // 주차별 보고서 조회
-        ReportDocument report = getTeamWeekReport(teamId, week, adminUuid);
+        ReportResponseDto reportDto = getTeamWeekReport(teamId, week, adminUuid);
 
-        // 점수 업데이트
+        // Entity 조회 후 점수 업데이트
+        ReportEntity report = reportRepository.findById(Integer.parseInt(reportDto.getId()))
+                .orElseThrow(() -> new RuntimeException("보고서를 찾을 수 없습니다."));
+
         report.setGrade(grade);
+        ReportEntity saved = reportRepository.save(report);
 
-        // 저장
-        return reportRepository.save(report);
+        return ReportResponseDto.fromEntity(saved);
     }
 
     /**
      * 번개 스터디 보고서 평가 점수 수정 (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateOneTimeReportGrade(Long teamId, int grade, Integer adminUuid) {
+    public ReportResponseDto updateOneTimeReportGrade(Long teamId, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -220,13 +233,16 @@ public class AdminTeamService {
         }
 
         // 번개 스터디 보고서 조회
-        ReportDocument report = getOneTimeTeamReport(teamId, adminUuid);
+        ReportResponseDto reportDto = getOneTimeTeamReport(teamId, adminUuid);
 
-        // 점수 업데이트
+        // Entity 조회 후 점수 업데이트
+        ReportEntity report = reportRepository.findById(Integer.parseInt(reportDto.getId()))
+                .orElseThrow(() -> new RuntimeException("보고서를 찾을 수 없습니다."));
+
         report.setGrade(grade);
+        ReportEntity saved = reportRepository.save(report);
 
-        // 저장
-        return reportRepository.save(report);
+        return ReportResponseDto.fromEntity(saved);
     }
 
     /**
@@ -394,7 +410,7 @@ public class AdminTeamService {
         checkRegularStudy(team);
 
         // 팀 보고서 조회
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("teamId", teamId);
@@ -404,7 +420,11 @@ public class AdminTeamService {
         // 팀원별 복습 완료율 계산
         Map<Integer, Map<String, Object>> memberStats = new HashMap<>();
 
-        List<MemberSimpleDto> members = !reports.isEmpty() ? reports.get(0).getMembers() : new ArrayList<>();
+        List<MemberSimpleDto> members = !reports.isEmpty() && !reports.get(0).getReportMembers().isEmpty() ?
+                reports.get(0).getReportMembers().stream()
+                        .map(rm -> new MemberSimpleDto(rm.getMember().getUuid(), rm.getMember().getName()))
+                        .toList() : new ArrayList<>();
+
         for (MemberSimpleDto member : members) {
             Map<String, Object> memberStat = new HashMap<>();
             memberStat.put("memberId", member.getId());
@@ -414,15 +434,15 @@ public class AdminTeamService {
             long completedReviews = 0;
             long totalReviews = 0;
 
-            for (ReportDocument report : reports) {
+            for (ReportEntity report : reports) {
                 if (!report.isSubmitted()) continue;
 
                 totalReviews++;
 
                 // 회원의 복습 상태 조회
-                List<ReviewDocument> reviews = reviewRepository.findAllByReportId(report.getId());
-                Optional<ReviewDocument> memberReview = reviews.stream()
-                        .filter(r -> r.getMember() != null && r.getMember().getId().equals(member.getId()))
+                List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
+                Optional<ReviewEntity> memberReview = reviews.stream()
+                        .filter(r -> r.getMember() != null && r.getMember().getUuid().equals(member.getId()))
                         .findFirst();
 
                 if (memberReview.isPresent() && memberReview.get().getStatus() == ReviewStatus.COMPLETED) {
@@ -441,15 +461,15 @@ public class AdminTeamService {
         stats.put("memberStats", memberStats.values());
 
         // 팀 전체 통계
-        long submittedReports = reports.stream().filter(ReportDocument::isSubmitted).count();
+        long submittedReports = reports.stream().filter(ReportEntity::isSubmitted).count();
         double teamSubmissionRate = !reports.isEmpty() ? (double) submittedReports / reports.size() * 100 : 0;
         stats.put("submittedReports", submittedReports);
         stats.put("teamSubmissionRate", Math.round(teamSubmissionRate * 10) / 10.0);
 
         // 팀 평균 점수
         OptionalDouble avgGrade = reports.stream()
-                .filter(ReportDocument::isSubmitted)
-                .mapToInt(ReportDocument::getGrade)
+                .filter(ReportEntity::isSubmitted)
+                .mapToInt(ReportEntity::getGrade)
                 .average();
         stats.put("averageGrade", avgGrade.isPresent() ? Math.round(avgGrade.getAsDouble() * 10) / 10.0 : 0);
 
@@ -489,12 +509,12 @@ public class AdminTeamService {
             teamStatus.put("teamName", team.getName());
 
             // 팀의 보고서 조회
-            List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getTeamId());
+            List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getTeamId());
 
             // 주차별 현황
             List<Map<String, Object>> weeklyStatus = new ArrayList<>();
 
-            for (ReportDocument report : reports) {
+            for (ReportEntity report : reports) {
                 Map<String, Object> weekStatus = new HashMap<>();
                 weekStatus.put("week", report.getWeek());
                 weekStatus.put("submitted", report.isSubmitted());
@@ -504,17 +524,20 @@ public class AdminTeamService {
                 List<Map<String, Object>> memberReviewStatus = new ArrayList<>();
 
                 if (report.isSubmitted()) {
-                    List<ReviewDocument> reviews = reviewRepository.findAllByReportId(report.getId());
+                    List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
 
                     // 안전하게 멤버 리스트 가져오기
-                    List<MemberSimpleDto> members = report.getMembers();
+                    List<MemberSimpleDto> members = report.getReportMembers().stream()
+                            .map(rm -> new MemberSimpleDto(rm.getMember().getUuid(), rm.getMember().getName()))
+                            .toList();
+
                     for (MemberSimpleDto member : members) {
                         Map<String, Object> memberStatus = new HashMap<>();
                         memberStatus.put("memberId", member.getId());
                         memberStatus.put("memberName", member.getName());
 
-                        Optional<ReviewDocument> reviewOpt = reviews.stream()
-                                .filter(r -> r.getMember() != null && r.getMember().getId().equals(member.getId()))
+                        Optional<ReviewEntity> reviewOpt = reviews.stream()
+                                .filter(r -> r.getMember() != null && r.getMember().getUuid().equals(member.getId()))
                                 .findFirst();
 
                         ReviewStatus reviewStatus = reviewOpt.isPresent() ? reviewOpt.get().getStatus() : ReviewStatus.NOT_READY;
@@ -531,11 +554,11 @@ public class AdminTeamService {
             teamStatus.put("weeklyStatus", weeklyStatus);
 
             // 요약 통계
-            long submittedCount = reports.stream().filter(ReportDocument::isSubmitted).count();
+            long submittedCount = reports.stream().filter(ReportEntity::isSubmitted).count();
             double submissionRate = !reports.isEmpty() ? (double) submittedCount / reports.size() * 100 : 0;
             OptionalDouble avgGrade = reports.stream()
-                    .filter(ReportDocument::isSubmitted)
-                    .mapToInt(ReportDocument::getGrade)
+                    .filter(ReportEntity::isSubmitted)
+                    .mapToInt(ReportEntity::getGrade)
                     .average();
 
             teamStatus.put("totalWeeks", reports.size());
