@@ -12,18 +12,6 @@ services:
     networks:
       - ecc-backend
 
-  mongodb:
-    image: mongo:6.0
-    restart: always
-    environment:
-      MONGO_INITDB_DATABASE: ecc
-    ports:
-      - "12717:27017"  # 변경된 포트 (원래 27017 → 12717)
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - ecc-backend
-
   redis:
     image: redis:7.2
     restart: always
@@ -34,7 +22,6 @@ services:
 
 volumes:
   mariadb_data:
-  mongodb_data:
 
 networks:
   ecc-backend:
