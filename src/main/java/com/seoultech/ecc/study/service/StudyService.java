@@ -2,7 +2,8 @@ package com.seoultech.ecc.study.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seoultech.ecc.report.datamodel.ReportDocument;
+import com.seoultech.ecc.report.datamodel.ReportEntity;
+import com.seoultech.ecc.report.dto.ReportResponseDto;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.study.datamodel.*;
@@ -28,17 +29,19 @@ public class StudyService {
     private StudyRepository studyRepository;
 
     public List<WeeklySummaryDto> getTeamProgress(Long teamId) {
-        List<ReportDocument> reports = reportService.findReportsByTeamId(teamId);
+        List<ReportResponseDto> reports = reportService.findReportsByTeamId(teamId);
         List<WeeklySummaryDto> dtos = new ArrayList<>();
-        for (ReportDocument report : reports) {
+
+        for (ReportResponseDto report : reports) {
             WeeklySummaryDto dto = new WeeklySummaryDto();
             StudySummaryDto studyDto = new StudySummaryDto();
             studyDto.setTeamId(teamId);
             studyDto.setWeek(report.getWeek());
+
             if (studyRepository.findByStudyId(report.getId()) != null) { // 진행중
                 studyDto.setStudyStatus(StudyStatus.ONGOING);
                 dto.setReviewSummaries(null);
-            } else if(report.isSubmitted()){ // 보고서 제출 완료
+            } else if (report.isSubmitted()) { // 보고서 제출 완료
                 studyDto.setStudyStatus(StudyStatus.COMPLETE);
                 dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getId()));
             } else { // 보고서 미제출
@@ -54,20 +57,20 @@ public class StudyService {
     @Transactional
     public StudyRedis getStudyRoom(Long teamId) {
         // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
-        String teamStudyKey = "team:" + teamId + ":study";
-        String existingStudyId = studyRepository.findStudyIdByTeamId(teamId); // 해당 팀의 스터디 redis 존재 여부 확인
+        String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
         if (existingStudyId != null) {
-            String redisKey = "study:" + existingStudyId;
-            StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId); // 스터디Id로 redis 내용 확인
+            StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId);
             if (existingStudy != null) return existingStudy;
-            // 예외 처리 (키는 있는데 값은 없는 경우
+
+            // 예외 처리 (키는 있는데 값은 없는 경우)
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
+
         // 없으면 생성
-        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성 TODO: 보고서 초안은 있지만 study redis가 없는 경우 처리 필요 (생성날짜로 판단?)
-        StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성 (빈 topic 목록)
+        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
+        StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성
         studyRepository.save(studyRedis); // 3. Redis 저장
-        studyRepository.saveTeamIndex(teamId, reportId);// 인덱싱용 저장
+        studyRepository.saveTeamIndex(teamId, reportId); // 인덱싱용 저장
         return studyRedis;
     }
 
@@ -82,7 +85,7 @@ public class StudyService {
         List<String> topics1 = new ArrayList<>();
         topics1.add("What's your favorite time of the day and why?");
         topics1.add("Would you rather travel to the past or the future?");
-        topics1.add("What's the most useless thing you’ve ever bought?");
+        topics1.add("What's the most useless thing you've ever bought?");
         topic1.setTopic(topics1);
 
         // 밸런스 게임
@@ -99,7 +102,6 @@ public class StudyService {
     }
 
     public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
-
         // 1. Redis에서 기존 StudyRedis 객체 불러오기
         StudyRedis study = studyRepository.findByStudyId(studyId);
         if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);
@@ -142,9 +144,9 @@ public class StudyService {
         Long newExpressionId = (long) (targetTopic.getExpressions().size() + 1);
         expression.setExpressionId(newExpressionId);
         expression.setQuestion(questionDto.getQuestion());
-        expression.setEnglish("monkey");// TODO: AI에게 결과 받아오기
-        expression.setKorean("원숭이");// TODO: AI에게 결과 받아오기
-        expression.setExample("His monkey wanted a banana.");// TODO: AI에게 결과 받아오기
+        expression.setEnglish("monkey"); // TODO: AI에게 결과 받아오기
+        expression.setKorean("원숭이"); // TODO: AI에게 결과 받아오기
+        expression.setExample("His monkey wanted a banana."); // TODO: AI에게 결과 받아오기
 
         // 4. 추가
         targetTopic.getExpressions().add(expression);
@@ -171,7 +173,7 @@ public class StudyService {
         }
 
         // 3. 보고서 contents에 StudyRedis JSON 문자열 그대로 저장
-        ReportDocument report = reportService.findByReportId(studyId);
+        ReportEntity report = reportService.findEntityByReportId(studyId);
         report.setContents(contents);
         reportService.saveReport(report);
 
@@ -184,13 +186,13 @@ public class StudyService {
 
     @Transactional
     public String submitReportAndCreateReview(String reportId) {
-        ReportDocument report = reportService.findByReportId(reportId);
+        ReportEntity report = reportService.findEntityByReportId(reportId);
         report.setSubmitted(true);
         reviewService.createReviews(report);
         return reportService.saveReport(report);
     }
 
-    public ReportDocument getReport(String reportId) {
+    public ReportResponseDto getReport(String reportId) {
         return reportService.findByReportId(reportId);
     }
 }

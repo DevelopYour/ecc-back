@@ -3,7 +3,7 @@ package com.seoultech.ecc.admin.controller;
 import com.seoultech.ecc.admin.service.AdminTeamService;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.member.dto.ResponseDto;
-import com.seoultech.ecc.report.datamodel.ReportDocument;
+import com.seoultech.ecc.report.dto.ReportResponseDto;
 import com.seoultech.ecc.team.dto.TeamDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -78,14 +78,14 @@ public class AdminTeamController {
             summary = "번개 스터디 보고서 조회",
             description = "번개 스터디의 보고서를 조회합니다. 번개 스터디는 단일 보고서만 존재합니다."
     )
-    public ResponseEntity<ResponseDto<ReportDocument>> getOneTimeTeamReport(
+    public ResponseEntity<ResponseDto<ReportResponseDto>> getOneTimeTeamReport(
             @PathVariable Long teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
         try {
-            ReportDocument report = adminTeamService.getOneTimeTeamReport(teamId, uuid);
+            ReportResponseDto report = adminTeamService.getOneTimeTeamReport(teamId, uuid);
             return ResponseEntity.ok(ResponseDto.success(report));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
@@ -97,7 +97,7 @@ public class AdminTeamController {
             summary = "팀 주차별 보고서 조회",
             description = "특정 팀의 주차별 보고서를 조회합니다. 정규 스터디만 주차별 보고서 조회가 가능합니다."
     )
-    public ResponseEntity<ResponseDto<ReportDocument>> getTeamWeekReport(
+    public ResponseEntity<ResponseDto<ReportResponseDto>> getTeamWeekReport(
             @PathVariable Long teamId,
             @PathVariable int week,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -105,7 +105,7 @@ public class AdminTeamController {
         Integer uuid = userDetails.getId();
 
         try {
-            ReportDocument report = adminTeamService.getTeamWeekReport(teamId, week, uuid);
+            ReportResponseDto report = adminTeamService.getTeamWeekReport(teamId, week, uuid);
             return ResponseEntity.ok(ResponseDto.success(report));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
@@ -117,7 +117,7 @@ public class AdminTeamController {
             summary = "정규 스터디 보고서 평가 점수 수정",
             description = "정규 스터디의 주차별 보고서 평가 점수를 수정합니다."
     )
-    public ResponseEntity<ResponseDto<ReportDocument>> updateReportGrade(
+    public ResponseEntity<ResponseDto<ReportResponseDto>> updateReportGrade(
             @PathVariable Long teamId,
             @PathVariable int week,
             @RequestParam int grade,
@@ -126,7 +126,7 @@ public class AdminTeamController {
         Integer uuid = userDetails.getId();
 
         try {
-            ReportDocument updatedReport = adminTeamService.updateReportGrade(teamId, week, grade, uuid);
+            ReportResponseDto updatedReport = adminTeamService.updateReportGrade(teamId, week, grade, uuid);
             return ResponseEntity.ok(ResponseDto.success("보고서 평가 점수가 수정되었습니다.", updatedReport));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
@@ -138,7 +138,7 @@ public class AdminTeamController {
             summary = "번개 스터디 보고서 평가 점수 수정",
             description = "번개 스터디의 보고서 평가 점수를 수정합니다."
     )
-    public ResponseEntity<ResponseDto<ReportDocument>> updateOneTimeReportGrade(
+    public ResponseEntity<ResponseDto<ReportResponseDto>> updateOneTimeReportGrade(
             @PathVariable Long teamId,
             @RequestParam int grade,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -146,7 +146,7 @@ public class AdminTeamController {
         Integer uuid = userDetails.getId();
 
         try {
-            ReportDocument updatedReport = adminTeamService.updateOneTimeReportGrade(teamId, grade, uuid);
+            ReportResponseDto updatedReport = adminTeamService.updateOneTimeReportGrade(teamId, grade, uuid);
             return ResponseEntity.ok(ResponseDto.success("번개 스터디 보고서 평가 점수가 수정되었습니다.", updatedReport));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
