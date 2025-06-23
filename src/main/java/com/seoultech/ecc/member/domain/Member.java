@@ -20,7 +20,7 @@ public class Member {
     private Integer level;
     private Double rate;
     private MemberStatus status;
-    private Long majorId;
+    private Integer majorId;
     private String majorName;
     private String role;
 }

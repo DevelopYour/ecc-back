@@ -33,7 +33,7 @@ public class ReviewController {
 
     @GetMapping("/me/{reviewId}")
     @Operation(summary = "복습자료 조회", description = "특정 복습자료를 조회합니다.")
-    public ResponseEntity<ResponseDto<ReviewResponseDto>> getMyReview(@PathVariable String reviewId) {
+    public ResponseEntity<ResponseDto<ReviewResponseDto>> getMyReview(@PathVariable Integer reviewId) {
         // TODO: 권한 확인
         ReviewResponseDto review = reviewService.findByReviewId(reviewId);
         return ResponseEntity.ok(ResponseDto.success(review));
@@ -41,7 +41,7 @@ public class ReviewController {
 
     @PostMapping("/me/{reviewId}/test")
     @Operation(summary = "복습 테스트 문제 요청", description = "특정 복습자료에 대한 테스트 문제를 요청합니다.")
-    public ResponseEntity<ResponseDto<ReviewTestResponseDto>> requestReviewTest(@PathVariable String reviewId,
+    public ResponseEntity<ResponseDto<ReviewTestResponseDto>> requestReviewTest(@PathVariable Integer reviewId,
                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         ReviewTestResponseDto test = reviewService.getReviewTest(userDetails.getId(), reviewId);
         return ResponseEntity.ok(ResponseDto.success(test));

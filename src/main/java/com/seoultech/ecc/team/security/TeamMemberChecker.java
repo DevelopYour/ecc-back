@@ -19,11 +19,11 @@ public class TeamMemberChecker {
      * 현재 사용자가 특정 팀의 멤버인지 확인
      * 관리자는 항상 접근 가능하도록 설정
      *
-     * @param teamId 확인할 팀 ID
+     * @param teamId 확인할 팀 ID - Long → Integer 변경
      * @param uuid 사용자 UUID
      * @return 팀 멤버 여부
      */
-    public boolean isTeamMember(Long teamId, Integer uuid) {
+    public boolean isTeamMember(Integer teamId, Integer uuid) {
         // 관리자 체크
         boolean isAdmin = memberRepository.findById(uuid)
                 .map(member -> "ROLE_ADMIN".equals(member.getRole()))

@@ -44,8 +44,8 @@ public class ReviewEntity extends BaseEntity {
     private ReviewTestEntity reviewTest;
 
     // 편의 메서드
-    public String getReportId() {
-        return report != null ? report.getId().toString() : null;
+    public Integer getReportId() {
+        return report != null ? report.getId() : null;
     }
 
     public Integer getMemberId() {

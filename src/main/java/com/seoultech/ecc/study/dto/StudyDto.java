@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class StudyDto {
-    private Long uuid;
-    private Long teamId;
-    private Long reportId;
-    private Long subjectId;
+    private String uuid;
+    private Integer teamId;
+    private Integer reportId;
+    private Integer subjectId;
     private String status;
 }

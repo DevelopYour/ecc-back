@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class SubjectDto {
-    private Long subjectId;
+    private Integer subjectId; // Long → Integer 변경
     private String name;
 
     public static SubjectDto fromEntity(SubjectEntity subject) {

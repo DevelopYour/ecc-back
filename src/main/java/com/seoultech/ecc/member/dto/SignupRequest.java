@@ -23,7 +23,7 @@ public class SignupRequest {
     private String studentId;
 
     @NotNull(message = "전공은 필수 입력 항목입니다.")
-    private Long majorId;
+    private Integer majorId;
 
     @NotBlank(message = "전화번호는 필수 입력 항목입니다.")
     @Pattern(regexp = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$", message = "올바른 형식의 전화번호를 입력해주세요.")

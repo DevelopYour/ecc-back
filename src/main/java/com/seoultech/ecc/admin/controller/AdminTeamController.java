@@ -44,7 +44,7 @@ public class AdminTeamController {
     @GetMapping("/{teamId}")
     @Operation(summary = "팀 상세 정보 조회", description = "특정 팀의 상세 정보를 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다.")
     public ResponseEntity<ResponseDto<TeamDto>> getTeamDetail(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
@@ -59,7 +59,7 @@ public class AdminTeamController {
             description = "특정 팀의 주차별 상세 정보를 조회합니다. 정규 스터디만 주차별 조회가 가능합니다."
     )
     public ResponseEntity<ResponseDto<Object>> getTeamWeekDetail(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @PathVariable int week,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -79,7 +79,7 @@ public class AdminTeamController {
             description = "번개 스터디의 보고서를 조회합니다. 번개 스터디는 단일 보고서만 존재합니다."
     )
     public ResponseEntity<ResponseDto<ReportResponseDto>> getOneTimeTeamReport(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
@@ -98,7 +98,7 @@ public class AdminTeamController {
             description = "특정 팀의 주차별 보고서를 조회합니다. 정규 스터디만 주차별 보고서 조회가 가능합니다."
     )
     public ResponseEntity<ResponseDto<ReportResponseDto>> getTeamWeekReport(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @PathVariable int week,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -118,7 +118,7 @@ public class AdminTeamController {
             description = "정규 스터디의 주차별 보고서 평가 점수를 수정합니다."
     )
     public ResponseEntity<ResponseDto<ReportResponseDto>> updateReportGrade(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @PathVariable int week,
             @RequestParam int grade,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -139,7 +139,7 @@ public class AdminTeamController {
             description = "번개 스터디의 보고서 평가 점수를 수정합니다."
     )
     public ResponseEntity<ResponseDto<ReportResponseDto>> updateOneTimeReportGrade(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @RequestParam int grade,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -159,7 +159,7 @@ public class AdminTeamController {
             description = "번개 스터디를 데이터베이스에서 완전히 삭제합니다. 관리자만 삭제 가능합니다."
     )
     public ResponseEntity<ResponseDto<Void>> deleteOneTimeTeam(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
@@ -178,7 +178,7 @@ public class AdminTeamController {
             description = "정규 스터디 팀의 점수를 수동으로 조정합니다. 번개 스터디에는 적용되지 않습니다."
     )
     public ResponseEntity<ResponseDto<TeamDto>> updateTeamScore(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @RequestParam int score,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -198,7 +198,7 @@ public class AdminTeamController {
             description = "특정 팀의 멤버 목록을 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다."
     )
     public ResponseEntity<ResponseDto<Object>> getTeamMembers(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
@@ -213,7 +213,7 @@ public class AdminTeamController {
             description = "특정 팀에 멤버를 추가합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
     )
     public ResponseEntity<ResponseDto<Object>> addTeamMember(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @RequestParam Integer memberUuid, // studentId 대신 uuid 사용
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -233,7 +233,7 @@ public class AdminTeamController {
             description = "특정 팀에서 멤버를 삭제합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
     )
     public ResponseEntity<ResponseDto<Object>> removeTeamMember(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @PathVariable Integer memberUuid, // studentId 대신 uuid 사용
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -253,7 +253,7 @@ public class AdminTeamController {
             description = "정규 스터디 팀의 출석 및 참여율 통계를 조회합니다. 번개 스터디에는 적용되지 않습니다."
     )
     public ResponseEntity<ResponseDto<Map<String, Object>>> getTeamAttendanceStats(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();

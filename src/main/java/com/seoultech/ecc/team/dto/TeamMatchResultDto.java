@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class TeamMatchResultDto {
-    Long subjectId;
+    Integer subjectId;
     List<TeamMatchDto> teamMatchDtoList;
-    List<Long> failedMemberIdList;
+    List<Integer> failedMemberIdList;
 }

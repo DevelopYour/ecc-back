@@ -37,7 +37,7 @@ public class ApplyStudyService {
         List<ApplyRegularStudyEntity> savedEntities = new ArrayList<>();
 
         // 모든 과목과 시간 조합에 대해 신청 처리
-        for (Long subjectId : request.getSubjectIds()) {
+        for (Integer subjectId : request.getSubjectIds()) { // Long → Integer 변경
             SubjectEntity subject = getSubjectById(subjectId);
 
             for (Integer timeId : request.getTimeIds()) {
@@ -85,7 +85,7 @@ public class ApplyStudyService {
         // 새로운 신청 내역 등록
         List<ApplyRegularStudyEntity> savedEntities = new ArrayList<>();
 
-        for (Long subjectId : request.getSubjectIds()) {
+        for (Integer subjectId : request.getSubjectIds()) { // Long → Integer 변경
             SubjectEntity subject = getSubjectById(subjectId);
 
             for (Integer timeId : request.getTimeIds()) {
@@ -131,9 +131,9 @@ public class ApplyStudyService {
     }
 
     /**
-     * 과목 ID로 과목 조회
+     * 과목 ID로 과목 조회 - Long → Integer 변경
      */
-    private SubjectEntity getSubjectById(Long subjectId) {
+    private SubjectEntity getSubjectById(Integer subjectId) {
         return subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 과목입니다. ID: " + subjectId));
     }
@@ -142,7 +142,7 @@ public class ApplyStudyService {
      * 시간 ID로 시간 조회
      */
     private TimeEntity getTimeById(Integer timeId) {
-        return timeRepository.findById(timeId.longValue())
+        return timeRepository.findById(timeId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 시간입니다. ID: " + timeId));
     }
 }

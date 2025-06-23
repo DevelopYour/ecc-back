@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfoEntity, Long> {
+public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfoEntity, Integer> { // Long -> Integer 변경
+
     List<OneTimeTeamInfoEntity> findByStatus(OneTimeTeamStatus status, Sort sort);
 
     List<OneTimeTeamInfoEntity> findByStatusIn(List<OneTimeTeamStatus> statuses, Sort sort);
@@ -20,18 +21,15 @@ public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfo
     @Query("SELECT o FROM OneTimeTeamInfoEntity o WHERE o.startTime > :now ORDER BY o.startTime ASC")
     List<OneTimeTeamInfoEntity> findUpcomingOneTimeTeams(@Param("now") LocalDateTime now, Sort sort);
 
-    @Query("SELECT o FROM OneTimeTeamInfoEntity o JOIN o.team t WHERE t.createdBy = :studentId")
-    List<OneTimeTeamInfoEntity> findOneTimeTeamsByCreator(@Param("studentId") String studentId, Sort sort);
+    // JPA 네이밍 컨벤션으로 변경 가능한 부분은 변경
+    List<OneTimeTeamInfoEntity> findByTeamCreatedByOrderByCreatedAtDesc(Integer createdBy);
 
     @Query("SELECT o FROM OneTimeTeamInfoEntity o JOIN o.team t JOIN t.teamMembers tm JOIN tm.member m " +
-            "WHERE m.studentId = :studentId")
-    List<OneTimeTeamInfoEntity> findOneTimeTeamsByMember(@Param("studentId") String studentId, Sort sort);
+            "WHERE m.uuid = :uuid ORDER BY o.createdAt DESC")
+    List<OneTimeTeamInfoEntity> findOneTimeTeamsByMemberUuid(@Param("uuid") Integer uuid);
 
     /**
      * 지정된 날짜 이전에 취소된 번개 스터디 목록 조회
      */
-    @Query("SELECT o FROM OneTimeTeamInfoEntity o WHERE o.status = :status AND o.canceledAt < :threshold")
-    List<OneTimeTeamInfoEntity> findByCanceledBeforeAndStatus(
-            @Param("threshold") LocalDateTime threshold,
-            @Param("status") OneTimeTeamStatus status);
+    List<OneTimeTeamInfoEntity> findByStatusAndCanceledAtBefore(OneTimeTeamStatus status, LocalDateTime threshold);
 }

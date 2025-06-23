@@ -28,7 +28,7 @@ public class OneTimeTeamDto {
         private String name;
 
         @NotNull(message = "과목 ID는 필수입니다.")
-        private Long subjectId;
+        private Integer subjectId; // Long → Integer 변경
 
         @Min(value = 2, message = "최소 인원은 2명 이상이어야 합니다.")
         @Max(value = 5, message = "최대 인원은 5명 이하여야 합니다.")
@@ -54,7 +54,7 @@ public class OneTimeTeamDto {
 
     /**
      * 번개 스터디 수정 요청 DTO
-    */
+     */
     @Getter
     @Setter
     @NoArgsConstructor
@@ -64,7 +64,7 @@ public class OneTimeTeamDto {
         @Size(min = 2, max = 50, message = "스터디 이름은 2~50자 사이여야 합니다.")
         private String name;
 
-        private Long subjectId;
+        private Integer subjectId; // Long → Integer 변경
 
         @Min(value = 2, message = "최소 인원은 2명 이상이어야 합니다.")
         @Max(value = 5, message = "최대 인원은 5명 이하여야 합니다.")
@@ -97,9 +97,9 @@ public class OneTimeTeamDto {
     @AllArgsConstructor
     @Builder
     public static class Response {
-        private Long teamId;
+        private Integer teamId; // Long → Integer 변경
         private String name;
-        private Long subjectId;
+        private Integer subjectId; // Long → Integer 변경
         private String subjectName;
         private List<MemberSimpleDto> members;
 
@@ -158,9 +158,9 @@ public class OneTimeTeamDto {
     @AllArgsConstructor
     @Builder
     public static class DetailResponse {
-        private Long teamId;
+        private Integer teamId; // Long → Integer 변경
         private String name;
-        private Long subjectId;
+        private Integer subjectId; // Long → Integer 변경
         private String subjectName;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")

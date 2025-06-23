@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LevelChangeRequestDto {
 
-    private Long id;
+    private Integer id; // Long → Integer 변경
     private Integer memberUuid;
     private String studentId;
     private String memberName;

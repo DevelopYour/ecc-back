@@ -25,14 +25,11 @@ public class TeamService {
     private final MemberRepository memberRepository;
 
     /**
-     * 회원이 속한.모든 팀 조회 (UUID 사용)
+     * 회원이 속한 모든 팀 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
     public List<TeamDto> getTeamsByMember(Integer uuid) {
-        List<TeamEntity> teams = teamRepository.findTeamsByMember(
-                uuid,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+        List<TeamEntity> teams = teamRepository.findTeamsByMemberUuid(uuid);
 
         return teams.stream()
                 .map(TeamDto::fromEntity)
@@ -44,10 +41,7 @@ public class TeamService {
      */
     @Transactional(readOnly = true)
     public List<TeamDto> getRegularTeamsByMember(Integer uuid) {
-        List<TeamEntity> allTeams = teamRepository.findTeamsByMember(
-                uuid,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+        List<TeamEntity> allTeams = teamRepository.findTeamsByMemberUuid(uuid);
 
         return allTeams.stream()
                 .filter(TeamEntity::isRegular)
@@ -60,10 +54,7 @@ public class TeamService {
      */
     @Transactional(readOnly = true)
     public List<TeamDto> getOneTimeTeamsByMember(Integer uuid) {
-        List<TeamEntity> allTeams = teamRepository.findTeamsByMember(
-                uuid,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+        List<TeamEntity> allTeams = teamRepository.findTeamsByMemberUuid(uuid);
 
         return allTeams.stream()
                 .filter(team -> !team.isRegular())
@@ -72,10 +63,10 @@ public class TeamService {
     }
 
     /**
-     * 팀 상세 정보 조회 (UUID 사용)
+     * 팀 상세 정보 조회 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Long teamId, Integer uuid) {
+    public TeamDto getTeamDetail(Integer teamId, Integer uuid) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 
@@ -83,10 +74,10 @@ public class TeamService {
     }
 
     /**
-     * 회원이 해당 팀에 속해있는지 확인 (UUID 사용)
+     * 회원이 해당 팀에 속해있는지 확인 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public boolean isTeamMember(Long teamId, Integer uuid) {
+    public boolean isTeamMember(Integer teamId, Integer uuid) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 
@@ -95,6 +86,8 @@ public class TeamService {
     }
 
     public List<SubjectDto> getAllSubjects() {
-        return subjectRepository.findAll().stream().map(SubjectDto::fromEntity).collect(Collectors.toList());
+        return subjectRepository.findAll().stream()
+                .map(SubjectDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }

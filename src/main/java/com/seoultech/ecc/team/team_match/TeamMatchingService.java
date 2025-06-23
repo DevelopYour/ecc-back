@@ -91,7 +91,7 @@ public class TeamMatchingService {
 
         // 과목 1
         List<ApplyRegularStudyDto> applies1 = applyRegularStudyRepository
-                .findAllBySubject_SubjectId(1L)
+                .findAllBySubjectSubjectId(1)
                 .stream()
                 .map(ApplyRegularStudyDto::fromEntity)
                 .toList();
@@ -100,7 +100,7 @@ public class TeamMatchingService {
 
         // 과목 2 - 이전 결과(result)를 전달하여 필터링
         List<ApplyRegularStudyDto> applies2 = applyRegularStudyRepository
-                .findAllBySubject_SubjectId(2L)
+                .findAllBySubjectSubjectId(2)
                 .stream()
                 .map(ApplyRegularStudyDto::fromEntity)
                 .toList();
@@ -109,7 +109,7 @@ public class TeamMatchingService {
 
         // 과목 3 - 이전 결과들(result)을 전달하여 필터링
         List<ApplyRegularStudyDto> applies3 = applyRegularStudyRepository
-                .findAllBySubject_SubjectId(3L)
+                .findAllBySubjectSubjectId(3)
                 .stream()
                 .map(ApplyRegularStudyDto::fromEntity)
                 .toList();
@@ -118,7 +118,7 @@ public class TeamMatchingService {
 
         // 과목 4 - 이전 결과들(result)을 전달하여 필터링
         List<ApplyRegularStudyDto> applies4 = applyRegularStudyRepository
-                .findAllBySubject_SubjectId(4L)
+                .findAllBySubjectSubjectId(4)
                 .stream()
                 .map(ApplyRegularStudyDto::fromEntity)
                 .toList();
@@ -127,7 +127,7 @@ public class TeamMatchingService {
 
         // 과목 5 - 이전 결과들(result)을 전달하여 필터링
         List<ApplyRegularStudyDto> applies5 = applyRegularStudyRepository
-                .findAllBySubject_SubjectId(5L)
+                .findAllBySubjectSubjectId(5)
                 .stream()
                 .map(ApplyRegularStudyDto::fromEntity)
                 .toList();

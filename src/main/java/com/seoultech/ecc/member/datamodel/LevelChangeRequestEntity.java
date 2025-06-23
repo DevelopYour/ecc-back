@@ -19,7 +19,7 @@ public class LevelChangeRequestEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id; // Long -> Integer 변경
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_uuid", nullable = false)

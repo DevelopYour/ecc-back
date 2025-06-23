@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewSummaryDto {
-    private String reviewId;
+    private Integer reviewId;
     private Integer memberId; // uuid
     private String memberName;
     private ReviewStatus reviewStatus;
