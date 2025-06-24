@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpressionRedis {
-    private Long expressionId;
+    private Integer expressionId;
     private String question;
     private String english;
     private String korean;

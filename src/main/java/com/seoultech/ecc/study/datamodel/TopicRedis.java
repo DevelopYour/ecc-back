@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicRedis {
-    private Long topicId;
+    private Integer topicId;
     private TopicCategory category;
     private String topic;
     private List<ExpressionRedis> expressions;

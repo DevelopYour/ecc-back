@@ -48,12 +48,12 @@ public class ReportEntity extends BaseEntity {
     @Column(name = "is_submitted", nullable = false, columnDefinition = "boolean default false")
     private boolean isSubmitted;
 
-    // 편의 메서드
+    // 편의 메서드 - 반환 타입도 Integer로 변경
     public Integer getTeamId() {
-        return team != null ? team.getTeamId().intValue() : null;
+        return team != null ? team.getTeamId() : null;
     }
 
     public Integer getSubjectId() {
-        return subject != null ? subject.getSubjectId().intValue() : null;
+        return subject != null ? subject.getSubjectId() : null;
     }
 }

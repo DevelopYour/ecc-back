@@ -26,7 +26,7 @@ public class MaximizeAssignmentTeamMatcher {
 
         // 학생별 시간 맵 생성
         Map<String, List<Integer>> studentTimeMap = new HashMap<>();
-        Long subjectId = null;
+        Integer subjectId = null;
 
         for (ApplyRegularStudyDto apply : applies) {
             String memberId = apply.getMemberId().toString();
@@ -69,7 +69,7 @@ public class MaximizeAssignmentTeamMatcher {
 
             TeamMatchDto teamDto = new TeamMatchDto();
             teamDto.setTimeId(selectedTime);
-            teamDto.setMemberIds(team.stream().map(Long::parseLong).collect(Collectors.toList()));
+            teamDto.setMemberIds(team.stream().map(Integer::parseInt).collect(Collectors.toList()));
             teamMatchDtoList.add(teamDto);
         }
         result.setTeamMatchDtoList(teamMatchDtoList);
@@ -79,9 +79,9 @@ public class MaximizeAssignmentTeamMatcher {
                 .flatMap(List::stream)
                 .collect(Collectors.toSet());
 
-        List<Long> failedMemberIds = studentTimeMap.keySet().stream()
+        List<Integer> failedMemberIds = studentTimeMap.keySet().stream()
                 .filter(memberId -> !assignedStudents.contains(memberId))
-                .map(Long::parseLong)
+                .map(Integer::parseInt)
                 .collect(Collectors.toList());
 
         result.setFailedMemberIdList(failedMemberIds);
@@ -99,7 +99,7 @@ public class MaximizeAssignmentTeamMatcher {
         for (TeamMatchResultDto result : previousResults) {
             for (TeamMatchDto team : result.getTeamMatchDtoList()) {
                 Integer timeId = team.getTimeId();
-                for (Long memberId : team.getMemberIds()) {
+                for (Integer memberId : team.getMemberIds()) {
                     combinations.add(memberId + "-" + timeId);
                 }
             }
@@ -288,7 +288,7 @@ public class MaximizeAssignmentTeamMatcher {
             totalTeams += result.getTeamMatchDtoList().size();
 
             for (TeamMatchDto team : result.getTeamMatchDtoList()) {
-                for (Long memberId : team.getMemberIds()) {
+                for (Integer memberId : team.getMemberIds()) {
                     allAssignedStudents.add(memberId.toString());
                 }
             }

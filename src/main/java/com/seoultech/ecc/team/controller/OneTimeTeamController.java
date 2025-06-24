@@ -45,11 +45,10 @@ public class OneTimeTeamController {
     @GetMapping("/{teamId}")
     @Operation(summary = "번개 스터디 상세 정보 조회", description = "특정 번개 스터디의 상세 정보를 조회합니다.")
     public ResponseEntity<ResponseDto<OneTimeTeamDto.DetailResponse>> getOneTimeTeamDetail(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Integer uuid = userDetails.getId();
-        String studentId = userDetails.getUsername(); // 이름 표시 등의 목적으로 사용
 
         OneTimeTeamDto.DetailResponse response = oneTimeTeamService.getOneTimeTeamDetail(teamId, uuid);
         return ResponseEntity.ok(ResponseDto.success(response));
@@ -83,7 +82,7 @@ public class OneTimeTeamController {
             )
     )
     public ResponseEntity<ResponseDto<OneTimeTeamDto.Response>> updateOneTimeTeam(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody OneTimeTeamDto.UpdateRequest request
     ) {
@@ -97,7 +96,7 @@ public class OneTimeTeamController {
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "번개 스터디 신청", description = "번개 스터디에 참여 신청합니다.")
     public ResponseEntity<ResponseDto<OneTimeTeamDto.Response>> applyToOneTimeTeam(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Integer uuid = userDetails.getId();
@@ -110,7 +109,7 @@ public class OneTimeTeamController {
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "번개 스터디 신청 취소", description = "번개 스터디 참여 신청을 취소합니다. 스터디 시작 3시간 전까지만 취소 가능합니다.")
     public ResponseEntity<ResponseDto<OneTimeTeamDto.Response>> cancelOneTimeTeamApplication(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Integer uuid = userDetails.getId();
@@ -123,7 +122,7 @@ public class OneTimeTeamController {
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "번개 스터디 취소", description = "번개 스터디를 취소합니다. 생성자만 취소 가능합니다.")
     public ResponseEntity<ResponseDto<Void>> cancelOneTimeTeam(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId, // Long → Integer 변경
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Integer uuid = userDetails.getId();

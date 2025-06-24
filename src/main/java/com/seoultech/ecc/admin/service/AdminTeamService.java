@@ -38,7 +38,7 @@ public class AdminTeamService {
     private final ReviewRepository reviewRepository;
 
     /**
-     * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용)
+     * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
     public List<TeamDto> getAllTeams(Integer adminUuid, Boolean isRegular, Integer year, Integer semester) {
@@ -50,8 +50,7 @@ public class AdminTeamService {
 
         if (year != null && semester != null) {
             // 연도와 학기로 필터링
-            teams = teamRepository.findByYearAndSemester(year, semester,
-                    Sort.by(Sort.Direction.DESC, "createdAt"));
+            teams = teamRepository.findByYearAndSemesterOrderByCreatedAtDesc(year, semester);
 
             // 정규 스터디 여부로 추가 필터링
             if (isRegular != null) {
@@ -75,10 +74,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀 상세 정보 조회 (UUID 사용)
+     * 특정 팀 상세 정보 조회 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Long teamId, Integer adminUuid) {
+    public TeamDto getTeamDetail(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -89,10 +88,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용)
+     * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public Object getTeamWeekDetail(Long teamId, int week, Integer adminUuid) {
+    public Object getTeamWeekDetail(Integer teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -102,8 +101,8 @@ public class AdminTeamService {
         // 번개 스터디 체크
         checkRegularStudy(team);
 
-        // 주차별 보고서 조회
-        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        // 주차별 보고서 조회 - Repository 메서드명 변경
+        List<ReportEntity> reports = reportRepository.findByTeamTeamIdOrderByWeekAsc(teamId);
 
         // 요청한 주차의 보고서 찾기
         Optional<ReportEntity> reportOpt = reports.stream()
@@ -117,7 +116,7 @@ public class AdminTeamService {
         ReportEntity report = reportOpt.get();
 
         // 주차별 복습 상태 정보 조회
-        List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
+        List<ReviewEntity> reviews = reviewRepository.findAllByReport_Id(report.getId());
 
         // 주차별 상세 정보 구성 (보고서 + 복습 상태)
         Map<String, Object> weekDetail = new HashMap<>();
@@ -136,10 +135,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용) (UUID 사용)
+     * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public ReportResponseDto getTeamWeekReport(Long teamId, int week, Integer adminUuid) {
+    public ReportResponseDto getTeamWeekReport(Integer teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -149,8 +148,8 @@ public class AdminTeamService {
         // 번개 스터디 체크
         checkRegularStudy(team);
 
-        // 주차별 보고서 조회
-        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        // 주차별 보고서 조회 - Repository 메서드명 변경
+        List<ReportEntity> reports = reportRepository.findByTeamTeamIdOrderByWeekAsc(teamId);
 
         // 요청한 주차의 보고서 찾기
         ReportEntity report = reports.stream()
@@ -162,10 +161,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재) (UUID 사용)
+     * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public ReportResponseDto getOneTimeTeamReport(Long teamId, Integer adminUuid) {
+    public ReportResponseDto getOneTimeTeamReport(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -177,8 +176,8 @@ public class AdminTeamService {
             throw new IllegalArgumentException("번개 스터디가 아닙니다. 정규 스터디는 주차별 보고서 조회를 이용해주세요.");
         }
 
-        // 번개 스터디 보고서 조회 (항상 첫 번째 보고서만 사용)
-        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        // 번개 스터디 보고서 조회 (항상 첫 번째 보고서만 사용) - Repository 메서드명 변경
+        List<ReportEntity> reports = reportRepository.findByTeamTeamIdOrderByWeekAsc(teamId);
 
         if (reports.isEmpty()) {
             throw new RuntimeException("해당 번개 스터디의 보고서가 존재하지 않습니다.");
@@ -188,10 +187,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 보고서 평가 점수 수정 (정규 스터디 전용) (UUID 사용)
+     * 보고서 평가 점수 수정 (정규 스터디 전용) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public ReportResponseDto updateReportGrade(Long teamId, int week, int grade, Integer adminUuid) {
+    public ReportResponseDto updateReportGrade(Integer teamId, int week, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -209,8 +208,9 @@ public class AdminTeamService {
         // 주차별 보고서 조회
         ReportResponseDto reportDto = getTeamWeekReport(teamId, week, adminUuid);
 
-        // Entity 조회 후 점수 업데이트
-        ReportEntity report = reportRepository.findById(Integer.parseInt(reportDto.getId()))
+        // Entity 조회 후 점수 업데이트 - String id를 Integer로 변환
+        Integer reportId = reportDto.getId();
+        ReportEntity report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("보고서를 찾을 수 없습니다."));
 
         report.setGrade(grade);
@@ -220,10 +220,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 번개 스터디 보고서 평가 점수 수정 (UUID 사용)
+     * 번개 스터디 보고서 평가 점수 수정 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public ReportResponseDto updateOneTimeReportGrade(Long teamId, int grade, Integer adminUuid) {
+    public ReportResponseDto updateOneTimeReportGrade(Integer teamId, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -235,8 +235,9 @@ public class AdminTeamService {
         // 번개 스터디 보고서 조회
         ReportResponseDto reportDto = getOneTimeTeamReport(teamId, adminUuid);
 
-        // Entity 조회 후 점수 업데이트
-        ReportEntity report = reportRepository.findById(Integer.parseInt(reportDto.getId()))
+        // Entity 조회 후 점수 업데이트 - String id를 Integer로 변환
+        Integer reportId = reportDto.getId();
+        ReportEntity report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("보고서를 찾을 수 없습니다."));
 
         report.setGrade(grade);
@@ -246,10 +247,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 관리자 전용 - 번개 스터디 완전 삭제 (UUID 사용)
+     * 관리자 전용 - 번개 스터디 완전 삭제 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public void deleteOneTimeTeam(Long teamId, Integer adminUuid) {
+    public void deleteOneTimeTeam(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -275,10 +276,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 점수 수동 조정 (정규 스터디 전용) (UUID 사용)
+     * 팀 점수 수동 조정 (정규 스터디 전용) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public TeamDto updateTeamScore(Long teamId, int score, Integer adminUuid) {
+    public TeamDto updateTeamScore(Integer teamId, int score, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -303,10 +304,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 멤버 조회 (UUID 사용)
+     * 팀 멤버 조회 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public Object getTeamMembers(Long teamId, Integer adminUuid) {
+    public Object getTeamMembers(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -328,10 +329,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀에 멤버 추가 (UUID 사용)
+     * 팀에 멤버 추가 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public Object addTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
+    public Object addTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -367,10 +368,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀에서 멤버 삭제 (UUID 사용)
+     * 팀에서 멤버 삭제 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public Object removeTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
+    public Object removeTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -396,10 +397,10 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 출석/참여율 통계 (정규 스터디 전용) (UUID 사용)
+     * 팀 출석/참여율 통계 (정규 스터디 전용) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamAttendanceStats(Long teamId, Integer adminUuid) {
+    public Map<String, Object> getTeamAttendanceStats(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -409,8 +410,8 @@ public class AdminTeamService {
         // 번개 스터디 체크
         checkRegularStudy(team);
 
-        // 팀 보고서 조회
-        List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        // 팀 보고서 조회 - Repository 메서드명 변경
+        List<ReportEntity> reports = reportRepository.findByTeamTeamIdOrderByWeekAsc(teamId);
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("teamId", teamId);
@@ -440,7 +441,7 @@ public class AdminTeamService {
                 totalReviews++;
 
                 // 회원의 복습 상태 조회
-                List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
+                List<ReviewEntity> reviews = reviewRepository.findAllByReport_Id(report.getId());
                 Optional<ReviewEntity> memberReview = reviews.stream()
                         .filter(r -> r.getMember() != null && r.getMember().getUuid().equals(member.getId()))
                         .findFirst();
@@ -488,9 +489,9 @@ public class AdminTeamService {
         int currentYear = year != null ? year : LocalDateTime.now().getYear();
         int currentSemester = semester != null ? semester : (LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
 
-        // 필터에 맞는 팀 조회 (정규 스터디만)
-        List<TeamEntity> teams = teamRepository.findByYearAndSemester(
-                        currentYear, currentSemester, Sort.by(Sort.Direction.DESC, "createdAt"))
+        // 필터에 맞는 팀 조회 (정규 스터디만) - Repository 메서드명 변경
+        List<TeamEntity> teams = teamRepository.findByYearAndSemesterOrderByCreatedAtDesc(
+                        currentYear, currentSemester)
                 .stream()
                 .filter(TeamEntity::isRegular)
                 .toList();
@@ -508,8 +509,8 @@ public class AdminTeamService {
             teamStatus.put("teamId", team.getTeamId());
             teamStatus.put("teamName", team.getName());
 
-            // 팀의 보고서 조회
-            List<ReportEntity> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getTeamId());
+            // 팀의 보고서 조회 - Repository 메서드명 변경
+            List<ReportEntity> reports = reportRepository.findByTeamTeamIdOrderByWeekAsc(team.getTeamId());
 
             // 주차별 현황
             List<Map<String, Object>> weeklyStatus = new ArrayList<>();
@@ -524,7 +525,7 @@ public class AdminTeamService {
                 List<Map<String, Object>> memberReviewStatus = new ArrayList<>();
 
                 if (report.isSubmitted()) {
-                    List<ReviewEntity> reviews = reviewRepository.findAllByReportId(report.getId());
+                    List<ReviewEntity> reviews = reviewRepository.findAllByReport_Id(report.getId());
 
                     // 안전하게 멤버 리스트 가져오기
                     List<MemberSimpleDto> members = report.getReportMembers().stream()
@@ -600,9 +601,9 @@ public class AdminTeamService {
     }
 
     /**
-     * 팀 ID로 팀 조회
+     * 팀 ID로 팀 조회 - 파라미터 타입 변경
      */
-    private TeamEntity getTeamById(Long teamId) {
+    private TeamEntity getTeamById(Integer teamId) {
         return teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
     }

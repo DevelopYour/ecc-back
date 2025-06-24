@@ -119,10 +119,10 @@ public class AdminMemberService {
     }
 
     /**
-     * 레벨 변경 요청 승인
+     * 레벨 변경 요청 승인 - 파라미터 타입 변경
      */
     @Transactional
-    public MemberResponse approveLevelChangeRequest(Long requestId) {
+    public MemberResponse approveLevelChangeRequest(Integer requestId) {
         LevelChangeRequestEntity request = levelChangeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 레벨 변경 요청입니다. ID: " + requestId));
 
@@ -142,11 +142,11 @@ public class AdminMemberService {
     }
 
     /**
-     * 레벨 변경 요청 거절
+     * 레벨 변경 요청 거절 - 파라미터 타입 변경
      * 거절 시 회원의 레벨을 변경하지 않고 요청 상태만 REJECTED로 변경
      */
     @Transactional
-    public void rejectLevelChangeRequest(Long requestId) {
+    public void rejectLevelChangeRequest(Integer requestId) {
         LevelChangeRequestEntity request = levelChangeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 레벨 변경 요청입니다. ID: " + requestId));
 

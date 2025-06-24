@@ -10,15 +10,14 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<ReportEntity, Integer> {
 
-    @Query("SELECT r FROM ReportEntity r WHERE r.team.teamId = :teamId ORDER BY r.week ASC")
-    List<ReportEntity> findByTeamIdOrderByWeekAsc(@Param("teamId") Long teamId);
+    // @Query 제거하고 JPA 네이밍 컨벤션 적용
+    List<ReportEntity> findByTeamTeamIdOrderByWeekAsc(Integer teamId);
 
-    @Query("SELECT r FROM ReportEntity r WHERE r.team.teamId = :teamId AND r.week = :week")
-    Optional<ReportEntity> findByTeamIdAndWeek(@Param("teamId") Long teamId, @Param("week") int week);
+    Optional<ReportEntity> findByTeamTeamIdAndWeek(Integer teamId, int week);
 
+    // 복잡한 조인이 필요한 경우만 @Query 유지
     @Query("SELECT r FROM ReportEntity r WHERE r.team.year = :year AND r.team.semester = :semester AND r.team.isRegular = true")
     List<ReportEntity> findByYearAndSemesterAndRegular(@Param("year") int year, @Param("semester") int semester);
 
-    @Query("SELECT r FROM ReportEntity r WHERE r.isSubmitted = :isSubmitted")
-    List<ReportEntity> findByIsSubmitted(@Param("isSubmitted") boolean isSubmitted);
+    List<ReportEntity> findByIsSubmitted(boolean isSubmitted);
 }

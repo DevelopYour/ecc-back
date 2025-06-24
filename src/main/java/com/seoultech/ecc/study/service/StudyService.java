@@ -28,7 +28,8 @@ public class StudyService {
     @Autowired
     private StudyRepository studyRepository;
 
-    public List<WeeklySummaryDto> getTeamProgress(Long teamId) {
+    // Long → Integer 변경
+    public List<WeeklySummaryDto> getTeamProgress(Integer teamId) {
         List<ReportResponseDto> reports = reportService.findReportsByTeamId(teamId);
         List<WeeklySummaryDto> dtos = new ArrayList<>();
 
@@ -38,12 +39,13 @@ public class StudyService {
             studyDto.setTeamId(teamId);
             studyDto.setWeek(report.getWeek());
 
-            if (studyRepository.findByStudyId(report.getId()) != null) { // 진행중
+            if (studyRepository.findByStudyId(report.getId().toString()) != null) { // 진행중
                 studyDto.setStudyStatus(StudyStatus.ONGOING);
                 dto.setReviewSummaries(null);
             } else if (report.isSubmitted()) { // 보고서 제출 완료
                 studyDto.setStudyStatus(StudyStatus.COMPLETE);
-                dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getId()));
+                Integer reportId = report.getId();
+                dto.setReviewSummaries(reviewService.getReviewStatusInfos(reportId));
             } else { // 보고서 미제출
                 studyDto.setStudyStatus(StudyStatus.DRAFTING);
                 dto.setReviewSummaries(null);
@@ -55,7 +57,7 @@ public class StudyService {
     }
 
     @Transactional
-    public StudyRedis getStudyRoom(Long teamId) {
+    public StudyRedis getStudyRoom(Integer teamId) { // Long → Integer 변경
         // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
         if (existingStudyId != null) {
@@ -67,14 +69,15 @@ public class StudyService {
         }
 
         // 없으면 생성
-        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성
-        StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성
+        Integer reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성 - Integer 반환
+        StudyRedis studyRedis = new StudyRedis(reportId.toString(), teamId, new ArrayList<>()); // 2. Redis Study 객체 생성
         studyRepository.save(studyRedis); // 3. Redis 저장
-        studyRepository.saveTeamIndex(teamId, reportId); // 인덱싱용 저장
+        studyRepository.saveTeamIndex(teamId, reportId.toString()); // 인덱싱용 저장
         return studyRedis;
     }
 
-    public List<TopicRecommendationDto> getTopicRecommendations(Long teamId) {
+    // Long → Integer 변경
+    public List<TopicRecommendationDto> getTopicRecommendations(Integer teamId) {
         List<TopicRecommendationDto> dtos = new ArrayList<>();
         // TODO: teamId로 스터디 과목 조회
         // TODO: ERD 수정 (Subject_Topic)
@@ -109,7 +112,7 @@ public class StudyService {
         // 2. topic 리스트에 추가
         for (TopicDto dto : topicDtos) {
             TopicRedis topic = new TopicRedis();
-            Long newTopicId = (long) (study.getTopics().size() + 1);
+            Integer newTopicId = study.getTopics().size() + 1;
             topic.setTopicId(newTopicId);
             topic.setTopic(dto.getTopic());
             topic.setCategory(dto.getCategory());
@@ -133,7 +136,7 @@ public class StudyService {
         }
 
         // 2. topic 찾기
-        Long topicId = questionDto.getTopicId();
+        Integer topicId = questionDto.getTopicId();
         TopicRedis targetTopic = study.getTopics().stream()
                 .filter(t -> t.getTopicId().equals(topicId))
                 .findFirst()
@@ -141,7 +144,7 @@ public class StudyService {
 
         // 3. expression
         ExpressionRedis expression = new ExpressionRedis();
-        Long newExpressionId = (long) (targetTopic.getExpressions().size() + 1);
+        Integer newExpressionId = targetTopic.getExpressions().size() + 1;
         expression.setExpressionId(newExpressionId);
         expression.setQuestion(questionDto.getQuestion());
         expression.setEnglish("monkey"); // TODO: AI에게 결과 받아오기
@@ -173,7 +176,9 @@ public class StudyService {
         }
 
         // 3. 보고서 contents에 StudyRedis JSON 문자열 그대로 저장
-        ReportEntity report = reportService.findEntityByReportId(studyId);
+        // String id를 Integer로 변환
+        Integer reportId = Integer.valueOf(studyId);
+        ReportEntity report = reportService.findEntityByReportId(reportId);
         report.setContents(contents);
         reportService.saveReport(report);
 
@@ -185,14 +190,15 @@ public class StudyService {
     }
 
     @Transactional
-    public String submitReportAndCreateReview(String reportId) {
+    public String submitReportAndCreateReview(Integer reportId) { // String → Integer 변경
         ReportEntity report = reportService.findEntityByReportId(reportId);
         report.setSubmitted(true);
         reviewService.createReviews(report);
-        return reportService.saveReport(report);
+        Integer savedId = reportService.saveReport(report);
+        return savedId.toString(); // 호환성을 위해 String으로 변환하여 반환
     }
 
-    public ReportResponseDto getReport(String reportId) {
+    public ReportResponseDto getReport(Integer reportId) { // String → Integer 변경
         return reportService.findByReportId(reportId);
     }
 }

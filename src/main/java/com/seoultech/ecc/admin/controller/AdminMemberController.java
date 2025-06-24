@@ -137,7 +137,7 @@ public class AdminMemberController {
     @PatchMapping("/level/{requestId}/approve")
     @Operation(summary = "레벨 변경 요청 승인", description = "회원의 레벨 변경 요청을 승인합니다.")
     public ResponseEntity<ResponseDto<MemberResponse>> approveLevelChangeRequest(
-            @PathVariable Long requestId
+            @PathVariable Integer requestId // Long → Integer 변경
     ) {
         MemberResponse response = adminService.approveLevelChangeRequest(requestId);
         return ResponseEntity.ok(ResponseDto.success("레벨 변경 요청이 승인되었습니다.", response));
@@ -146,7 +146,7 @@ public class AdminMemberController {
     @PatchMapping("/level/{requestId}/reject")
     @Operation(summary = "레벨 변경 요청 거절", description = "회원의 레벨 변경 요청을 거절합니다.")
     public ResponseEntity<ResponseDto<Void>> rejectLevelChangeRequest(
-            @PathVariable Long requestId
+            @PathVariable Integer requestId // Long → Integer 변경
     ) {
         adminService.rejectLevelChangeRequest(requestId);
         return ResponseEntity.ok(ResponseDto.success("레벨 변경 요청이 거절되었습니다.", null));

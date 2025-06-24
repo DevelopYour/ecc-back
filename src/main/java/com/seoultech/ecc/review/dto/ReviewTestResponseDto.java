@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Builder
 public class ReviewTestResponseDto {
 
-    private String id; // 기존 MongoDB의 String id 호환성 유지
+    private Integer id;
     private Integer userId;
     private List<QuestionDto> questions;
     private boolean isComplete;
@@ -33,7 +33,7 @@ public class ReviewTestResponseDto {
                 .collect(Collectors.toList());
 
         return ReviewTestResponseDto.builder()
-                .id(entity.getId().toString()) // Integer를 String으로 변환하여 호환성 유지
+                .id(entity.getId())
                 .userId(entity.getUserId())
                 .questions(questions)
                 .isComplete(entity.isComplete())

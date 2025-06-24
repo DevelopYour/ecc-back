@@ -22,7 +22,7 @@ public class MemberResponse {
     private Integer level;
     private Double rate;
     private MemberStatus status;
-    private Long majorId;
+    private Integer majorId;
     private String majorName; // 학과명
     private String motivation; // 지원 동기
     private String role; // 역할 정보 추가

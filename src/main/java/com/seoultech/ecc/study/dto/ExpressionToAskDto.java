@@ -8,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpressionToAskDto {
-    public Long topicId;
+    public Integer topicId;
     public String question;
 }

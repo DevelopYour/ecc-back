@@ -16,8 +16,8 @@ import lombok.Setter;
 @Builder
 public class ReviewResponseDto {
 
-    private String id; // 기존 MongoDB의 String id 호환성 유지
-    private String reportId;
+    private Integer id;
+    private Integer reportId;
     private int week;
     private MemberSimpleDto member;
     private ReviewStatus status;
@@ -30,7 +30,7 @@ public class ReviewResponseDto {
         );
 
         return ReviewResponseDto.builder()
-                .id(entity.getId().toString()) // Integer를 String으로 변환하여 호환성 유지
+                .id(entity.getId())
                 .reportId(entity.getReportId())
                 .week(entity.getWeek())
                 .member(memberDto)

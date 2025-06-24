@@ -19,7 +19,7 @@ public class StudyRepository{
         return "study:" + studyId;
     }
 
-    private String teamIndexKey(Long teamId) {
+    private String teamIndexKey(Integer teamId) {
         return "team:" + teamId + ":study";
     }
 
@@ -36,15 +36,15 @@ public class StudyRepository{
         redisTemplate.delete(studyKey(studyId));
     }
 
-    public void saveTeamIndex(Long teamId, String studyId) {
+    public void saveTeamIndex(Integer teamId, String studyId) {
         redisTemplate.opsForValue().set(teamIndexKey(teamId), studyId, TTL);
     }
 
-    public String findStudyIdByTeamId(Long teamId) {
+    public String findStudyIdByTeamId(Integer teamId) {
         return (String) redisTemplate.opsForValue().get(teamIndexKey(teamId));
     }
 
-    public void deleteTeamIndex(Long teamId) {
+    public void deleteTeamIndex(Integer teamId) {
         redisTemplate.delete(teamIndexKey(teamId));
     }
 }

@@ -33,52 +33,46 @@ public class ReportService {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
 
-    public List<ReportResponseDto> findReportsByTeamId(Long teamId) {
-        List<ReportEntity> entities = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+    // String → Integer 변경
+    public List<ReportResponseDto> findReportsByTeamId(Integer teamId) {
+        List<ReportEntity> entities = reportRepository.findByTeamTeamIdOrderByWeekAsc(teamId);
         return entities.stream()
                 .map(ReportResponseDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    public ReportResponseDto findByReportId(String reportId) {
-        try {
-            Integer id = Integer.parseInt(reportId);
-            ReportEntity entity = reportRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
-            return ReportResponseDto.fromEntity(entity);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid report ID format: " + reportId);
-        }
+    // String → Integer 변경, parseInt 제거
+    public ReportResponseDto findByReportId(Integer reportId) {
+        ReportEntity entity = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
+        return ReportResponseDto.fromEntity(entity);
     }
 
-    public ReportEntity findEntityByReportId(String reportId) {
-        try {
-            Integer id = Integer.parseInt(reportId);
-            return reportRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid report ID format: " + reportId);
-        }
+    // String → Integer 변경, parseInt 제거
+    public ReportEntity findEntityByReportId(Integer reportId) {
+        return reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found with id: " + reportId));
     }
 
-    public String saveReport(ReportEntity reportEntity) {
+    // 반환 타입 String → Integer 변경
+    public Integer saveReport(ReportEntity reportEntity) {
         ReportEntity saved = reportRepository.save(reportEntity);
-        return saved.getId().toString();
+        return saved.getId();
     }
 
-    // 보고서 제출 여부 확인
-    public boolean checkReportSubmitStatus(String reportId) {
+    // String → Integer 변경
+    public boolean checkReportSubmitStatus(Integer reportId) {
         ReportEntity entity = findEntityByReportId(reportId);
         return entity.isSubmitted();
     }
 
     @Transactional
-    public String createReport(Long teamId) {
+    public Integer createReport(Integer teamId) { // Long → Integer 변경
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found with id: " + teamId));
 
         // 기본 Subject 조회 (TODO: 추후 처리 필요)
-        SubjectEntity subject = subjectRepository.findById(1L)
+        SubjectEntity subject = subjectRepository.findById(1)
                 .orElseThrow(() -> new RuntimeException("Default subject not found"));
 
         ReportEntity entity = new ReportEntity();
@@ -106,22 +100,6 @@ public class ReportService {
         teamRepository.save(team);
 
         ReportEntity saved = reportRepository.save(entity);
-        return saved.getId().toString();
-    }
-
-    // 호환성을 위한 메서드들 (기존 Document 형태의 응답을 유지)
-    public ReportResponseDto findByReportIdAsDocument(String reportId) {
-        return findByReportId(reportId);
-    }
-
-    public String saveReportAsDocument(ReportResponseDto reportDto) {
-        ReportEntity entity = findEntityByReportId(reportDto.getId());
-
-        // DTO의 변경사항을 Entity에 반영
-        entity.setContents(reportDto.getContents());
-        entity.setGrade(reportDto.getGrade());
-        entity.setSubmitted(reportDto.isSubmitted());
-
-        return saveReport(entity);
+        return saved.getId(); // Integer 반환
     }
 }

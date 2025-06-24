@@ -17,7 +17,7 @@ public class ApplyStudyDto {
     @Builder
     public static class ApplyRequest {
         @NotEmpty(message = "신청 과목 목록은 필수입니다.")
-        private List<Long> subjectIds;
+        private List<Integer> subjectIds; // Long → Integer 변경
 
         @NotEmpty(message = "신청 시간 목록은 필수입니다.")
         private List<Integer> timeIds;
@@ -30,7 +30,7 @@ public class ApplyStudyDto {
     @Builder
     public static class UpdateRequest {
         @NotEmpty(message = "신청 과목 목록은 필수입니다.")
-        private List<Long> subjectIds;
+        private List<Integer> subjectIds; // Long → Integer 변경
 
         @NotEmpty(message = "신청 시간 목록은 필수입니다.")
         private List<Integer> timeIds;
@@ -42,10 +42,10 @@ public class ApplyStudyDto {
     @AllArgsConstructor
     @Builder
     public static class ApplyResponse {
-        private Long id;
+        private Integer id; // Long → Integer 변경
         private Integer memberUuid;
         private String memberName;
-        private Long subjectId;
+        private Integer subjectId; // Long → Integer 변경
         private String subjectName;
         private Integer timeId;
         private TimeEntity.Day day;

@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL) // null 값 필드는 JSON 변환 시 제외
 public class TeamDto {
-    private Long id;
+    private Integer id; // Long → Integer 변경
     private String name;
     private int score;
     private int year;
     private int semester;
-    private Long subjectId;
+    private Integer subjectId; // Long → Integer 변경
     private String subjectName;
     private Integer timeId;
     private TimeEntity.Day day;

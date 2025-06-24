@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class MajorDto {
-    private Long id;
+    private Integer id; // Long → Integer 변경
     private String name;
     private String college;
 

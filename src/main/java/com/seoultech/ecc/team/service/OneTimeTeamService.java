@@ -73,16 +73,16 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 상세 조회 (UUID 사용)
+     * 번개 스터디 상세 조회 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional(readOnly = true)
-    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Integer teamId, Integer uuid) {
         TeamEntity team = getOneTimeTeam(teamId);
         return OneTimeTeamDto.DetailResponse.fromEntity(team, uuid);
     }
 
     /**
-     * 번개 스터디 생성 (UUID 사용)
+     * 번개 스터디 생성 (UUID 사용) - Subject 파라미터 타입 변경
      */
     @Transactional
     public OneTimeTeamDto.Response createOneTimeTeam(Integer uuid, OneTimeTeamDto.CreateRequest request) {
@@ -102,11 +102,11 @@ public class OneTimeTeamService {
             throw new IllegalArgumentException("종료 시간은 시작 시간보다 이후여야 합니다.");
         }
 
-        // 과목 정보 조회
-        SubjectEntity subject = getSubjectById(request.getSubjectId());
+        // 과목 정보 조회 - Long → Integer 변경
+        SubjectEntity subject = getSubjectById(request.getSubjectId().intValue());
 
         // 기본 시간 정보 사용 (추후 개선 가능)
-        TimeEntity defaultTime = timeRepository.findById(1L)
+        TimeEntity defaultTime = timeRepository.findById(1)
                 .orElseThrow(() -> new IllegalStateException("기본 시간 정보가 존재하지 않습니다."));
 
         // 현재 년도 및 학기 정보 (시스템 정책에 따라 구해야 함)
@@ -149,10 +149,10 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 수정 (UUID 사용)
+     * 번개 스터디 수정 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public OneTimeTeamDto.Response updateOneTimeTeam(Long teamId, Integer uuid, OneTimeTeamDto.UpdateRequest request) {
+    public OneTimeTeamDto.Response updateOneTimeTeam(Integer teamId, Integer uuid, OneTimeTeamDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
         getMemberAndCheckStatus(uuid);
 
@@ -180,9 +180,9 @@ public class OneTimeTeamService {
             team.setName(request.getName());
         }
 
-        // 과목 변경은 스터디가 시작되지 않은 경우에만 가능
+        // 과목 변경은 스터디가 시작되지 않은 경우에만 가능 - 타입 변경
         if (request.getSubjectId() != null && !alreadyStarted) {
-            team.setSubject(getSubjectById(request.getSubjectId()));
+            team.setSubject(getSubjectById(request.getSubjectId().intValue()));
         }
 
         if (request.getMaxMembers() != null) {
@@ -255,10 +255,10 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 신청 (UUID 사용)
+     * 번개 스터디 신청 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public OneTimeTeamDto.Response applyToOneTimeTeam(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.Response applyToOneTimeTeam(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(uuid);
 
@@ -290,10 +290,10 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 신청 취소 (UUID 사용)
+     * 번개 스터디 신청 취소 (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(uuid);
 
@@ -332,10 +332,10 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 번개 스터디 취소 (생성자만 가능) (UUID 사용)
+     * 번개 스터디 취소 (생성자만 가능) (UUID 사용) - 파라미터 타입 변경
      */
     @Transactional
-    public void cancelOneTimeTeam(Long teamId, Integer uuid) {
+    public void cancelOneTimeTeam(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         getMemberAndCheckStatus(uuid);
 
@@ -368,9 +368,9 @@ public class OneTimeTeamService {
     public void cleanupCanceledOneTimeTeams() {
         LocalDateTime thresholdTime = LocalDateTime.now().minusDays(3);
 
-        // 3일 이상 경과된 취소 상태의 번개 스터디 조회
-        List<OneTimeTeamInfoEntity> canceledTeams = oneTimeTeamInfoRepository.findByCanceledBeforeAndStatus(
-                thresholdTime, OneTimeTeamStatus.CANCELED);
+        // 3일 이상 경과된 취소 상태의 번개 스터디 조회 - Repository 메서드명 변경
+        List<OneTimeTeamInfoEntity> canceledTeams = oneTimeTeamInfoRepository.findByStatusAndCanceledAtBefore(
+                OneTimeTeamStatus.CANCELED, thresholdTime);
 
         for (OneTimeTeamInfoEntity oneTimeInfo : canceledTeams) {
             TeamEntity team = oneTimeInfo.getTeam();
@@ -410,9 +410,9 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 팀 엔티티 조회
+     * 팀 엔티티 조회 - 파라미터 타입 변경
      */
-    private TeamEntity getOneTimeTeam(Long teamId) {
+    private TeamEntity getOneTimeTeam(Integer teamId) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다. ID: " + teamId));
 
@@ -442,9 +442,9 @@ public class OneTimeTeamService {
     }
 
     /**
-     * 과목 ID로 과목 조회
+     * 과목 ID로 과목 조회 - Long → Integer 변경
      */
-    private SubjectEntity getSubjectById(Long subjectId) {
+    private SubjectEntity getSubjectById(Integer subjectId) {
         return subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과목입니다. ID: " + subjectId));
     }
@@ -460,7 +460,6 @@ public class OneTimeTeamService {
 
     /**
      * 생성자 여부 확인 (UUID 사용)
-     * 참고: CreatedBy 필드는 문자열로 studentId를 저장하므로 uuid로 확인하기 위해 추가 로직 필요
      */
     private boolean isCreator(TeamEntity team, Integer uuid) {
         return team.getCreatedBy() != null && team.getCreatedBy().equals(uuid);

@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class StudySummaryDto {
 
-    private Long teamId;
+    private Integer teamId;
 
     private int week;
 

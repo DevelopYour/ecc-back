@@ -10,9 +10,9 @@ import lombok.*;
 @Builder
 public class ApplyRegularStudyDto {
 
-    private Long id;
+    private Integer id;
     private Integer memberId;
-    private Long subjectId;
+    private Integer subjectId;
     private Integer timeId;
 
     public static ApplyRegularStudyDto fromEntity(ApplyRegularStudyEntity entity) {

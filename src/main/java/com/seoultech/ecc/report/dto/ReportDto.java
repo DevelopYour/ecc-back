@@ -8,10 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ReportDto {
-    private Long reportId;
+    private Integer reportId;
     private int week;
     private String contents;
     private int grade;
-    private Long teamId;
-    private Long subjectId;
+    private Integer teamId;
+    private Integer subjectId;
 }
