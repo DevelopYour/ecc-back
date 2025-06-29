@@ -2,6 +2,8 @@ package com.seoultech.ecc.study.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seoultech.ecc.ai.dto.AiTranslationResponse;
+import com.seoultech.ecc.ai.service.OpenAiService;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.service.ReviewService;
@@ -23,6 +25,9 @@ public class StudyService {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private OpenAiService openAiService;
 
     @Autowired
     private StudyRepository studyRepository;
@@ -95,36 +100,73 @@ public class StudyService {
 
     @Transactional
     public StudyRedis getAiHelpAndAdd(String studyId, ExpressionToAskDto questionDto) {
-        // TODO: AI에게 결과 받아오기
 
-        // 1. study 찾기
+        // 1. Input validation
+        validateInput(studyId, questionDto);
+
+        // 2. Find study
         StudyRedis study = studyRepository.findByStudyId(studyId);
         if (study == null) {
             throw new IllegalArgumentException("Study not found for id: " + studyId);
         }
 
-        // 2. topic 찾기
-        Long topicId = questionDto.getTopicId();
-        TopicRedis targetTopic = study.getTopics().stream()
+        // 3. Find topic
+        TopicRedis targetTopic = findTopicInStudy(study, questionDto.getTopicId());
+
+        // 4. Generate AI translation
+        AiTranslationResponse aiResponse = openAiService.generateTranslation(questionDto.getQuestion());
+
+        // 5. Create and add expression
+        ExpressionRedis expression = createExpression(targetTopic, questionDto.getQuestion(), aiResponse);
+        targetTopic.getExpressions().add(expression);
+
+        // 6. Save updated study
+        studyRepository.save(study);
+
+        System.out.printf("Successfully added AI-generated expression for study: %s, topic: %d",
+                studyId, questionDto.getTopicId());
+
+        return study;
+    }
+
+    private void validateInput(String studyId, ExpressionToAskDto questionDto) {
+        if (studyId == null || studyId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Study ID cannot be null or empty");
+        }
+        if (questionDto == null) {
+            throw new IllegalArgumentException("Question DTO cannot be null");
+        }
+        if (questionDto.getQuestion() == null || questionDto.getQuestion().trim().isEmpty()) {
+            throw new IllegalArgumentException("Question cannot be null or empty");
+        }
+        if (questionDto.getTopicId() == null) {
+            throw new IllegalArgumentException("Topic ID cannot be null");
+        }
+    }
+
+    private TopicRedis findTopicInStudy(StudyRedis study, Long topicId) {
+        return study.getTopics().stream()
                 .filter(t -> t.getTopicId().equals(topicId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found in study"));
+    }
 
-        // 3. expression
+    private ExpressionRedis createExpression(TopicRedis topic, String question, AiTranslationResponse aiResponse) {
         ExpressionRedis expression = new ExpressionRedis();
-        Long newExpressionId = (long) (targetTopic.getExpressions().size() + 1);
+
+        // Generate next sequential ID
+        Long newExpressionId = topic.getExpressions().stream()
+                .mapToLong(ExpressionRedis::getExpressionId)
+                .max()
+                .orElse(0L) + 1L;
+
         expression.setExpressionId(newExpressionId);
-        expression.setQuestion(questionDto.getQuestion());
-        expression.setEnglish("monkey");// TODO: AI에게 결과 받아오기
-        expression.setKorean("원숭이");// TODO: AI에게 결과 받아오기
-        expression.setExample("His monkey wanted a banana.");// TODO: AI에게 결과 받아오기
+        expression.setQuestion(question);
+        expression.setKorean(aiResponse.getKorean());
+        expression.setEnglish(aiResponse.getEnglish());
+        expression.setExample(aiResponse.getExample());
 
-        // 4. 추가
-        targetTopic.getExpressions().add(expression);
-
-        // 5. 수정된 Study 전체 다시 저장
-        studyRepository.save(study);
-        return study;
+        return expression;
     }
 
     @Transactional
