@@ -17,12 +17,11 @@ springdoc:
     path: /api-test
     groups-order: DESC # path, query, body, response 순 출력
 
-# JWT 설정
 jwt:
   access-token:
-    expiration: 60000 # 1분 (60초 * 1000)
+    expiration: 7200000     # 2시간 = 2 * 60 * 60 * 1000 = 7,200,000 ms
   refresh-token:
-    expiration: 300000 # 5분 (300초 * 1000)
+    expiration: 2592000000  # 30일 = 30 * 24 * 60 * 60 * 1000 = 2,592,000,000 ms
 
 # 관리자 계정 설정
 admin:
