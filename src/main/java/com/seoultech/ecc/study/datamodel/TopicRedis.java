@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TopicRedis {
     private Long topicId;
-    private TopicCategory category;
+    private String category;
     private String topic;
     private List<ExpressionRedis> expressions;
 }

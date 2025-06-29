@@ -5,6 +5,7 @@ import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.study.datamodel.StudyRedis;
 import com.seoultech.ecc.study.dto.*;
 import com.seoultech.ecc.study.service.StudyService;
+import com.seoultech.ecc.study.service.TopicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,9 @@ public class StudyController {
     @Autowired
     private StudyService studyService;
 
+    @Autowired
+    private TopicService topicService;
+
     @GetMapping("/{teamId}/overview")
     @Operation(summary = "팀별 메인페이지 입장", description = "팀의 주차별 진행과정을 조회합니다. StudyStatus가 COMPLETE인 경우 팀원별 복습 상태 정보를 함께 반환합니다")
     public ResponseEntity<ResponseDto<List<WeeklySummaryDto>>> summarizeTeamProgress(@PathVariable Long teamId) {
@@ -36,9 +40,9 @@ public class StudyController {
     }
 
     @GetMapping("/{teamId}/topic")
-    @Operation(summary = "추천 주제 목록 조회", description = "추천 주제 목록을 요청합니다.")
-    public ResponseEntity<ResponseDto<List<TopicRecommendationDto>>> getTopicsByAiHelp(@PathVariable Long teamId) {
-        return ResponseEntity.ok(ResponseDto.success(studyService.getTopicRecommendations(teamId)));
+    @Operation(summary = "주제 목록 조회", description = "주제 목록을 요청합니다.")
+    public ResponseEntity<ResponseDto<List<TopicSetDto>>> getTopicsByAiHelp(@PathVariable Long teamId) {
+        return ResponseEntity.ok(ResponseDto.success(topicService.getAllTopics())); // TODO: (2차) 팀별 주제 진행여부 처리
     }
 
     @PostMapping("/{studyId}/topic")

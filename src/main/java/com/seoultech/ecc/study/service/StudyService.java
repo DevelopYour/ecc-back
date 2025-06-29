@@ -71,33 +71,6 @@ public class StudyService {
         return studyRedis;
     }
 
-    public List<TopicRecommendationDto> getTopicRecommendations(Long teamId) {
-        List<TopicRecommendationDto> dtos = new ArrayList<>();
-        // TODO: teamId로 스터디 과목 조회
-        // TODO: ERD 수정 (Subject_Topic)
-
-        // 자유 주제
-        TopicRecommendationDto topic1 = new TopicRecommendationDto();
-        topic1.setCategory(TopicCategory.RANDOM);
-        List<String> topics1 = new ArrayList<>();
-        topics1.add("What's your favorite time of the day and why?");
-        topics1.add("Would you rather travel to the past or the future?");
-        topics1.add("What's the most useless thing you’ve ever bought?");
-        topic1.setTopic(topics1);
-
-        // 밸런스 게임
-        TopicRecommendationDto topic2 = new TopicRecommendationDto();
-        topic2.setCategory(TopicCategory.BALANCE_GAME);
-        List<String> topics2 = new ArrayList<>();
-        topics2.add("No internet for a year vs No friends for a year");
-        topics2.add("Have unlimited time vs Have unlimited money");
-        topic2.setTopic(topics2);
-
-        dtos.add(topic1);
-        dtos.add(topic2);
-        return dtos;
-    }
-
     public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
 
         // 1. Redis에서 기존 StudyRedis 객체 불러오기

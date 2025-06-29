@@ -1,6 +1,5 @@
 package com.seoultech.ecc.study.dto;
 
-import com.seoultech.ecc.study.datamodel.TopicCategory;
 import lombok.*;
 
 @Getter
@@ -9,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicDto {
-    private TopicCategory category;
+    private Long id;
+    private String category;
     private String topic;
 }
