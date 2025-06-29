@@ -46,6 +46,9 @@ public class TeamDto {
                 .score(team.getScore())
                 .year(team.getYear())
                 .semester(team.getSemester())
+                .day(team.getTime().getDay())
+                .startTime(team.getTime().getStartTime())
+                .subjectName(team.getSubject().getName())
                 .subjectId(team.getSubject().getSubjectId())
                 .isRegular(team.isRegular())
                 .build();

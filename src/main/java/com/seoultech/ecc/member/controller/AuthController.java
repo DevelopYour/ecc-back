@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,7 +34,7 @@ public class AuthController {
             if (studentId == null || !studentId.matches("^\\d{8}$")) {
                 return ResponseEntity.badRequest().body(ResponseDto.error("학번은 8자리 숫자여야 합니다."));
             }
-            
+
             Boolean isAvailable = authService.checkStudentIdAvailability(studentId);
             if (isAvailable) {
                 return ResponseEntity.ok(ResponseDto.success("사용 가능한 학번입니다.", true));
@@ -62,8 +63,16 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.")
     public ResponseEntity<ResponseDto<TokenResponse>> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
-        TokenResponse response = authService.refreshToken(request);
-        return ResponseEntity.ok(ResponseDto.success("토큰이 갱신되었습니다.", response));
+        try {
+            TokenResponse response = authService.refreshToken(request);
+            return ResponseEntity.ok(ResponseDto.success("토큰이 갱신되었습니다.", response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseDto.error("유효하지 않은 리프레시 토큰입니다."));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseDto.error("리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseDto.error("토큰 갱신에 실패했습니다."));
+        }
     }
 
     @PostMapping("/logout")
@@ -74,7 +83,6 @@ public class AuthController {
     )
     public ResponseEntity<ResponseDto<Void>> logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String studentId = authentication.getName();
         Integer uuid = (Integer) authentication.getCredentials();
 
         authService.logout(uuid);

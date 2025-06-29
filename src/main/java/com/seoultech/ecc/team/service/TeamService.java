@@ -97,4 +97,6 @@ public class TeamService {
     public List<SubjectDto> getAllSubjects() {
         return subjectRepository.findAll().stream().map(SubjectDto::fromEntity).collect(Collectors.toList());
     }
+
+
 }
