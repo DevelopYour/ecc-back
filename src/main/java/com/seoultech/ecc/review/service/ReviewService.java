@@ -3,6 +3,7 @@ package com.seoultech.ecc.review.service;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
+import com.seoultech.ecc.review.datamodel.ReviewStatus;
 import com.seoultech.ecc.review.datamodel.ReviewTestDocument;
 import com.seoultech.ecc.review.dto.QuestionDto;
 import com.seoultech.ecc.review.dto.ReviewSummaryDto;
@@ -50,11 +51,9 @@ public class ReviewService {
 
     public void createReviews(ReportDocument report){
         for(MemberSimpleDto member: report.getMembers()){
-            ReviewDocument review = new ReviewDocument();
+            ReviewDocument review = ReviewDocument.fromReport(report);
             review.setMember(member);
-            review.setWeek(report.getWeek());
-            review.setReportId(report.getId());
-//            review.setContents(report.getContents()); // TODO: 추후 수정 필요
+            review.setStatus(ReviewStatus.INCOMPLETE);
             reviewRepository.save(review);
         }
     }

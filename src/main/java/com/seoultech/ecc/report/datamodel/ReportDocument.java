@@ -19,24 +19,15 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "report")
 public class ReportDocument extends BaseDocument {
-
     @Id
     private String id;
-
     private Long teamId;
-
     private Long subjectId;
-
     private List<MemberSimpleDto> members;
-
     private int week;
-
     private List<ReportTopicDto> topics;
-
     private String comments;
-
     private int grade;
-
     private boolean isSubmitted;
     private LocalDateTime submittedAt;
 }
