@@ -13,7 +13,7 @@ public class ReportExpressionDto {
     private String korean;
     private String example;
     private String feedback;
-    private boolean isTranslation;
+    private boolean translation;
 
     public static ReportExpressionDto fromRedis(ExpressionRedis redis) {
         return ReportExpressionDto.builder()
@@ -21,7 +21,7 @@ public class ReportExpressionDto {
                 .korean(redis.getKorean())
                 .example(redis.getExample())
                 .feedback(redis.getFeedback())
-                .isTranslation(redis.isTranslation())
+                .translation(redis.isTranslation())
                 .build();
     }
 }

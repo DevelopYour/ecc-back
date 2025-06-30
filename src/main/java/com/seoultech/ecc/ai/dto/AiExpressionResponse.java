@@ -9,6 +9,6 @@ import lombok.*;
 public class AiExpressionResponse {
     private String korean;
     private String english;
-    private String feedback;  // 교정 요청시 피드백
-    private String example;   // 번역 요청시 예문
+    private String feedback;  // 교정 only) 피드백
+    private String example;   // 번역 only) 예문
 }

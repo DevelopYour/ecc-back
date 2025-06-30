@@ -24,9 +24,9 @@ public class OpenAiService {
     private final OpenAiConfig openAiConfig;
     private final RestTemplate restTemplate;
 
-    public AiExpressionResponse generateTranslation(String question) {
+    public AiExpressionResponse generateTranslation(String question, boolean korean) {
         try {
-            String prompt = createTranslationPrompt(question);
+            String prompt = createTranslationPrompt(question, korean);
             String response = callOpenAi(prompt);
             return parseTranslationResponse(response);
 
@@ -48,46 +48,71 @@ public class OpenAiService {
         }
     }
 
-    private String createTranslationPrompt(String question) {
-        return String.format("""
-        You are a helpful English-Korean translation assistant.
-        Please translate the following text and provide an example sentence.
-        
-        Input text: "%s"
-        
-        Please respond in the following JSON format:
-        {
-            "korean": "Korean translation (if input was English) or original Korean text (if input was Korean)",
-            "english": "English translation (if input was Korean) or original English text (if input was English)",
-            "example": "A practical example sentence using the translation"
+    private String createTranslationPrompt(String question, boolean korean) {
+        if (korean) {
+            return String.format("""
+            You are a helpful Korean-English translation assistant.
+            Please translate the following Korean text to English and provide an example sentence.
+            
+            Korean text: "%s"
+            
+            Respond in the following JSON format:
+            {
+                "korean": "Original Korean text",
+                "english": "English translation of the Korean text",
+                "example": "A practical example sentence using the English translation"
+            }
+            
+            Keep translations natural and commonly used.
+            Make example sentences simple and practical.
+            """, question);
+        } else {
+            return String.format("""
+            You are a helpful English-Korean translation assistant.
+            Please translate the following English text to Korean and provide an example sentence.
+            
+            English text: "%s"
+            
+            Respond in the following JSON format:
+            {
+                "korean": "Korean translation of the English text",
+                "english": "Original English text", 
+                "example": "A practical example sentence using the Korean translation"
+            }
+            
+            Keep translations natural and commonly used.
+            Make example sentences simple and practical.
+            """, question);
         }
-        
-        Note: Leave origin and feedback fields empty for translation requests.
-        Keep translations natural and commonly used.
-        Make example sentences simple and practical.
-        """, question);
     }
 
     private String createFeedbackPrompt(String question) {
         return String.format("""
-        You are an English grammar and writing expert.
-        Please review the following English text and provide corrections and feedback.
+        You are an expert English grammar and writing tutor specializing in helping Korean learners.
         
-        English text: "%s"
+        Analyze the following English text and provide comprehensive feedback:
         
-        Please respond in the following JSON format:
+        Input text: "%s"
+        
+        Provide your response in this exact JSON format:
         {
-            "korean": "Korean translation of the corrected text",
-            "english": "Corrected English version",
-            "feedback": "Detailed feedback in Korean explaining corrections, improvements, or confirmation"
+            "english": "The corrected and improved version of the input text",
+            "korean": "Natural Korean translation of the corrected English text",
+            "feedback": "Detailed explanation in Korean about what was corrected and why"
         }
         
-        Note: Leave example field empty for feedback requests.
+        Instructions:
+        1. ALWAYS correct any grammatical errors, spelling mistakes, or awkward phrasing
+        2. Improve the text to sound more natural and fluent while preserving the original meaning
+        3. In "english": provide the best possible version of the text
+        4. In "korean": provide a natural, fluent Korean translation (not literal translation)
+        5. In "feedback": explain in Korean what changes were made and why, including:
+           - Grammar corrections and explanations
+           - Vocabulary improvements
+           - Style enhancements
+           - If the original was already perfect, explain why it's good
         
-        Guidelines:
-        - If grammatically correct, confirm and suggest stylistic improvements
-        - If errors exist, explain what's wrong and why the correction is better
-        - Provide encouraging and educational feedback in Korean
+        Focus on being educational and encouraging in your feedback.
         """, question);
     }
 
@@ -144,7 +169,6 @@ public class OpenAiService {
     }
 
     private String extractJsonFromResponse(String response) {
-        // Find JSON object in the response
         int startIndex = response.indexOf('{');
         int endIndex = response.lastIndexOf('}');
 

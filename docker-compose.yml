@@ -6,7 +6,7 @@ services:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: ecc
     ports:
-      - "13306:3306"  # 변경된 포트 (원래 3306 → 13306)
+      - "13306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -18,7 +18,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: ecc
     ports:
-      - "12717:27017"  # 변경된 포트 (원래 27017 → 12717)
+      - "12717:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
@@ -28,7 +28,7 @@ services:
     image: redis:7.2
     restart: always
     ports:
-      - "16379:6379"  # 변경된 포트 (원래 6379 → 16379)
+      - "16379:6379"
     networks:
       - ecc-backend
 

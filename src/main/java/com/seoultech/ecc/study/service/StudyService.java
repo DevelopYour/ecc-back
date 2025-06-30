@@ -13,7 +13,6 @@ import com.seoultech.ecc.study.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -114,7 +113,7 @@ public class StudyService {
 
         // 4. Generate AI translation
         AiExpressionResponse aiResponse = questionDto.isTranslation() ? // 질문 유형(번역/피드백)에 따라 요청 처리
-                openAiService.generateTranslation(questionDto.getQuestion()) : openAiService.generateFeedback(questionDto.getQuestion());
+                openAiService.generateTranslation(questionDto.getQuestion(), questionDto.isKorean()) : openAiService.generateFeedback(questionDto.getQuestion());
 
         // 5. Create and add expression
         ExpressionRedis expression = createExpression(targetTopic, questionDto, aiResponse);
@@ -161,13 +160,15 @@ public class StudyService {
                 .orElse(0L) + 1L;
 
         expression.setExpressionId(newExpressionId);
-        expression.setQuestion(questionDto.getQuestion());
         expression.setKorean(aiResponse.getKorean());
         expression.setEnglish(aiResponse.getEnglish());
         expression.setTranslation(questionDto.isTranslation());
-        if (StringUtils.hasText(aiResponse.getExample())) expression.setExample(aiResponse.getExample());
-        if (StringUtils.hasText(aiResponse.getFeedback())) expression.setFeedback(aiResponse.getFeedback());
-
+        if (questionDto.isTranslation()) { // 번역
+            expression.setExample(aiResponse.getExample());
+        } else { // 교정
+            expression.setFeedback(aiResponse.getFeedback());
+            expression.setOriginal(questionDto.getQuestion());
+        }
         return expression;
     }
 
@@ -189,7 +190,6 @@ public class StudyService {
 
     @Transactional
     public String submitReportAndCreateReview(String reportId) {
-        //        report.setContents(contents); TODO: 프론트에서 따로 또 받아오기
         ReportDocument report = reportService.findByReportId(reportId);
         report.setSubmitted(true);
         report.setSubmittedAt(LocalDateTime.now());
