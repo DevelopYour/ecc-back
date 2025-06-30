@@ -54,7 +54,7 @@ public class ReviewService {
             review.setMember(member);
             review.setWeek(report.getWeek());
             review.setReportId(report.getId());
-            review.setContents(report.getContents()); // TODO: 추후 수정 필요
+//            review.setContents(report.getContents()); // TODO: 추후 수정 필요
             reviewRepository.save(review);
         }
     }

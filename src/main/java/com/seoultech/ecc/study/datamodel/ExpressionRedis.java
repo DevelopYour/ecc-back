@@ -14,4 +14,6 @@ public class ExpressionRedis {
     private String english;
     private String korean;
     private String example;
+    private String feedback;
+    public boolean isTranslation;
 }

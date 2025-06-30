@@ -45,21 +45,20 @@ public class ReportService {
     @Transactional
     public String createReport(Long teamId) {
         TeamEntity team = teamRepository.findById(teamId).orElse(null); // TODO: 추후 처리 필요
-        ReportDocument entity = new ReportDocument();
-        entity.setTeamId(teamId);
+        ReportDocument report = new ReportDocument();
+        report.setTeamId(teamId);
         List<MemberSimpleDto> members = new ArrayList<>();
         List<MemberEntity> memberEntities = teamMemberRepository.findMembersByTeamId(teamId);
         for (MemberEntity member : memberEntities) {
             MemberSimpleDto memberSimpleDto = new MemberSimpleDto(member.getUuid(), member.getName());
             members.add(memberSimpleDto);
         }
-        entity.setMembers(members);
-        entity.setSubjectId(1L); // TODO: 추후 처리 필요
-        entity.setWeek(team.getStudyCount() + 1);
+        report.setMembers(members);
+        report.setSubjectId(1L); // TODO: 추후 처리 필요
+        report.setWeek(team.getStudyCount() + 1);
         team.setStudyCount(team.getStudyCount() + 1);
-        entity.setGrade(0);
-        entity.setSubmitted(false);
-        entity.setContents(""); //TODO: AI
-        return reportRepository.save(entity).getId();
+        report.setGrade(0);
+        report.setSubmitted(false);
+        return reportRepository.save(report).getId();
     }
 }

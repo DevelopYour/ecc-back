@@ -1,6 +1,5 @@
 package com.seoultech.ecc.study.dto;
 
-import com.seoultech.ecc.study.datamodel.TopicCategoryEntity;
 import lombok.*;
 
 import java.util.List;

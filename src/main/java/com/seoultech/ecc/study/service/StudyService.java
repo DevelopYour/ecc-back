@@ -1,10 +1,10 @@
 package com.seoultech.ecc.study.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seoultech.ecc.ai.dto.AiTranslationResponse;
+import com.seoultech.ecc.ai.dto.AiExpressionResponse;
 import com.seoultech.ecc.ai.service.OpenAiService;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
+import com.seoultech.ecc.report.dto.ReportExpressionDto;
+import com.seoultech.ecc.report.dto.ReportTopicDto;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.study.datamodel.*;
@@ -13,9 +13,12 @@ import com.seoultech.ecc.study.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudyService {
@@ -100,24 +103,21 @@ public class StudyService {
 
     @Transactional
     public StudyRedis getAiHelpAndAdd(String studyId, ExpressionToAskDto questionDto) {
+        validateInput(studyId, questionDto); // 1. Input validation
 
-        // 1. Input validation
-        validateInput(studyId, questionDto);
-
-        // 2. Find study
-        StudyRedis study = studyRepository.findByStudyId(studyId);
+        StudyRedis study = studyRepository.findByStudyId(studyId); // 2. Find study
         if (study == null) {
             throw new IllegalArgumentException("Study not found for id: " + studyId);
         }
 
-        // 3. Find topic
-        TopicRedis targetTopic = findTopicInStudy(study, questionDto.getTopicId());
+        TopicRedis targetTopic = findTopicInStudy(study, questionDto.getTopicId()); // 3. Find topic
 
         // 4. Generate AI translation
-        AiTranslationResponse aiResponse = openAiService.generateTranslation(questionDto.getQuestion());
+        AiExpressionResponse aiResponse = questionDto.isTranslation() ? // 질문 유형(번역/피드백)에 따라 요청 처리
+                openAiService.generateTranslation(questionDto.getQuestion()) : openAiService.generateFeedback(questionDto.getQuestion());
 
         // 5. Create and add expression
-        ExpressionRedis expression = createExpression(targetTopic, questionDto.getQuestion(), aiResponse);
+        ExpressionRedis expression = createExpression(targetTopic, questionDto, aiResponse);
         targetTopic.getExpressions().add(expression);
 
         // 6. Save updated study
@@ -151,7 +151,7 @@ public class StudyService {
                 .orElseThrow(() -> new IllegalArgumentException("Topic not found in study"));
     }
 
-    private ExpressionRedis createExpression(TopicRedis topic, String question, AiTranslationResponse aiResponse) {
+    private ExpressionRedis createExpression(TopicRedis topic, ExpressionToAskDto questionDto, AiExpressionResponse aiResponse) {
         ExpressionRedis expression = new ExpressionRedis();
 
         // Generate next sequential ID
@@ -161,10 +161,12 @@ public class StudyService {
                 .orElse(0L) + 1L;
 
         expression.setExpressionId(newExpressionId);
-        expression.setQuestion(question);
+        expression.setQuestion(questionDto.getQuestion());
         expression.setKorean(aiResponse.getKorean());
         expression.setEnglish(aiResponse.getEnglish());
-        expression.setExample(aiResponse.getExample());
+        expression.setTranslation(questionDto.isTranslation());
+        if (StringUtils.hasText(aiResponse.getExample())) expression.setExample(aiResponse.getExample());
+        if (StringUtils.hasText(aiResponse.getFeedback())) expression.setFeedback(aiResponse.getFeedback());
 
         return expression;
     }
@@ -172,40 +174,44 @@ public class StudyService {
     @Transactional
     public String finishStudy(String studyId) {
         StudyRedis study = studyRepository.findByStudyId(studyId);
-        if (study == null) {
-            throw new IllegalArgumentException("Study not found for id: " + studyId);
-        }
-
-        // StudyRedis → JSON 문자열로 변환
-        String contents;
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            contents = objectMapper.writeValueAsString(study);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert StudyRedis to JSON", e);
-        }
-
-        // 3. 보고서 contents에 StudyRedis JSON 문자열 그대로 저장
+        if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);
         ReportDocument report = reportService.findByReportId(studyId);
-        report.setContents(contents);
+
+        // StudyRedis 데이터 ReportDocument로 옮기기
+        report.setTopics(fromRedisToDocument(study));
         reportService.saveReport(report);
 
-        // 4. Redis 키 삭제 (study, team 인덱싱)
+        // Redis 키 삭제 (study, team 인덱싱)
         studyRepository.deleteByStudyId(studyId);
         studyRepository.deleteTeamIndex(study.getTeamId());
-
-        return studyId;
+        return studyId; // == reportId
     }
 
     @Transactional
     public String submitReportAndCreateReview(String reportId) {
+        //        report.setContents(contents); TODO: 프론트에서 따로 또 받아오기
         ReportDocument report = reportService.findByReportId(reportId);
         report.setSubmitted(true);
+        report.setSubmittedAt(LocalDateTime.now());
         reviewService.createReviews(report);
         return reportService.saveReport(report);
     }
 
     public ReportDocument getReport(String reportId) {
         return reportService.findByReportId(reportId);
+    }
+
+    private List<ReportTopicDto> fromRedisToDocument(StudyRedis study){
+        List<TopicRedis> topics = study.getTopics();
+        List<ReportTopicDto> reportTopics = new ArrayList<>();
+        for (TopicRedis topicRedis : topics) {
+            ReportTopicDto reportTopicDto = ReportTopicDto.builder()
+                    .category(topicRedis.getCategory())
+                    .topic(topicRedis.getTopic())
+                    .build();
+            reportTopicDto.setExpressions(topicRedis.getExpressions().stream().map(ReportExpressionDto::fromRedis).collect(Collectors.toList()));
+            reportTopics.add(reportTopicDto);
+        }
+        return reportTopics;
     }
 }

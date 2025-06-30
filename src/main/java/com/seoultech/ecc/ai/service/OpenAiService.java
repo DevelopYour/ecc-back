@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seoultech.ecc.ai.config.OpenAiConfig;
 import com.seoultech.ecc.ai.dto.OpenAiRequest;
 import com.seoultech.ecc.ai.dto.OpenAiResponse;
-import com.seoultech.ecc.ai.dto.AiTranslationResponse;
+import com.seoultech.ecc.ai.dto.AiExpressionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -24,7 +24,7 @@ public class OpenAiService {
     private final OpenAiConfig openAiConfig;
     private final RestTemplate restTemplate;
 
-    public AiTranslationResponse generateTranslation(String question) {
+    public AiExpressionResponse generateTranslation(String question) {
         try {
             String prompt = createTranslationPrompt(question);
             String response = callOpenAi(prompt);
@@ -36,22 +36,59 @@ public class OpenAiService {
         }
     }
 
+    public AiExpressionResponse generateFeedback(String question) {
+        try {
+            String prompt = createFeedbackPrompt(question);
+            String response = callOpenAi(prompt);
+            return parseTranslationResponse(response);
+
+        } catch (Exception e) {
+            log.error("Failed to generate translation for question: {}", question, e);
+            throw new RuntimeException("AI translation service failed", e);
+        }
+    }
+
     private String createTranslationPrompt(String question) {
         return String.format("""
-            You are a helpful English-Korean translation assistant.
-            Please translate the following Korean question/phrase to English and provide an example sentence.
-            
-            Korean text: "%s"
-            
-            Please respond in the following JSON format:
-            {
-                "english": "English translation here"
-                "example": "An example sentence using the English translation"
-            }
-            
-            Keep the English translation natural and commonly used.
-            Make the example sentence simple and practical.
-            """, question);
+        You are a helpful English-Korean translation assistant.
+        Please translate the following text and provide an example sentence.
+        
+        Input text: "%s"
+        
+        Please respond in the following JSON format:
+        {
+            "korean": "Korean translation (if input was English) or original Korean text (if input was Korean)",
+            "english": "English translation (if input was Korean) or original English text (if input was English)",
+            "example": "A practical example sentence using the translation"
+        }
+        
+        Note: Leave origin and feedback fields empty for translation requests.
+        Keep translations natural and commonly used.
+        Make example sentences simple and practical.
+        """, question);
+    }
+
+    private String createFeedbackPrompt(String question) {
+        return String.format("""
+        You are an English grammar and writing expert.
+        Please review the following English text and provide corrections and feedback.
+        
+        English text: "%s"
+        
+        Please respond in the following JSON format:
+        {
+            "korean": "Korean translation of the corrected text",
+            "english": "Corrected English version",
+            "feedback": "Detailed feedback in Korean explaining corrections, improvements, or confirmation"
+        }
+        
+        Note: Leave example field empty for feedback requests.
+        
+        Guidelines:
+        - If grammatically correct, confirm and suggest stylistic improvements
+        - If errors exist, explain what's wrong and why the correction is better
+        - Provide encouraging and educational feedback in Korean
+        """, question);
     }
 
     private String callOpenAi(String prompt) {
@@ -94,15 +131,15 @@ public class OpenAiService {
         }
     }
 
-    private AiTranslationResponse parseTranslationResponse(String response) {
+    private AiExpressionResponse parseTranslationResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
-            return objectMapper.readValue(jsonResponse, AiTranslationResponse.class);
+            return objectMapper.readValue(jsonResponse, AiExpressionResponse.class);
 
         } catch (Exception e) {
             log.error("Failed to parse AI response: {}", response, e);
-            return createFallbackResponse(response);
+            return null;
         }
     }
 
@@ -118,12 +155,5 @@ public class OpenAiService {
         throw new RuntimeException("No valid JSON found in response");
     }
 
-    private AiTranslationResponse createFallbackResponse(String response) {
-        return AiTranslationResponse.builder()
-                .english("translation")
-                .korean("번역")
-                .example("This is an example sentence.")
-                .build();
-    }
 }
 
