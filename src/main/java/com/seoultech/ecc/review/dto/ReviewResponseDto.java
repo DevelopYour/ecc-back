@@ -7,8 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDto {
-    private String question;
-    private String answer;
-    private boolean isCorrect;
+public class AnswerDto {
+    private String userAnswer;
+    private boolean correct;
 }

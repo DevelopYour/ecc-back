@@ -3,8 +3,9 @@ package com.seoultech.ecc.study.service;
 import com.seoultech.ecc.ai.dto.AiExpressionResponse;
 import com.seoultech.ecc.ai.service.OpenAiService;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
-import com.seoultech.ecc.report.dto.ReportExpressionDto;
+import com.seoultech.ecc.report.dto.ReportFeedbackDto;
 import com.seoultech.ecc.report.dto.ReportTopicDto;
+import com.seoultech.ecc.report.dto.ReportTranslationDto;
 import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.study.datamodel.*;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -201,17 +203,24 @@ public class StudyService {
         return reportService.findByReportId(reportId);
     }
 
-    private List<ReportTopicDto> fromRedisToDocument(StudyRedis study){
-        List<TopicRedis> topics = study.getTopics();
-        List<ReportTopicDto> reportTopics = new ArrayList<>();
-        for (TopicRedis topicRedis : topics) {
-            ReportTopicDto reportTopicDto = ReportTopicDto.builder()
-                    .category(topicRedis.getCategory())
-                    .topic(topicRedis.getTopic())
-                    .build();
-            reportTopicDto.setExpressions(topicRedis.getExpressions().stream().map(ReportExpressionDto::fromRedis).collect(Collectors.toList()));
-            reportTopics.add(reportTopicDto);
-        }
-        return reportTopics;
+    private List<ReportTopicDto> fromRedisToDocument(StudyRedis study) {
+        return study.getTopics().stream()
+                .map(topic -> {
+                    Map<Boolean, List<ExpressionRedis>> grouped = topic.getExpressions()
+                            .stream()
+                            .collect(Collectors.partitioningBy(ExpressionRedis::isTranslation));
+
+                    return ReportTopicDto.builder()
+                            .category(topic.getCategory())
+                            .topic(topic.getTopic())
+                            .feedbacks(grouped.get(false).stream()
+                                    .map(ReportFeedbackDto::fromRedis)
+                                    .collect(Collectors.toList()))
+                            .translations(grouped.get(true).stream()
+                                    .map(ReportTranslationDto::fromRedis)
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

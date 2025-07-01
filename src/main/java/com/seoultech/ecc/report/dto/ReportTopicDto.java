@@ -1,8 +1,6 @@
 package com.seoultech.ecc.report.dto;
 
-import com.seoultech.ecc.study.datamodel.TopicRedis;
 import lombok.*;
-
 import java.util.List;
 
 @Getter
@@ -13,5 +11,6 @@ import java.util.List;
 public class ReportTopicDto {
     private String category;
     private String topic;
-    private List<ReportExpressionDto> expressions;
+    private List<ReportFeedbackDto> feedbacks;
+    private List<ReportTranslationDto> translations;
 }
