@@ -46,7 +46,8 @@ public class ReviewController {
 
     @PatchMapping("/me/{reviewId}/test")
     @Operation(summary = "복습 테스트 제출", description = "사용자의 테스트 답안을 제출합니다.")
-    public ResponseEntity<ResponseDto<ReviewTestDocument>> submitReviewTest(@RequestBody ReviewTestDocument test) {
+    public ResponseEntity<ResponseDto<ReviewTestDocument>> submitReviewTest(@PathVariable String reviewId,
+                                                                            @RequestBody ReviewTestDocument test) {
         return ResponseEntity.ok(ResponseDto.success(reviewService.submitReviewTest(test)));
     }
 }

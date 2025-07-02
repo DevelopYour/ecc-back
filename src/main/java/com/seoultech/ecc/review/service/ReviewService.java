@@ -1,5 +1,6 @@
 package com.seoultech.ecc.review.service;
 
+import com.seoultech.ecc.ai.service.OpenAiService;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.dto.ReportFeedbackDto;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -26,6 +26,9 @@ public class ReviewService {
 
     @Autowired
     private ReviewTestRepository reviewTestRepository;
+
+    @Autowired
+    OpenAiService aiService;
 
     public List<ReviewDocument> findAllByMemberId(int memberId) {
         return reviewRepository.findAllByMemberId(memberId);
@@ -92,8 +95,8 @@ public class ReviewService {
     }
 
     public ReviewTestDocument submitReviewTest(ReviewTestDocument test) {
-        // TODO: ai
-//        ReviewDocument test = aiService.gradeTest(test);
+        List<ReviewQuestionDto> questions = aiService.gradeTest(test.getQuestions());
+        test.setQuestions(questions);
         test.setComplete(true);
         return test;
     }

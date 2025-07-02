@@ -5,6 +5,7 @@ import com.seoultech.ecc.ai.config.OpenAiConfig;
 import com.seoultech.ecc.ai.dto.AiRequest;
 import com.seoultech.ecc.ai.dto.AiResponse;
 import com.seoultech.ecc.ai.dto.AiExpressionResponse;
+import com.seoultech.ecc.review.dto.ReviewQuestionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -26,9 +27,9 @@ public class OpenAiService {
 
     public AiExpressionResponse generateTranslation(String question, boolean korean) {
         try {
-            String prompt = createTranslationPrompt(question, korean);
+            String prompt = promptLoader.createTranslationPrompt(question, korean);
             String response = callOpenAi(prompt);
-            return parseTranslationResponse(response);
+            return parseExpressionResponse(response);
 
         } catch (Exception e) {
             log.error("Failed to generate translation for question: {}", question, e);
@@ -38,9 +39,9 @@ public class OpenAiService {
 
     public AiExpressionResponse generateFeedback(String question) {
         try {
-            String prompt = createFeedbackPrompt(question);
+            String prompt = promptLoader.createFeedbackPrompt(question);
             String response = callOpenAi(prompt);
-            return parseTranslationResponse(response);
+            return parseExpressionResponse(response);
 
         } catch (Exception e) {
             log.error("Failed to generate feedback for question: {}", question, e);
@@ -48,18 +49,15 @@ public class OpenAiService {
         }
     }
 
-    private String createTranslationPrompt(String question, boolean korean) {
-        String promptFileName = korean ?
-                "translation-to-english.txt" :
-                "translation-to-korean.txt";
-
-        String promptTemplate = promptLoader.loadPrompt(promptFileName);
-        return promptLoader.formatPrompt(promptTemplate, question);
-    }
-
-    private String createFeedbackPrompt(String question) {
-        String promptTemplate = promptLoader.loadPrompt("feedback.txt");
-        return promptLoader.formatPrompt(promptTemplate, question);
+    public List<ReviewQuestionDto> gradeTest(List<ReviewQuestionDto> questions) {
+        try {
+            String prompt = promptLoader.createGradePrompt(questions);
+            String response = callOpenAi(prompt);
+            return parseTestResponse(response);
+        } catch (Exception e) {
+            log.error("Failed to grade test for questions: {}", questions, e);
+            throw new RuntimeException("AI grade service failed", e);
+        }
     }
 
     private String callOpenAi(String prompt) {
@@ -101,7 +99,7 @@ public class OpenAiService {
         }
     }
 
-    private AiExpressionResponse parseTranslationResponse(String response) {
+    private AiExpressionResponse parseExpressionResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
@@ -113,12 +111,35 @@ public class OpenAiService {
         }
     }
 
-    private String extractJsonFromResponse(String response) {
-        int startIndex = response.indexOf('{');
-        int endIndex = response.lastIndexOf('}');
+    private List<ReviewQuestionDto> parseTestResponse(String response) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = extractJsonFromResponse(response);
+            // TypeReference를 사용해서 제네릭 타입 문제 해결
+            return objectMapper.readValue(jsonResponse,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ReviewQuestionDto.class));
+        } catch (Exception e) {
+            log.error("Failed to parse test response: {}", response, e);
+            return null;
+        }
+    }
 
-        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-            return response.substring(startIndex, endIndex + 1);
+    private String extractJsonFromResponse(String response) {
+        System.out.println(response);
+        response = response.trim();
+
+        // 배열인 경우
+        int arrayStart = response.indexOf('[');
+        int arrayEnd = response.lastIndexOf(']');
+        if (arrayStart != -1 && arrayEnd != -1 && arrayEnd > arrayStart) {
+            return response.substring(arrayStart, arrayEnd + 1);
+        }
+
+        // 객체인 경우 (기존 로직)
+        int objectStart = response.indexOf('{');
+        int objectEnd = response.lastIndexOf('}');
+        if (objectStart != -1 && objectEnd != -1 && objectEnd > objectStart) {
+            return response.substring(objectStart, objectEnd + 1);
         }
 
         throw new RuntimeException("No valid JSON found in response");
