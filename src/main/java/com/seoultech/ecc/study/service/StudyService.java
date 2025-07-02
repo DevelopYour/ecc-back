@@ -63,10 +63,8 @@ public class StudyService {
     @Transactional
     public StudyRedis getStudyRoom(Long teamId) {
         // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
-        String teamStudyKey = "team:" + teamId + ":study";
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId); // 해당 팀의 스터디 redis 존재 여부 확인
         if (existingStudyId != null) {
-            String redisKey = "study:" + existingStudyId;
             StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId); // 스터디Id로 redis 내용 확인
             if (existingStudy != null) return existingStudy;
             // 예외 처리 (키는 있는데 값은 없는 경우
@@ -81,7 +79,6 @@ public class StudyService {
     }
 
     public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
-
         // 1. Redis에서 기존 StudyRedis 객체 불러오기
         StudyRedis study = studyRepository.findByStudyId(studyId);
         if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);

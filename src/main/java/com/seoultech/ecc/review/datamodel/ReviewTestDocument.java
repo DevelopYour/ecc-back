@@ -1,6 +1,6 @@
 package com.seoultech.ecc.review.datamodel;
 
-import com.seoultech.ecc.review.dto.QuestionDto;
+import com.seoultech.ecc.review.dto.ReviewQuestionDto;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,11 +14,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "report")
+@Document(collection = "review_test")
 public class ReviewTestDocument {
     @Id
     private String id;
     private Integer userId;
-    private List<QuestionDto> questions;
+    private List<ReviewQuestionDto> questions;
     private boolean isComplete;
 }
