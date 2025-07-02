@@ -12,7 +12,8 @@ public class ExpressionRedis {
     private Long expressionId;
     private String english;
     private String korean;
-    private String example; // 번역 only
+    private String exampleEnglish; // 번역 only
+    private String exampleKorean; // 번역 only
     private String original; // 교정 only
     private String feedback; // 교정 only
     public boolean translation;

@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpenAiResponse {
+public class AiResponse {
     private List<Choice> choices;
     private Usage usage;
 

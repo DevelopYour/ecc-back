@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpenAiRequest {
+public class AiRequest {
     private String model;
     private List<Message> messages;
     @JsonProperty("max_tokens")

@@ -1,5 +1,7 @@
-You are a helpful English-Korean translation assistant.
+You are a helpful Korean-English translation assistant.
 Please translate the following English text to Korean and provide an example sentence.
+Keep translations natural and commonly used.
+Make example sentences simple and practical.
 
 English text: "%s"
 
@@ -7,8 +9,6 @@ Respond in the following JSON format:
 {
     "korean": "Korean translation of the English text",
     "english": "Original English text",
-    "example": "A practical example sentence using the Korean translation"
+    "exampleEnglish": "A practical example sentence using the English translation",
+    "exampleKorean": "Korean translation of the example sentence"
 }
-
-Keep translations natural and commonly used.
-Make example sentences simple and practical.

@@ -2,8 +2,8 @@ package com.seoultech.ecc.ai.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seoultech.ecc.ai.config.OpenAiConfig;
-import com.seoultech.ecc.ai.dto.OpenAiRequest;
-import com.seoultech.ecc.ai.dto.OpenAiResponse;
+import com.seoultech.ecc.ai.dto.AiRequest;
+import com.seoultech.ecc.ai.dto.AiResponse;
 import com.seoultech.ecc.ai.dto.AiExpressionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,22 +69,22 @@ public class OpenAiService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(openAiConfig.getApiKey());
 
-        OpenAiRequest request = OpenAiRequest.builder()
+        AiRequest request = AiRequest.builder()
                 .model(openAiConfig.getModel())
                 .maxTokens(openAiConfig.getMaxTokens())
                 .messages(List.of(
-                        OpenAiRequest.Message.builder()
+                        AiRequest.Message.builder()
                                 .role("user")
                                 .content(prompt)
                                 .build()
                 ))
                 .build();
 
-        HttpEntity<OpenAiRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<AiRequest> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<OpenAiResponse> response = restTemplate.exchange(
-                    url, HttpMethod.POST, entity, OpenAiResponse.class);
+            ResponseEntity<AiResponse> response = restTemplate.exchange(
+                    url, HttpMethod.POST, entity, AiResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody().getChoices().get(0).getMessage().getContent();

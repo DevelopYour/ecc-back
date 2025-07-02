@@ -11,13 +11,16 @@ import lombok.*;
 public class ReportTranslationDto {
     private String english;
     private String korean;
-    private String example;
+    private String exampleEnglish;
+    private String exampleKorean;
+
 
     public static ReportTranslationDto fromRedis(ExpressionRedis redis) {
         return ReportTranslationDto.builder()
                 .english(redis.getEnglish())
                 .korean(redis.getKorean())
-                .example(redis.getExample())
+                .exampleEnglish(redis.getExampleEnglish())
+                .exampleKorean(redis.getExampleKorean())
                 .build();
     }
 }

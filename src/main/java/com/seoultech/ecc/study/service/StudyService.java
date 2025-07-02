@@ -166,7 +166,8 @@ public class StudyService {
         expression.setEnglish(aiResponse.getEnglish());
         expression.setTranslation(questionDto.isTranslation());
         if (questionDto.isTranslation()) { // 번역
-            expression.setExample(aiResponse.getExample());
+            expression.setExampleEnglish(aiResponse.getExampleEnglish());
+            expression.setExampleKorean(aiResponse.getExampleKorean());
         } else { // 교정
             expression.setFeedback(aiResponse.getFeedback());
             expression.setOriginal(questionDto.getQuestion());
