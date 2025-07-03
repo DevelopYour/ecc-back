@@ -3,7 +3,6 @@ package com.seoultech.ecc.review.service;
 import com.seoultech.ecc.ai.service.OpenAiService;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
-import com.seoultech.ecc.report.dto.ReportFeedbackDto;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
 import com.seoultech.ecc.review.datamodel.ReviewStatus;
 import com.seoultech.ecc.review.datamodel.ReviewTestDocument;
@@ -28,7 +27,7 @@ public class ReviewService {
     private ReviewTestRepository reviewTestRepository;
 
     @Autowired
-    OpenAiService aiService;
+    private OpenAiService aiService;
 
     public List<ReviewDocument> findAllByMemberId(int memberId) {
         return reviewRepository.findAllByMemberId(memberId);
@@ -98,6 +97,11 @@ public class ReviewService {
         List<ReviewQuestionDto> questions = aiService.gradeTest(test.getQuestions());
         test.setQuestions(questions);
         test.setComplete(true);
+        reviewTestRepository.save(test);
+        // 해당 복습자료 상태 업데이트
+        ReviewDocument review = reviewRepository.findById(test.getId()).orElse(null);
+        Objects.requireNonNull(review).setStatus(ReviewStatus.COMPLETED);
+        reviewRepository.save(review);
         return test;
     }
 
