@@ -5,6 +5,7 @@ import com.seoultech.ecc.ai.config.OpenAiConfig;
 import com.seoultech.ecc.ai.dto.AiRequest;
 import com.seoultech.ecc.ai.dto.AiResponse;
 import com.seoultech.ecc.ai.dto.AiExpressionResponse;
+import com.seoultech.ecc.review.datamodel.GradeLevel;
 import com.seoultech.ecc.review.dto.ReviewQuestionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -53,9 +55,14 @@ public class OpenAiService {
         try {
             String prompt = promptLoader.createGradePrompt(questions);
             String response = callOpenAi(prompt);
-            return parseTestResponse(response);
+            List<Integer> grades = parseGradeResponse(response);
+
+            for (int i = 0; i < questions.size() && i < grades.size(); i++) { // int -> enum
+                questions.get(i).setGrade(GradeLevel.fromIntGrade(grades.get(i)));
+            }
+            return questions;
         } catch (Exception e) {
-            log.error("Failed to grade test for questions: {}", questions, e);
+            log.error("Failed to grade test", e);
             throw new RuntimeException("AI grade service failed", e);
         }
     }
@@ -111,16 +118,15 @@ public class OpenAiService {
         }
     }
 
-    private List<ReviewQuestionDto> parseTestResponse(String response) {
+    private List<Integer> parseGradeResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
-            // TypeReference를 사용해서 제네릭 타입 문제 해결
             return objectMapper.readValue(jsonResponse,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ReviewQuestionDto.class));
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Integer.class));
         } catch (Exception e) {
-            log.error("Failed to parse test response: {}", response, e);
-            return null;
+            log.error("Failed to parse grade response: {}", response, e);
+            return Collections.emptyList();
         }
     }
 
