@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TopicRepository extends JpaRepository<TopicEntity, Long> {
     List<TopicEntity> findByCategory_Id(Long categoryId);
+    void deleteByCategory_Id(Long categoryId);
 }
