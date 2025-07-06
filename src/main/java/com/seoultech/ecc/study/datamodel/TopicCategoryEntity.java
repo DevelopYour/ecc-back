@@ -1,15 +1,14 @@
 package com.seoultech.ecc.study.datamodel;
 
+import com.seoultech.ecc.admin.dto.EditCategoryDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "topic_category")
 public class TopicCategoryEntity {
@@ -24,4 +23,5 @@ public class TopicCategoryEntity {
 
     @Column(nullable = false, length = 30)
     private String description;
+
 }

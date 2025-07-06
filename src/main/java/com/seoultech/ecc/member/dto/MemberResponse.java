@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,8 +28,7 @@ public class MemberResponse {
     private String majorName; // 학과명
     private String motivation; // 지원 동기
     private String role; // 역할 정보 추가
-
-    // 카카오 로그인은 현재 미구현
+    private LocalDateTime createdAt;
     /*private Integer kakaoUuid; // 카카오로그인ID*/
 
     public static MemberResponse fromEntity(MemberEntity member) {
@@ -44,7 +45,8 @@ public class MemberResponse {
                 .majorId(member.getMajor().getId())
                 .majorName(member.getMajor().getName())
                 .motivation(member.getMotivation())
-                .role(member.getRole()) // 역할 정보 추가
+                .role(member.getRole())
+                .createdAt(member.getCreatedAt())
                 .build();
     }
 }
