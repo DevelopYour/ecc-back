@@ -6,11 +6,8 @@ spring:
 
 logging:
   level:
-    root: info  # 전체 애플리케이션 로그 레벨
-    org.hibernate.SQL: warn
-    org.hibernate.type.descriptor.sql.BasicBinder: off
-    org.springframework.security: debug
-    com.seoultech.ecc: debug
+    root: WARN
+    com.seoultech.ecc: INFO
 
 springdoc:
   swagger-ui:
