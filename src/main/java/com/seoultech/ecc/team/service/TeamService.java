@@ -1,8 +1,6 @@
 package com.seoultech.ecc.team.service;
 
-import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.repository.MemberRepository;
-import com.seoultech.ecc.team.datamodel.SubjectEntity;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.team.dto.SubjectDto;
 import com.seoultech.ecc.team.dto.TeamDto;

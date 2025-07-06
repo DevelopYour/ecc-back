@@ -1,6 +1,5 @@
 package com.seoultech.ecc.study.repository;
 
-import com.seoultech.ecc.study.datamodel.TopicCategoryEntity;
 import com.seoultech.ecc.study.datamodel.TopicEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
