@@ -26,13 +26,13 @@ public class ApplyStudyController {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청", description = "ACTIVE 상태의 회원이 정규 스터디를 신청합니다.")
-    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> applyRegularStudy(
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyResponse>> applyRegularStudy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ApplyStudyDto.ApplyRequest request) {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyListResponse response = regularStudyService.applyRegularStudy(uuid, request);
+        ApplyStudyDto.ApplyResponse response = regularStudyService.applyRegularStudy(uuid, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청이 완료되었습니다.", response));
     }
@@ -40,12 +40,12 @@ public class ApplyStudyController {
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청 내역 조회", description = "현재 로그인한 회원의 정규 스터디 신청 내역을 조회합니다.")
-    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> getRegularStudyApplications(
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyResponse>> getRegularStudyApplications(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyListResponse response = regularStudyService.getRegularStudyApplications(uuid);
+        ApplyStudyDto.ApplyResponse response = regularStudyService.getRegularStudyApplications(uuid);
 
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -53,13 +53,13 @@ public class ApplyStudyController {
     @PutMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규 스터디 신청 내역 수정", description = "현재 로그인한 회원의 정규 스터디 신청 내역을 수정합니다.")
-    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyListResponse>> updateRegularStudyApplications(
+    public ResponseEntity<ResponseDto<ApplyStudyDto.ApplyResponse>> updateRegularStudyApplications(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody ApplyStudyDto.UpdateRequest request) {
+            @Valid @RequestBody ApplyStudyDto.ApplyRequest request) {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyListResponse response = regularStudyService.updateRegularStudyApplications(uuid, request);
+        ApplyStudyDto.ApplyResponse response = regularStudyService.updateRegularStudy(uuid, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청 내역이 수정되었습니다.", response));
     }
@@ -72,7 +72,7 @@ public class ApplyStudyController {
 
         Integer uuid = userDetails.getId();
 
-        regularStudyService.cancelRegularStudyApplications(uuid);
+        regularStudyService.deleteStudyApplications(uuid);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청이 취소되었습니다.", null));
     }

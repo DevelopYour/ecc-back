@@ -1,12 +1,12 @@
 package com.seoultech.ecc.team.dto;
 
-import com.seoultech.ecc.team.datamodel.ApplyRegularStudyEntity;
+import com.seoultech.ecc.team.datamodel.ApplyRegularSubjectEntity;
+import com.seoultech.ecc.team.datamodel.ApplyRegularTimeEntity;
 import com.seoultech.ecc.team.datamodel.TimeEntity;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ApplyStudyDto {
 
@@ -28,59 +28,44 @@ public class ApplyStudyDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class UpdateRequest {
-        @NotEmpty(message = "신청 과목 목록은 필수입니다.")
-        private List<Long> subjectIds;
-
-        @NotEmpty(message = "신청 시간 목록은 필수입니다.")
-        private List<Integer> timeIds;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
     public static class ApplyResponse {
-        private Long id;
         private Integer memberUuid;
         private String memberName;
-        private Long subjectId;
-        private String subjectName;
-        private Integer timeId;
-        private TimeEntity.Day day;
-        private int startTime;
+        private List<ApplySubjectDto> subjects;
+        private List<ApplyTimeDto> times;
 
-        public static ApplyResponse fromEntity(ApplyRegularStudyEntity entity) {
-            return ApplyResponse.builder()
-                    .id(entity.getId())
-                    .memberUuid(entity.getMember().getUuid())
-                    .memberName(entity.getMember().getName())
-                    .subjectId(entity.getSubject().getSubjectId())
-                    .subjectName(entity.getSubject().getName())
-                    .timeId(entity.getTime().getTimeId())
-                    .day(entity.getTime().getDay())
-                    .startTime(entity.getTime().getStartTime())
-                    .build();
+        @Getter
+        @Builder
+        public static class ApplySubjectDto {
+            private Long id;
+            private Long subjectId;
+            private String subjectName;
+
+            public static ApplySubjectDto fromEntity(ApplyRegularSubjectEntity entity) {
+                return ApplySubjectDto.builder()
+                        .id(entity.getId())
+                        .subjectId(entity.getSubject().getSubjectId())
+                        .subjectName(entity.getSubject().getName())
+                        .build();
+            }
         }
-    }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ApplyListResponse {
-        private List<ApplyResponse> applications;
+        @Getter
+        @Builder
+        public static class ApplyTimeDto {
+            private Long id;
+            private Integer timeId;
+            private TimeEntity.Day day;
+            private Integer startTime;
 
-        public static ApplyListResponse fromEntityList(List<ApplyRegularStudyEntity> entities) {
-            List<ApplyResponse> responses = entities.stream()
-                    .map(ApplyResponse::fromEntity)
-                    .collect(Collectors.toList());
-
-            return ApplyListResponse.builder()
-                    .applications(responses)
-                    .build();
+            public static ApplyTimeDto fromEntity(ApplyRegularTimeEntity entity) {
+                return ApplyTimeDto.builder()
+                        .id(entity.getId())
+                        .timeId(entity.getTime().getTimeId())
+                        .day(entity.getTime().getDay())
+                        .startTime(entity.getTime().getStartTime())
+                        .build();
+            }
         }
     }
 }

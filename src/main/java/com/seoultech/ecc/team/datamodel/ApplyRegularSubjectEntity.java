@@ -10,8 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "apply_regular_study")
-public class ApplyRegularStudyEntity {
+@Table(name = "apply_regular_subject")
+public class ApplyRegularSubjectEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +24,4 @@ public class ApplyRegularStudyEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
     private SubjectEntity subject;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "time_id", nullable = false)
-    private TimeEntity time;
 }

@@ -105,8 +105,8 @@ public class OneTimeTeamService {
         // 과목 정보 조회
         SubjectEntity subject = getSubjectById(request.getSubjectId());
 
-        // 기본 시간 정보 사용 (추후 개선 가능)
-        TimeEntity defaultTime = timeRepository.findById(1L)
+        // TODO 처리 필요
+        TimeEntity defaultTime = timeRepository.findById(1)
                 .orElseThrow(() -> new IllegalStateException("기본 시간 정보가 존재하지 않습니다."));
 
         // 현재 년도 및 학기 정보 (시스템 정책에 따라 구해야 함)
