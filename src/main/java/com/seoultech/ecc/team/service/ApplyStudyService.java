@@ -71,6 +71,9 @@ public class ApplyStudyService {
         List<ApplyRegularSubjectEntity> subjects = applySubjectRepository.findByMember(member);
         List<ApplyRegularTimeEntity> times = applyTimeRepository.findByMember(member);
 
+        // 신청 내역이 없으면 null 반환
+        if (subjects.isEmpty() && times.isEmpty()) return null;
+
         return toApplyResponse(member, subjects, times);
     }
 
@@ -97,7 +100,7 @@ public class ApplyStudyService {
         return member;
     }
 
-    private ApplyStudyDto.ApplyResponse toApplyResponse(MemberEntity member, List<ApplyRegularSubjectEntity> subjects, List<ApplyRegularTimeEntity> times){
+    public ApplyStudyDto.ApplyResponse toApplyResponse(MemberEntity member, List<ApplyRegularSubjectEntity> subjects, List<ApplyRegularTimeEntity> times){
         return ApplyStudyDto.ApplyResponse.builder()
                 .memberUuid(member.getUuid())
                 .memberName(member.getName())
