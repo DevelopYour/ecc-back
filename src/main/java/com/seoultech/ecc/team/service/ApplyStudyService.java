@@ -7,8 +7,6 @@ import com.seoultech.ecc.team.datamodel.*;
 import com.seoultech.ecc.team.dto.ApplyStudyDto;
 import com.seoultech.ecc.team.repository.ApplyRegularSubjectRepository;
 import com.seoultech.ecc.team.repository.ApplyRegularTimeRepository;
-import com.seoultech.ecc.team.repository.SubjectRepository;
-import com.seoultech.ecc.team.repository.TimeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +19,8 @@ import java.util.stream.Collectors;
 public class ApplyStudyService {
 
     private final MemberRepository memberRepository;
-    private final SubjectRepository subjectRepository;
-    private final TimeRepository timeRepository;
+    private final SubjectService subjectService;
+    private final TimeService timeService;
     private final ApplyRegularTimeRepository applyTimeRepository;
     private final ApplyRegularSubjectRepository applySubjectRepository;
 
@@ -36,21 +34,21 @@ public class ApplyStudyService {
         List<ApplyRegularSubjectEntity> subjects = request.getSubjectIds().stream()
                 .map(subjectId -> ApplyRegularSubjectEntity.builder()
                         .member(member)
-                        .subject(getSubjectById(subjectId))
+                        .subject(subjectService.getSubjectById(subjectId))
                         .build())
                 .collect(Collectors.toList());
 
         List<ApplyRegularTimeEntity> times = request.getTimeIds().stream()
                 .map(timeId -> ApplyRegularTimeEntity.builder()
                         .member(member)
-                        .time(getTimeById(timeId))
+                        .time(timeService.getTimeById(timeId))
                         .build())
                 .collect(Collectors.toList());
 
         List<ApplyRegularSubjectEntity> subjectEntities = applySubjectRepository.saveAll(subjects);
         List<ApplyRegularTimeEntity> timeEntites = applyTimeRepository.saveAll(times);
 
-        return toApplyResponse(member, subjects, times);
+        return toApplyResponse(member, subjectEntities, timeEntites);
     }
 
     // 정규 스터디 수정 (UUID 사용)
@@ -106,17 +104,5 @@ public class ApplyStudyService {
                 .subjects(subjects.stream().map(ApplyStudyDto.ApplyResponse.ApplySubjectDto::fromEntity).collect(Collectors.toList()))
                 .times(times.stream().map(ApplyStudyDto.ApplyResponse.ApplyTimeDto::fromEntity).collect(Collectors.toList()))
                 .build();
-    }
-
-    // 과목 ID로 과목 조회
-    private SubjectEntity getSubjectById(Integer subjectId) {
-        return subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 과목입니다. ID: " + subjectId));
-    }
-
-    // 시간 ID로 시간 조회
-    private TimeEntity getTimeById(Integer timeId) {
-        return timeRepository.findById(timeId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 시간입니다. ID: " + timeId));
     }
 }
