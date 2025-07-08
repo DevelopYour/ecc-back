@@ -25,7 +25,7 @@ public class ReportService {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
 
-    public List<ReportDocument> findReportsByTeamId(Long teamId) {
+    public List<ReportDocument> findReportsByTeamId(Integer teamId) {
         return reportRepository.findByTeamIdOrderByWeekAsc(teamId);
     }
 
@@ -43,7 +43,7 @@ public class ReportService {
     }
 
     @Transactional
-    public String createReport(Long teamId) {
+    public String createReport(Integer teamId) {
         TeamEntity team = teamRepository.findById(teamId).orElse(null); // TODO: 추후 처리 필요
         ReportDocument report = new ReportDocument();
         report.setTeamId(teamId);
@@ -54,7 +54,7 @@ public class ReportService {
             members.add(memberSimpleDto);
         }
         report.setMembers(members);
-        report.setSubjectId(1L); // TODO: 추후 처리 필요
+        report.setSubjectId(1); // TODO: 추후 처리 필요
         report.setWeek(team.getStudyCount() + 1);
         team.setStudyCount(team.getStudyCount() + 1);
         report.setGrade(0);

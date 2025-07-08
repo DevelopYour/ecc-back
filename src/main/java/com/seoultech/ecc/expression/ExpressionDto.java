@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ExpressionDto {
-    private Long id;
+    private Integer id;
     private String expression;
     private String description;
 }

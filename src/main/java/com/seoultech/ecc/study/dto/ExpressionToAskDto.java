@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpressionToAskDto {
-    private Long topicId;
+    private Integer topicId;
     private String question;
     private boolean translation;
     private boolean korean;

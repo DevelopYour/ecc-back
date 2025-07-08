@@ -65,7 +65,7 @@ public class TeamController {
     @PreAuthorize("@teamMemberChecker.isTeamMember(#teamId, authentication.credentials)")
     @Operation(summary = "팀 상세 정보 조회", description = "특정 팀의 상세 정보를 조회합니다. 해당 팀에 속한 회원만 조회할 수 있습니다.")
     public ResponseEntity<ResponseDto<TeamDto>> getTeamDetail(
-            @PathVariable Long teamId,
+            @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer uuid = userDetails.getId();
 

@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class SubjectDto {
-    private Long subjectId;
+    private Integer subjectId;
     private String name;
 
     public static SubjectDto fromEntity(SubjectEntity subject) {

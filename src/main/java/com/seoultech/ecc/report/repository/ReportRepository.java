@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReportRepository extends MongoRepository<ReportDocument, String> {
-    List<ReportDocument> findByTeamIdOrderByWeekAsc(Long teamId);
+    List<ReportDocument> findByTeamIdOrderByWeekAsc(Integer teamId);
     ReportDocument getById(String reportId);
 }

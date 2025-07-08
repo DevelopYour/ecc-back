@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StudyRedis {
     private String id;
-    private Long teamId;
+    private Integer teamId;
     private List<TopicRedis> topics;
 }
 

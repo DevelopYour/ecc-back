@@ -105,7 +105,7 @@ public class MemberEntity extends BaseEntity {
     }
 
     // Major 정보를 안전하게 가져오는 편의 메서드
-    public Long getMajorId() {
+    public Integer getMajorId() {
         return major != null ? major.getId() : null;
     }
 

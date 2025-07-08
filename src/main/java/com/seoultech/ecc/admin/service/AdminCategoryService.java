@@ -30,7 +30,7 @@ public class AdminCategoryService {
         return TopicCategoryDto.fromEntity(entity);
     }
 
-    public TopicCategoryDto update(Long categoryId, EditCategoryDto dto) {
+    public TopicCategoryDto update(Integer categoryId, EditCategoryDto dto) {
         TopicCategoryEntity entity = topicCategoryRepository.findById(categoryId).orElseThrow();
         entity.setCategory(dto.getName());
         entity.setDescription(dto.getDescription());
@@ -39,7 +39,7 @@ public class AdminCategoryService {
     }
 
     @Transactional
-    public void delete(Long categoryId) {
+    public void delete(Integer categoryId) {
         topicRepository.deleteByCategory_Id(categoryId);
         topicCategoryRepository.deleteById(categoryId);
     }

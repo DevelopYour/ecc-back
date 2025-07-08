@@ -21,8 +21,8 @@ import java.util.List;
 public class ReportDocument extends BaseDocument {
     @Id
     private String id;
-    private Long teamId;
-    private Long subjectId;
+    private Integer teamId;
+    private Integer subjectId;
     private List<MemberSimpleDto> members;
     private int week;
     private List<ReportTopicDto> topics;

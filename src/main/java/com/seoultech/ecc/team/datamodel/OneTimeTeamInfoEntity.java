@@ -19,7 +19,7 @@ public class OneTimeTeamInfoEntity extends BaseEntity {
 
     @Id
     @Column(name = "team_id")
-    private Long id;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

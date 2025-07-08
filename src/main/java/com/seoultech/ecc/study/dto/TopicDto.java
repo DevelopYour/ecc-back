@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicDto {
-    private Long id;
+    private Integer id;
     private String category;
     private String topic;
 }

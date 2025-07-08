@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ApplyRegularTimeRepository extends JpaRepository<ApplyRegularTimeEntity, Long> {
+public interface ApplyRegularTimeRepository extends JpaRepository<ApplyRegularTimeEntity, Integer> {
 
     List<ApplyRegularTimeEntity> findByMember(MemberEntity member);
 

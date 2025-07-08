@@ -29,19 +29,19 @@ public class StudyController {
 
     @GetMapping("/{teamId}/overview")
     @Operation(summary = "팀별 메인페이지 입장", description = "팀의 주차별 진행과정을 조회합니다. StudyStatus가 COMPLETE인 경우 팀원별 복습 상태 정보를 함께 반환합니다")
-    public ResponseEntity<ResponseDto<List<WeeklySummaryDto>>> summarizeTeamProgress(@PathVariable Long teamId) {
+    public ResponseEntity<ResponseDto<List<WeeklySummaryDto>>> summarizeTeamProgress(@PathVariable Integer teamId) {
         return ResponseEntity.ok(ResponseDto.success(studyService.getTeamProgress(teamId)));
     }
 
     @PostMapping("/{teamId}")
     @Operation(summary = "공부방 입장", description = "진행 중인 공부방이 없다면 특정 팀의 특정 주차 보고서 초안 데이터를 생성하고 공부방(Redis)을 생성합니다.")
-    public ResponseEntity<ResponseDto<StudyRedis>> enterStudyRoom(@PathVariable Long teamId) {
+    public ResponseEntity<ResponseDto<StudyRedis>> enterStudyRoom(@PathVariable Integer teamId) {
         return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
     }
 
     @GetMapping("/{teamId}/topic")
     @Operation(summary = "주제 목록 조회", description = "주제 목록을 요청합니다.")
-    public ResponseEntity<ResponseDto<List<TopicSetDto>>> getTopicsByAiHelp(@PathVariable Long teamId) {
+    public ResponseEntity<ResponseDto<List<TopicSetDto>>> getTopicsByAiHelp(@PathVariable Integer teamId) {
         return ResponseEntity.ok(ResponseDto.success(topicService.getAllTopics())); // TODO: (2차) 팀별 주제 진행여부 처리
     }
 

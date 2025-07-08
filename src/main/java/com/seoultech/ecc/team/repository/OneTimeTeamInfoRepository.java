@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfoEntity, Long> {
+public interface OneTimeTeamInfoRepository extends JpaRepository<OneTimeTeamInfoEntity, Integer> {
     List<OneTimeTeamInfoEntity> findByStatus(OneTimeTeamStatus status, Sort sort);
 
     List<OneTimeTeamInfoEntity> findByStatusIn(List<OneTimeTeamStatus> statuses, Sort sort);

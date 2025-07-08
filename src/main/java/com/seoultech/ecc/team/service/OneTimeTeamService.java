@@ -76,7 +76,7 @@ public class OneTimeTeamService {
      * 번개 스터디 상세 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.DetailResponse getOneTimeTeamDetail(Integer teamId, Integer uuid) {
         TeamEntity team = getOneTimeTeam(teamId);
         return OneTimeTeamDto.DetailResponse.fromEntity(team, uuid);
     }
@@ -152,7 +152,7 @@ public class OneTimeTeamService {
      * 번개 스터디 수정 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response updateOneTimeTeam(Long teamId, Integer uuid, OneTimeTeamDto.UpdateRequest request) {
+    public OneTimeTeamDto.Response updateOneTimeTeam(Integer teamId, Integer uuid, OneTimeTeamDto.UpdateRequest request) {
         // 회원 조회 및 상태 확인
         getMemberAndCheckStatus(uuid);
 
@@ -258,7 +258,7 @@ public class OneTimeTeamService {
      * 번개 스터디 신청 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response applyToOneTimeTeam(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.Response applyToOneTimeTeam(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(uuid);
 
@@ -293,7 +293,7 @@ public class OneTimeTeamService {
      * 번개 스터디 신청 취소 (UUID 사용)
      */
     @Transactional
-    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Long teamId, Integer uuid) {
+    public OneTimeTeamDto.Response cancelOneTimeTeamApplication(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         MemberEntity member = getMemberAndCheckStatus(uuid);
 
@@ -335,7 +335,7 @@ public class OneTimeTeamService {
      * 번개 스터디 취소 (생성자만 가능) (UUID 사용)
      */
     @Transactional
-    public void cancelOneTimeTeam(Long teamId, Integer uuid) {
+    public void cancelOneTimeTeam(Integer teamId, Integer uuid) {
         // 회원 조회 및 상태 확인
         getMemberAndCheckStatus(uuid);
 
@@ -412,7 +412,7 @@ public class OneTimeTeamService {
     /**
      * 팀 엔티티 조회
      */
-    private TeamEntity getOneTimeTeam(Long teamId) {
+    private TeamEntity getOneTimeTeam(Integer teamId) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다. ID: " + teamId));
 
@@ -444,7 +444,7 @@ public class OneTimeTeamService {
     /**
      * 과목 ID로 과목 조회
      */
-    private SubjectEntity getSubjectById(Long subjectId) {
+    private SubjectEntity getSubjectById(Integer subjectId) {
         return subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과목입니다. ID: " + subjectId));
     }

@@ -36,7 +36,7 @@ public class StudyService {
     @Autowired
     private StudyRepository studyRepository;
 
-    public List<WeeklySummaryDto> getTeamProgress(Long teamId) {
+    public List<WeeklySummaryDto> getTeamProgress(Integer teamId) {
         List<ReportDocument> reports = reportService.findReportsByTeamId(teamId);
         List<WeeklySummaryDto> dtos = new ArrayList<>();
         for (ReportDocument report : reports) {
@@ -61,7 +61,7 @@ public class StudyService {
     }
 
     @Transactional
-    public StudyRedis getStudyRoom(Long teamId) {
+    public StudyRedis getStudyRoom(Integer teamId) {
         // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId); // 해당 팀의 스터디 redis 존재 여부 확인
         if (existingStudyId != null) {
@@ -86,7 +86,7 @@ public class StudyService {
         // 2. topic 리스트에 추가
         for (TopicDto dto : topicDtos) {
             TopicRedis topic = new TopicRedis();
-            Long newTopicId = (long) (study.getTopics().size() + 1);
+            Integer newTopicId = study.getTopics().size() + 1;
             topic.setTopicId(newTopicId);
             topic.setTopic(dto.getTopic());
             topic.setCategory(dto.getCategory());
@@ -142,7 +142,7 @@ public class StudyService {
         }
     }
 
-    private TopicRedis findTopicInStudy(StudyRedis study, Long topicId) {
+    private TopicRedis findTopicInStudy(StudyRedis study, Integer topicId) {
         return study.getTopics().stream()
                 .filter(t -> t.getTopicId().equals(topicId))
                 .findFirst()
@@ -153,10 +153,10 @@ public class StudyService {
         ExpressionRedis expression = new ExpressionRedis();
 
         // Generate next sequential ID
-        Long newExpressionId = topic.getExpressions().stream()
-                .mapToLong(ExpressionRedis::getExpressionId)
+        Integer newExpressionId = topic.getExpressions().stream()
+                .mapToInt(ExpressionRedis::getExpressionId)
                 .max()
-                .orElse(0L) + 1L;
+                .orElse(0) + 1;
 
         expression.setExpressionId(newExpressionId);
         expression.setKorean(aiResponse.getKorean());

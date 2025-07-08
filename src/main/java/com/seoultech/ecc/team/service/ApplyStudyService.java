@@ -109,7 +109,7 @@ public class ApplyStudyService {
     }
 
     // 과목 ID로 과목 조회
-    private SubjectEntity getSubjectById(Long subjectId) {
+    private SubjectEntity getSubjectById(Integer subjectId) {
         return subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 과목입니다. ID: " + subjectId));
     }

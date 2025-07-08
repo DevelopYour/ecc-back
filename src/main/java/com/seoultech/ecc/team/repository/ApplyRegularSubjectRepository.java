@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ApplyRegularSubjectRepository extends JpaRepository<ApplyRegularSubjectEntity, Long> {
+public interface ApplyRegularSubjectRepository extends JpaRepository<ApplyRegularSubjectEntity, Integer> {
     List<ApplyRegularSubjectEntity> findByMember(MemberEntity member);
 
     void deleteByMember(MemberEntity entity);
 
-    List<ApplyRegularSubjectEntity> findBySubject_SubjectId(Long subjectId);
+    List<ApplyRegularSubjectEntity> findBySubject_SubjectId(Integer subjectId);
 }

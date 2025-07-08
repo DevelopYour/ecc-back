@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, Long> {
+public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, Integer> {
     @Query("SELECT tm.member FROM TeamMemberEntity tm WHERE tm.team.teamId = :teamId")
-    List<MemberEntity> findMembersByTeamId(@Param("teamId") Long teamId);
+    List<MemberEntity> findMembersByTeamId(@Param("teamId") Integer teamId);
 }

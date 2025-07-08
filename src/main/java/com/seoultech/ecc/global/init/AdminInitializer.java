@@ -43,7 +43,7 @@ public class AdminInitializer implements ApplicationRunner {
     private String adminEmail;
 
     @Value("${admin.major-id:1}")
-    private Long adminMajorId;
+    private Integer adminMajorId;
 
     @Value("${admin.auto-create:true}")
     private boolean autoCreateAdmin;

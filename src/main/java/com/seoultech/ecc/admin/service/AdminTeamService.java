@@ -77,7 +77,7 @@ public class AdminTeamService {
      * 특정 팀 상세 정보 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Long teamId, Integer adminUuid) {
+    public TeamDto getTeamDetail(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -91,7 +91,7 @@ public class AdminTeamService {
      * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamWeekDetail(Long teamId, int week, Integer adminUuid) {
+    public Object getTeamWeekDetail(Integer teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -131,7 +131,7 @@ public class AdminTeamService {
      * 특정 팀의 주차별 보고서 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getTeamWeekReport(Long teamId, int week, Integer adminUuid) {
+    public ReportDocument getTeamWeekReport(Integer teamId, int week, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -155,7 +155,7 @@ public class AdminTeamService {
      * 번개 스터디 보고서 조회 (번개 스터디는 주차 개념 없이 단일 보고서만 존재) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public ReportDocument getOneTimeTeamReport(Long teamId, Integer adminUuid) {
+    public ReportDocument getOneTimeTeamReport(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -181,7 +181,7 @@ public class AdminTeamService {
      * 보고서 평가 점수 수정 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateReportGrade(Long teamId, int week, int grade, Integer adminUuid) {
+    public ReportDocument updateReportGrade(Integer teamId, int week, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -210,7 +210,7 @@ public class AdminTeamService {
      * 번개 스터디 보고서 평가 점수 수정 (UUID 사용)
      */
     @Transactional
-    public ReportDocument updateOneTimeReportGrade(Long teamId, int grade, Integer adminUuid) {
+    public ReportDocument updateOneTimeReportGrade(Integer teamId, int grade, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -233,7 +233,7 @@ public class AdminTeamService {
      * 관리자 전용 - 번개 스터디 완전 삭제 (UUID 사용)
      */
     @Transactional
-    public void deleteOneTimeTeam(Long teamId, Integer adminUuid) {
+    public void deleteOneTimeTeam(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -262,7 +262,7 @@ public class AdminTeamService {
      * 팀 점수 수동 조정 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional
-    public TeamDto updateTeamScore(Long teamId, int score, Integer adminUuid) {
+    public TeamDto updateTeamScore(Integer teamId, int score, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -290,7 +290,7 @@ public class AdminTeamService {
      * 팀 멤버 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamMembers(Long teamId, Integer adminUuid) {
+    public Object getTeamMembers(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -315,7 +315,7 @@ public class AdminTeamService {
      * 팀에 멤버 추가 (UUID 사용)
      */
     @Transactional
-    public Object addTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
+    public Object addTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -354,7 +354,7 @@ public class AdminTeamService {
      * 팀에서 멤버 삭제 (UUID 사용)
      */
     @Transactional
-    public Object removeTeamMember(Long teamId, Integer memberUuid, Integer adminUuid) {
+    public Object removeTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -383,7 +383,7 @@ public class AdminTeamService {
      * 팀 출석/참여율 통계 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamAttendanceStats(Long teamId, Integer adminUuid) {
+    public Map<String, Object> getTeamAttendanceStats(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -579,7 +579,7 @@ public class AdminTeamService {
     /**
      * 팀 ID로 팀 조회
      */
-    private TeamEntity getTeamById(Long teamId) {
+    private TeamEntity getTeamById(Integer teamId) {
         return teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
     }

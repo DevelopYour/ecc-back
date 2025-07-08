@@ -17,7 +17,7 @@ public class ApplyStudyDto {
     @Builder
     public static class ApplyRequest {
         @NotEmpty(message = "신청 과목 목록은 필수입니다.")
-        private List<Long> subjectIds;
+        private List<Integer> subjectIds;
 
         @NotEmpty(message = "신청 시간 목록은 필수입니다.")
         private List<Integer> timeIds;
@@ -37,8 +37,8 @@ public class ApplyStudyDto {
         @Getter
         @Builder
         public static class ApplySubjectDto {
-            private Long id;
-            private Long subjectId;
+            private Integer id;
+            private Integer subjectId;
             private String subjectName;
 
             public static ApplySubjectDto fromEntity(ApplyRegularSubjectEntity entity) {
@@ -53,7 +53,7 @@ public class ApplyStudyDto {
         @Getter
         @Builder
         public static class ApplyTimeDto {
-            private Long id;
+            private Integer id;
             private Integer timeId;
             private TimeEntity.Day day;
             private Integer startTime;

@@ -73,7 +73,7 @@ public class TeamService {
      * 팀 상세 정보 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Long teamId, Integer uuid) {
+    public TeamDto getTeamDetail(Integer teamId, Integer uuid) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 
@@ -84,7 +84,7 @@ public class TeamService {
      * 회원이 해당 팀에 속해있는지 확인 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public boolean isTeamMember(Long teamId, Integer uuid) {
+    public boolean isTeamMember(Integer teamId, Integer uuid) {
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 

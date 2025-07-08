@@ -42,5 +42,5 @@ public class SwaggerConfig {
                 .title("ECC API 문서")
                 .description("ECC API 문서입니다.")
                 .version("1.0");
-    };
+    }
 }

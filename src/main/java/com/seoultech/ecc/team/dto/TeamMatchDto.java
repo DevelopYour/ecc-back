@@ -10,5 +10,5 @@ import java.util.List;
 @Builder
 public class TeamMatchDto {
     private Integer timeId;
-    private List<Long> memberIds; // 3~5명의 유저 아이디
+    private List<Integer> memberIds; // 3~5명의 유저 아이디
 }

@@ -21,8 +21,8 @@ public class ReviewDocument extends BaseDocument {
     private String id;
     private MemberSimpleDto member;
     private String reportId;
-    private Long teamId;
-    private Long subjectId;
+    private Integer teamId;
+    private Integer subjectId;
     private int week;
     private List<ReportTopicDto> topics;
     private ReviewStatus status;

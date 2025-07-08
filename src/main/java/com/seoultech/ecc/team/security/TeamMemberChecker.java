@@ -23,7 +23,7 @@ public class TeamMemberChecker {
      * @param uuid 사용자 UUID
      * @return 팀 멤버 여부
      */
-    public boolean isTeamMember(Long teamId, Integer uuid) {
+    public boolean isTeamMember(Integer teamId, Integer uuid) {
         // 관리자 체크
         boolean isAdmin = memberRepository.findById(uuid)
                 .map(member -> "ROLE_ADMIN".equals(member.getRole()))

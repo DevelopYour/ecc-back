@@ -16,7 +16,7 @@ public class TopicCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false, length = 30)
     private String category;

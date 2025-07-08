@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TopicRepository extends JpaRepository<TopicEntity, Long> {
-    List<TopicEntity> findByCategory_Id(Long categoryId);
-    void deleteByCategory_Id(Long categoryId);
+public interface TopicRepository extends JpaRepository<TopicEntity, Integer> {
+    List<TopicEntity> findByCategory_Id(Integer categoryId);
+    void deleteByCategory_Id(Integer categoryId);
 }

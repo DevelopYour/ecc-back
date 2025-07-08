@@ -15,5 +15,5 @@ public class MemberCreateDto {
     private String name;
     private String email;
     private Integer level;
-    private Long majorId;
+    private Integer majorId;
 }

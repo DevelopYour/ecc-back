@@ -9,8 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicDetailDto {
-    private Long id;
-    private Long categoryId;
+    private Integer id;
+    private Integer categoryId;
     private String categoryName;
     private String topic;
     private int usageCount;

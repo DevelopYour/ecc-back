@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface TeamRepository extends JpaRepository<TeamEntity, Long> {
+public interface TeamRepository extends JpaRepository<TeamEntity, Integer> {
     // 정규/번개 스터디 조회
     List<TeamEntity> findByIsRegular(boolean isRegular, Sort sort);
 

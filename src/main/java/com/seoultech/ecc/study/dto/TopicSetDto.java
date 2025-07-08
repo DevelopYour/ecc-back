@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicSetDto {
-    private Long id;
+    private Integer id;
     private String category;
     private String description;
     private List<TopicDto> topics;

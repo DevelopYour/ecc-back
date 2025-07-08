@@ -34,14 +34,14 @@ public class AdminTopicService {
     }
 
     @Transactional
-    public TopicDetailDto update(Long topicId, String topic) {
+    public TopicDetailDto update(Integer topicId, String topic) {
         TopicEntity entity = topicRepository.findById(topicId).get();
         entity.setTopic(topic);
         entity = topicRepository.save(entity);
         return TopicDetailDto.fromEntity(entity);
     }
 
-    public void delete(Long categoryId) {
+    public void delete(Integer categoryId) {
         topicRepository.deleteById(categoryId);
     }
 }

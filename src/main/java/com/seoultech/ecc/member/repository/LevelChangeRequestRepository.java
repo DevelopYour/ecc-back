@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface LevelChangeRequestRepository extends JpaRepository<LevelChangeRequestEntity, Long> {
+public interface LevelChangeRequestRepository extends JpaRepository<LevelChangeRequestEntity, Integer> {
 
     List<LevelChangeRequestEntity> findByStatus(LevelChangeRequestEntity.RequestStatus status);
 

@@ -43,13 +43,13 @@ public class AdminContentController {
 
     @PutMapping("categories/{categoryId}")
     @Operation(summary = "카테고리 수정", description = "특정 주제 카테고리를 수정합니다.")
-    public ResponseEntity<ResponseDto<TopicCategoryDto>> updateCategory(@PathVariable Long categoryId, @RequestBody EditCategoryDto dto){
+    public ResponseEntity<ResponseDto<TopicCategoryDto>> updateCategory(@PathVariable Integer categoryId, @RequestBody EditCategoryDto dto){
         return ResponseEntity.ok(ResponseDto.success(adminCategoryService.update(categoryId, dto)));
     }
 
     @DeleteMapping("categories/{categoryId}")
     @Operation(summary = "카테고리 삭제", description = "특정 카테고리와 카테고리 내 주제 전체를 삭제합니다.")
-    public ResponseEntity<ResponseDto<Void>> deleteCategory(@PathVariable Long categoryId){
+    public ResponseEntity<ResponseDto<Void>> deleteCategory(@PathVariable Integer categoryId){
         adminCategoryService.delete(categoryId);
         return ResponseEntity.ok(ResponseDto.success(null));
     }
@@ -69,13 +69,13 @@ public class AdminContentController {
 
     @PutMapping("topics/{topicId}")
     @Operation(summary = "주제 수정", description = "특정 주제를 수정합니다.")
-    public ResponseEntity<ResponseDto<TopicDetailDto>> updateTopic(@PathVariable Long topicId, @RequestBody String topic){
+    public ResponseEntity<ResponseDto<TopicDetailDto>> updateTopic(@PathVariable Integer topicId, @RequestBody String topic){
         return ResponseEntity.ok(ResponseDto.success(adminTopicService.update(topicId, topic)));
     }
 
     @DeleteMapping("topics/{topicId}")
     @Operation(summary = "주제 삭제", description = "특정 주제를 삭제합니다.")
-    public ResponseEntity<ResponseDto<Void>> deleteTopic(@PathVariable Long topicId){
+    public ResponseEntity<ResponseDto<Void>> deleteTopic(@PathVariable Integer topicId){
         adminTopicService.delete(topicId);
         return ResponseEntity.ok(ResponseDto.success(null));
     }
