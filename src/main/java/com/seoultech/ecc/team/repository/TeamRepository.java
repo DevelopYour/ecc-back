@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TeamRepository extends JpaRepository<TeamEntity, Integer> {
     // 정규/번개 스터디 조회
-    List<TeamEntity> findByIsRegular(boolean isRegular, Sort sort);
+    List<TeamEntity> findByRegular(boolean regular, Sort sort);
 
     // 생성자로 팀 조회
     @Query("SELECT t FROM TeamEntity t WHERE t.createdBy = :uuid")

@@ -183,7 +183,7 @@ public class OneTimeTeamDto {
         private List<MemberSimpleDto> members;
         private boolean canJoin;
         private boolean canCancel;
-        private boolean isCreator;
+        private boolean creator;
 
         public static DetailResponse fromEntity(TeamEntity entity, Integer uuid) {
             if (entity == null || entity.getOneTimeInfo() == null) {
@@ -191,7 +191,7 @@ public class OneTimeTeamDto {
             }
 
             // 로그인한 회원(uuid)이 팀의 생성자인지 확인
-            boolean isCreator = uuid.equals(entity.getCreatedBy());
+            boolean creator = uuid.equals(entity.getCreatedBy());
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
                     .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
@@ -215,7 +215,7 @@ public class OneTimeTeamDto {
                     .members(memberDtos)
                     .canJoin(entity.getOneTimeInfo().isApplicable())
                     .canCancel(entity.getOneTimeInfo().isCancelable())
-                    .isCreator(isCreator)
+                    .creator(creator)
                     .build();
         }
     }

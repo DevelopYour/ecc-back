@@ -29,9 +29,9 @@ public class TeamDto {
     private TimeEntity.Day day;
     private Integer startTime;
     private Integer studyCount;
-    private Boolean isRegular;
+    private Boolean regular;
     private List<MemberSimpleDto> members;
-    private Boolean isCreator;
+    private Boolean creator;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
@@ -50,7 +50,7 @@ public class TeamDto {
                 .startTime(team.getTime().getStartTime())
                 .subjectName(team.getSubject().getName())
                 .subjectId(team.getSubject().getSubjectId())
-                .isRegular(team.isRegular())
+                .regular(team.isRegular())
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class TeamDto {
                 .collect(Collectors.toList());
 
         // 현재 사용자가 팀 생성자인지 확인
-        boolean isCreator = uuid.equals(team.getCreatedBy());
+        boolean creator = uuid.equals(team.getCreatedBy());
 
         return TeamDto.builder()
                 .id(team.getTeamId())
@@ -79,9 +79,9 @@ public class TeamDto {
                 .semester(team.getSemester())
                 .score(team.getScore())
                 .studyCount(team.getStudyCount())
-                .isRegular(team.isRegular())
+                .regular(team.isRegular())
                 .members(members)
-                .isCreator(isCreator)
+                .creator(creator)
                 .createdAt(team.getCreatedAt())
                 .build();
     }

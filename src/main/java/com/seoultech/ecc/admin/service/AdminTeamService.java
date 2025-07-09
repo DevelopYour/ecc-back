@@ -40,7 +40,7 @@ public class AdminTeamService {
      * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getAllTeams(Integer adminUuid, Boolean isRegular, Integer year, Integer semester) {
+    public List<TeamDto> getAllTeams(Integer adminUuid, Boolean regular, Integer year, Integer semester) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -53,14 +53,14 @@ public class AdminTeamService {
                     Sort.by(Sort.Direction.DESC, "createdAt"));
 
             // 정규 스터디 여부로 추가 필터링
-            if (isRegular != null) {
+            if (regular != null) {
                 teams = teams.stream()
-                        .filter(team -> team.isRegular() == isRegular)
+                        .filter(team -> team.isRegular() == regular)
                         .toList();
             }
-        } else if (isRegular != null) {
+        } else if (regular != null) {
             // 정규 스터디 여부로만 필터링
-            teams = teamRepository.findByIsRegular(isRegular,
+            teams = teamRepository.findByRegular(regular,
                     Sort.by(Sort.Direction.DESC, "createdAt"));
         } else {
             // 필터 없이 전체 조회

@@ -30,14 +30,14 @@ public class AdminTeamController {
     @GetMapping
     @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다. 정규 스터디와 번개 스터디를 필터링할 수 있습니다.")
     public ResponseEntity<ResponseDto<List<TeamDto>>> getAllTeams(
-            @RequestParam(required = false) Boolean isRegular,
+            @RequestParam(required = false) Boolean regular,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        List<TeamDto> teams = adminTeamService.getAllTeams(uuid, isRegular, year, semester);
+        List<TeamDto> teams = adminTeamService.getAllTeams(uuid, regular, year, semester);
         return ResponseEntity.ok(ResponseDto.success(teams));
     }
 

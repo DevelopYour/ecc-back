@@ -48,7 +48,7 @@ public class OneTimeTeamService {
      */
     @Transactional(readOnly = true)
     public OneTimeTeamDto.ListResponse getAllOneTimeTeams() {
-        List<TeamEntity> teams = teamRepository.findByIsRegular(false,
+        List<TeamEntity> teams = teamRepository.findByRegular(false,
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
 

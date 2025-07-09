@@ -28,6 +28,6 @@ public class ReportDocument extends BaseDocument {
     private List<ReportTopicDto> topics;
     private String comments;
     private int grade;
-    private boolean isSubmitted;
+    private boolean submitted;
     private LocalDateTime submittedAt;
 }

@@ -42,7 +42,7 @@ public class TeamEntity extends BaseEntity {
     private int semester;
 
     @Column(name = "is_regular", nullable = false, columnDefinition = "boolean default true")
-    private boolean isRegular = true;
+    private boolean regular = true;
 
     @Column(name = "study_count", nullable = false, columnDefinition = "int default 0")
     private int studyCount;
@@ -60,7 +60,7 @@ public class TeamEntity extends BaseEntity {
 
     // 편의 메서드: 번개 스터디 여부 확인
     public boolean isOneTimeTeam() {
-        return !isRegular;
+        return !regular;
     }
 
     // 편의 메서드: 번개 스터디 상태 업데이트
