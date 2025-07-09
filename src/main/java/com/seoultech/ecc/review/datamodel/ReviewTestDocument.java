@@ -20,5 +20,5 @@ public class ReviewTestDocument {
     private String id;
     private Integer userId;
     private List<ReviewQuestionDto> questions;
-    private boolean isComplete;
+    private boolean complete;
 }
