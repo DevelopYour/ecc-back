@@ -30,7 +30,7 @@ public class MemberService {
     /**
      * UUID로 회원 조회 (존재하지 않으면 예외 발생)
      */
-    private MemberEntity getMemberByUuid(Integer uuid) {
+    public MemberEntity getMemberByUuid(Integer uuid) {
         return memberRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다. UUID: " + uuid));
     }

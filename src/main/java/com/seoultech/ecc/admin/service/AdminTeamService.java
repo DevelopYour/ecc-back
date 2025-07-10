@@ -299,7 +299,7 @@ public class AdminTeamService {
 
         // 팀 멤버 조회 및 반환
         List<MemberSimpleDto> members = team.getTeamMembers().stream()
-                .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
+                .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getStudentId(),tm.getMember().getName()))
                 .toList();
 
         Map<String, Object> result = new HashMap<>();

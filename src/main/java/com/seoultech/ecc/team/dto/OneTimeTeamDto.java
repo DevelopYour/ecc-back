@@ -126,7 +126,7 @@ public class OneTimeTeamDto {
             }
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
-                    .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
+                    .map(MemberSimpleDto::fromTeamMemberEntity)
                     .collect(Collectors.toList());
 
             return Response.builder()
@@ -194,7 +194,7 @@ public class OneTimeTeamDto {
             boolean creator = uuid.equals(entity.getCreatedBy());
 
             List<MemberSimpleDto> memberDtos = entity.getTeamMembers().stream()
-                    .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
+                    .map(MemberSimpleDto::fromTeamMemberEntity)
                     .collect(Collectors.toList());
 
             return DetailResponse.builder()

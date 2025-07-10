@@ -61,7 +61,7 @@ public class TeamDto {
     public static TeamDto fromEntityWithDetails(TeamEntity team, Integer uuid) {
         // 팀 멤버 정보 변환
         List<MemberSimpleDto> members = team.getTeamMembers().stream()
-                .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getName()))
+                .map(MemberSimpleDto::fromTeamMemberEntity)
                 .collect(Collectors.toList());
 
         // 현재 사용자가 팀 생성자인지 확인
