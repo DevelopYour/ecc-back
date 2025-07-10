@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
@@ -47,12 +48,7 @@ public class ReportService {
         TeamEntity team = teamRepository.findById(teamId).orElse(null); // TODO: 추후 처리 필요
         ReportDocument report = new ReportDocument();
         report.setTeamId(teamId);
-        List<MemberSimpleDto> members = new ArrayList<>();
-        List<MemberEntity> memberEntities = teamMemberRepository.findMembersByTeamId(teamId);
-        for (MemberEntity member : memberEntities) {
-            MemberSimpleDto memberSimpleDto = new MemberSimpleDto(member.getUuid(), member.getName());
-            members.add(memberSimpleDto);
-        }
+        List<MemberSimpleDto> members = teamMemberRepository.findMembersByTeamId(teamId).stream().map(MemberSimpleDto::fromEntity).collect(Collectors.toList());
         report.setMembers(members);
         report.setSubjectId(1); // TODO: 추후 처리 필요
         report.setWeek(team.getStudyCount() + 1);
