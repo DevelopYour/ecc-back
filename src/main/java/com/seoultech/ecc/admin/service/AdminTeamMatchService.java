@@ -1,20 +1,22 @@
 package com.seoultech.ecc.admin.service;
 
 import com.seoultech.ecc.admin.dto.AssignedTeamDto;
+import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
-import com.seoultech.ecc.team.datamodel.ApplyRegularSubjectEntity;
-import com.seoultech.ecc.team.datamodel.ApplyRegularTimeEntity;
-import com.seoultech.ecc.team.datamodel.SubjectEntity;
+import com.seoultech.ecc.member.service.MemberService;
+import com.seoultech.ecc.team.datamodel.*;
 import com.seoultech.ecc.team.dto.ApplyStudyDto;
 import com.seoultech.ecc.team.repository.ApplyRegularSubjectRepository;
 import com.seoultech.ecc.team.repository.ApplyRegularTimeRepository;
+import com.seoultech.ecc.team.repository.TeamRepository;
 import com.seoultech.ecc.team.service.ApplyStudyService;
 import com.seoultech.ecc.team.service.SubjectService;
 import com.seoultech.ecc.team.service.TimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class AdminTeamMatchService {
 
     private final ApplyRegularTimeRepository applyTimeRepository;
     private final ApplyRegularSubjectRepository applySubjectRepository;
+    private final TeamRepository teamRepository;
 
     private final ApplyStudyService applyStudyService;
     private final AdminMemberService adminMemberService;
@@ -33,6 +36,7 @@ public class AdminTeamMatchService {
     private final SubjectService subjectService;
 
     private final TeamAssignmentOptimizer optimizer;
+    private final MemberService memberService;
 
     public List<ApplyStudyDto.ApplyResponse> getRegularApplicants() {
         return adminMemberService.getMembersByStatus(MemberStatus.ACTIVE)
@@ -61,7 +65,7 @@ public class AdminTeamMatchService {
 
         for (ApplyRegularTimeEntity app : timeApplications) {
             memberTimeMap.computeIfAbsent(app.getMember().getUuid(), k -> new ArrayList<>())
-                    .add(app.getTime().getStartTime());
+                    .add(app.getTime().getTimeId());
         }
 
 
@@ -70,6 +74,44 @@ public class AdminTeamMatchService {
 
         // Run optimization
         return optimizer.optimizeTeamAssignment(members, memberSubjectMap, memberTimeMap, timeHourMap, subjectEntityMap);
+    }
+
+    @Transactional
+    public Integer saveTeams(List<AssignedTeamDto> results) {
+        results.forEach(this::fromAssignedTeamDtoToTeamEntity);
+        return results.size();
+    }
+
+    @Transactional
+    protected void fromAssignedTeamDtoToTeamEntity(AssignedTeamDto dto) {
+        TeamEntity entity = new TeamEntity();
+        SubjectEntity subject = subjectService.getSubjectById(dto.getSubjectId());
+        TimeEntity time = timeService.getTimeById(dto.getTimeId());
+        entity.setSubject(subject);
+        entity.setTime(time);
+        entity.setName(subject.getName() + "(" + time.getDay() + "-" + time.getStartTime() + "시)");
+        entity.setScore(0);
+        entity.setYear(2025);
+        entity.setSemester(2);
+        entity.setRegular(true);
+        entity.setStudyCount(0);
+
+        // 먼저 TeamEntity만 저장해서 ID 생성
+        TeamEntity savedTeam = teamRepository.save(entity);
+
+        // 이제 저장된 Team으로 TeamMember 생성
+        List<TeamMemberEntity> teamMembers = new ArrayList<>();
+        for(MemberSimpleDto member : dto.getMembers()) {
+            MemberEntity memberEntity = memberService.getMemberByUuid(member.getId());
+
+            TeamMemberEntity teamMember = new TeamMemberEntity();
+            teamMember.setMember(memberEntity);
+            teamMember.setTeam(savedTeam);  // 저장된 Team 사용
+            teamMembers.add(teamMember);
+        }
+
+        savedTeam.setTeamMembers(teamMembers);
+        teamRepository.save(savedTeam);  // 최종 저장
     }
 
 }
