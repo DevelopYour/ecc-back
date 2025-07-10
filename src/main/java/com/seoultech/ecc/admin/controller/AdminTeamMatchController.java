@@ -1,5 +1,6 @@
 package com.seoultech.ecc.admin.controller;
 
+import com.seoultech.ecc.admin.dto.AssignedTeamDto;
 import com.seoultech.ecc.admin.service.AdminTeamMatchService;
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.team.dto.ApplyStudyDto;
@@ -33,14 +34,14 @@ public class AdminTeamMatchController {
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 
-//    @GetMapping
-//    @Operation(summary = "팀 매칭 실행", description = "OR-Tools 최적화 알고리즘을 실행 후 팀 매칭 결과를 반환합니다.")
-//    public ResponseEntity<ResponseDto<TeamAssignmentExecutionResponseDto>> executeTeamAssignment() {
-//        TeamAssignmentExecutionResponseDto response = teamAssignmentService.executeTeamAssignment();
-//        return ResponseEntity.ok(ResponseDto.success(response));
-//    }
-//
-//
+    @GetMapping
+    @Operation(summary = "팀 매칭 실행", description = "OR-Tools 최적화 알고리즘을 실행 후 팀 매칭 결과를 반환합니다.")
+    public ResponseEntity<ResponseDto<List<AssignedTeamDto>>> executeTeamAssignment() {
+        List<AssignedTeamDto> response = service.assignTeams();
+        return ResponseEntity.ok(ResponseDto.success(response));
+    }
+
+
 //    @PostMapping
 //    @Operation(summary = "팀 배정 결과 저장", description = "배정된 팀 결과를 저장합니다.")
 //    public ResponseEntity<ResponseDto<SaveTeamAssignmentResponseDto>> saveTeamAssignment(

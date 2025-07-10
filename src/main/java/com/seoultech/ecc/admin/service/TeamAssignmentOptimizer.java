@@ -7,6 +7,9 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.seoultech.ecc.admin.dto.AssignedTeamDto;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
+import com.seoultech.ecc.team.datamodel.SubjectEntity;
+import com.seoultech.ecc.team.datamodel.TimeEntity;
+import com.seoultech.ecc.team.repository.TimeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TeamAssignmentOptimizer {
+
+    private final TimeRepository timeRepository;
 
     private static final int MIN_TEAM_SIZE = 3;
     private static final int MAX_TEAM_SIZE = 5;
@@ -31,7 +36,8 @@ public class TeamAssignmentOptimizer {
             List<MemberSimpleDto> members,
             Map<Integer, List<Integer>> memberSubjectMap, // memberId -> List<subjectId>
             Map<Integer, List<Integer>> memberTimeMap,    // memberId -> List<timeId>
-            Map<Integer, Integer> timeHourMap) {         // timeId -> hour (0-23)
+            Map<Integer, Integer> timeHourMap,           // timeId -> hour (0-23)
+            Map<Integer, SubjectEntity> subjectEntityMap) { // subjectId -> SubjectEntity
 
         // Create solver
         MPSolver solver = MPSolver.createSolver("SCIP");
@@ -223,12 +229,16 @@ public class TeamAssignmentOptimizer {
         Map<Integer, MemberSimpleDto> memberMap = members.stream()
                 .collect(Collectors.toMap(MemberSimpleDto::getId, m -> m));
 
+        // Create time entity map for easy lookup
+        Map<Integer, TimeEntity> timeEntityMap = timeRepository.findAll().stream()
+                .collect(Collectors.toMap(TimeEntity::getTimeId, t -> t));
+
         for (Map.Entry<String, MPVariable> entry : x.entrySet()) {
             if (entry.getValue().solutionValue() > 0.5) {
                 String[] parts = entry.getKey().split("_");
                 Integer memberId = Integer.parseInt(parts[0]);
                 Integer subjectId = Integer.parseInt(parts[1]);
-                int timeId = Integer.parseInt(parts[2]);
+                Integer timeId = Integer.parseInt(parts[2]);
 
                 String teamKey = subjectId + "_" + timeId;
                 teamAssignments.computeIfAbsent(teamKey, k -> new ArrayList<>())
@@ -243,10 +253,16 @@ public class TeamAssignmentOptimizer {
             Integer subjectId = Integer.parseInt(parts[0]);
             Integer timeId = Integer.parseInt(parts[1]);
 
+            TimeEntity timeEntity = timeEntityMap.get(timeId);
+            SubjectEntity subjectEntity = subjectEntityMap.get(subjectId);
+
             AssignedTeamDto dto = AssignedTeamDto.builder()
                     .members(entry.getValue())
                     .subjectId(subjectId)
+                    .subjectName(subjectEntity.getName())
                     .timeId(timeId)
+                    .day(timeEntity.getDay())
+                    .startTime(timeEntity.getStartTime())
                     .build();
 
             result.add(dto);

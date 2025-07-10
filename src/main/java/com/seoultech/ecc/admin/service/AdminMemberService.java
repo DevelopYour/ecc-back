@@ -1,5 +1,6 @@
 package com.seoultech.ecc.admin.service;
 
+import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.member.dto.level.LevelChangeRequestDto;
 import com.seoultech.ecc.member.dto.MemberResponse;
 import com.seoultech.ecc.member.datamodel.LevelChangeRequestEntity;
@@ -38,6 +39,10 @@ public class AdminMemberService {
         return members.stream()
                 .map(MemberResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public List<MemberSimpleDto>  getAllMemberSimpleDto() {
+        return memberRepository.findAll().stream().map(MemberSimpleDto::fromEntity).toList();
     }
 
     /**
