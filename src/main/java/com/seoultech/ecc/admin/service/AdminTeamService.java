@@ -1,5 +1,9 @@
 package com.seoultech.ecc.admin.service;
 
+import com.seoultech.ecc.admin.dto.ReportSummaryDto;
+import com.seoultech.ecc.admin.dto.TeamReportStatusDto;
+import com.seoultech.ecc.admin.dto.TeamReportsStatusResponseDto;
+import com.seoultech.ecc.admin.dto.WeeklyStatusDto;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
@@ -8,6 +12,7 @@ import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.repository.ReportRepository;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
 import com.seoultech.ecc.review.datamodel.ReviewStatus;
+import com.seoultech.ecc.review.dto.ReviewSummaryDto;
 import com.seoultech.ecc.review.repository.ReviewRepository;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.team.datamodel.TeamMemberEntity;
@@ -460,7 +465,7 @@ public class AdminTeamService {
      * 팀 보고서 제출/평가 현황 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamReportsStatus(Integer year, Integer semester, Integer adminUuid) {
+    public TeamReportsStatusResponseDto getTeamReportsStatus(Integer year, Integer semester, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -475,105 +480,105 @@ public class AdminTeamService {
                 .filter(TeamEntity::isRegular)
                 .toList();
 
-        // 결과 저장 맵
-        Map<String, Object> result = new HashMap<>();
-        result.put("year", currentYear);
-        result.put("semester", currentSemester);
+        // 응답 DTO 생성
+        TeamReportsStatusResponseDto response = new TeamReportsStatusResponseDto();
 
-        // 팀별 보고서 현황
-        List<Map<String, Object>> teamReportStatusList = new ArrayList<>();
+        // 팀별 보고서 현황 처리
+        List<TeamReportStatusDto> teamReportStatusList = new ArrayList<>();
 
         for (TeamEntity team : teams) {
-            Map<String, Object> teamStatus = new HashMap<>();
-            teamStatus.put("teamId", team.getTeamId());
-            teamStatus.put("teamName", team.getName());
+            TeamReportStatusDto teamStatus = new TeamReportStatusDto();
+            teamStatus.setTeamId(team.getTeamId());
+            teamStatus.setTeamName(team.getName());
 
             // 팀의 보고서 조회
             List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getTeamId());
 
-            // 주차별 현황
-            List<Map<String, Object>> weeklyStatus = new ArrayList<>();
+            // 주차별 현황 처리
+            List<WeeklyStatusDto> weeklyStatusList = new ArrayList<>();
 
             for (ReportDocument report : reports) {
-                Map<String, Object> weekStatus = new HashMap<>();
-                weekStatus.put("week", report.getWeek());
-                weekStatus.put("submitted", report.isSubmitted());
-                weekStatus.put("grade", report.getGrade());
+                WeeklyStatusDto weekStatus = new WeeklyStatusDto(
+                        report.getWeek(),
+                        report.isSubmitted(),
+                        report.getGrade(), null
+                );
 
-                // 멤버별 복습 상태
-                List<Map<String, Object>> memberReviewStatus = new ArrayList<>();
-
+                // 멤버별 복습 상태 처리
                 if (report.isSubmitted()) {
                     List<ReviewDocument> reviews = reviewRepository.findAllByReportId(report.getId());
+                    List<ReviewSummaryDto> memberReviewStatusList = new ArrayList<>();
 
-                    // 안전하게 멤버 리스트 가져오기
                     List<MemberSimpleDto> members = report.getMembers();
                     for (MemberSimpleDto member : members) {
-                        Map<String, Object> memberStatus = new HashMap<>();
-                        memberStatus.put("memberId", member.getId());
-                        memberStatus.put("memberName", member.getName());
-
                         Optional<ReviewDocument> reviewOpt = reviews.stream()
                                 .filter(r -> r.getMember() != null && r.getMember().getId().equals(member.getId()))
                                 .findFirst();
 
                         ReviewStatus reviewStatus = reviewOpt.isPresent() ? reviewOpt.get().getStatus() : ReviewStatus.NOT_READY;
-                        memberStatus.put("reviewStatus", reviewStatus);
 
-                        memberReviewStatus.add(memberStatus);
+                        ReviewSummaryDto memberStatus = new ReviewSummaryDto(
+                                reviewOpt.map(ReviewDocument::getId).orElse(null),
+                                member.getId(),
+                                member.getName(),
+                                reviewStatus
+                        );
+
+                        memberReviewStatusList.add(memberStatus);
                     }
+
+                    weekStatus.setMemberReviews(memberReviewStatusList);
                 }
 
-                weekStatus.put("memberReviews", memberReviewStatus);
-                weeklyStatus.add(weekStatus);
+                weeklyStatusList.add(weekStatus);
             }
 
-            teamStatus.put("weeklyStatus", weeklyStatus);
+            teamStatus.setWeeklyStatus(weeklyStatusList);
 
-            // 요약 통계
-            long submittedCount = reports.stream().filter(ReportDocument::isSubmitted).count();
+            // 요약 통계 계산
+            int submittedCount = (int) reports.stream().filter(ReportDocument::isSubmitted).count();
             double submissionRate = !reports.isEmpty() ? (double) submittedCount / reports.size() * 100 : 0;
             OptionalDouble avgGrade = reports.stream()
                     .filter(ReportDocument::isSubmitted)
                     .mapToInt(ReportDocument::getGrade)
                     .average();
 
-            teamStatus.put("totalWeeks", reports.size());
-            teamStatus.put("submittedReports", submittedCount);
-            teamStatus.put("submissionRate", Math.round(submissionRate * 10) / 10.0);
-            teamStatus.put("averageGrade", avgGrade.isPresent() ? Math.round(avgGrade.getAsDouble() * 10) / 10.0 : 0);
+            teamStatus.setTotalWeeks(reports.size());
+            teamStatus.setSubmittedReports(submittedCount);
+            teamStatus.setSubmissionRate(Math.round(submissionRate * 10) / 10.0);
+            teamStatus.setAverageGrade(avgGrade.isPresent() ? Math.round(avgGrade.getAsDouble() * 10) / 10.0 : 0);
 
             teamReportStatusList.add(teamStatus);
         }
 
-        result.put("teamReportStatus", teamReportStatusList);
+        response.setTeamReportStatus(teamReportStatusList);
 
-        // 전체 통계 요약
+        // 전체 통계 요약 계산
         int totalTeams = teams.size();
-        long totalSubmittedReports = teamReportStatusList.stream()
-                .mapToLong(status -> (Long) status.get("submittedReports"))
+        int totalSubmittedReports = teamReportStatusList.stream()
+                .mapToInt(TeamReportStatusDto::getSubmittedReports)
                 .sum();
-        long totalExpectedReports = teamReportStatusList.stream()
-                .mapToLong(status -> (Integer) status.get("totalWeeks"))
+        int totalExpectedReports = teamReportStatusList.stream()
+                .mapToInt(status -> status.getTotalWeeks())
                 .sum();
         double overallSubmissionRate = totalExpectedReports > 0 ?
                 (double) totalSubmittedReports / totalExpectedReports * 100 : 0;
         OptionalDouble overallAvgGrade = teamReportStatusList.stream()
-                .filter(status -> status.get("averageGrade") != null && (Double) status.get("averageGrade") > 0)
-                .mapToDouble(status -> (Double) status.get("averageGrade"))
+                .filter(status -> status.getAverageGrade() > 0)
+                .mapToDouble(TeamReportStatusDto::getAverageGrade)
                 .average();
 
-        Map<String, Object> summary = new HashMap<>();
-        summary.put("totalTeams", totalTeams);
-        summary.put("totalSubmittedReports", totalSubmittedReports);
-        summary.put("totalExpectedReports", totalExpectedReports);
-        summary.put("overallSubmissionRate", Math.round(overallSubmissionRate * 10) / 10.0);
-        summary.put("overallAverageGrade", overallAvgGrade.isPresent() ?
-                Math.round(overallAvgGrade.getAsDouble() * 10) / 10.0 : 0);
+        ReportSummaryDto summary = new ReportSummaryDto(
+                totalTeams,
+                totalSubmittedReports,
+                totalExpectedReports,
+                Math.round(overallSubmissionRate * 10) / 10.0,
+                overallAvgGrade.isPresent() ? Math.round(overallAvgGrade.getAsDouble() * 10) / 10.0 : 0
+        );
 
-        result.put("summary", summary);
+        response.setSummary(summary);
 
-        return result;
+        return response;
     }
 
     /**

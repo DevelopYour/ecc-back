@@ -1,5 +1,6 @@
 package com.seoultech.ecc.admin.controller;
 
+import com.seoultech.ecc.admin.dto.TeamReportsStatusResponseDto;
 import com.seoultech.ecc.admin.service.AdminTeamService;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.member.dto.ResponseDto;
@@ -271,14 +272,14 @@ public class AdminTeamController {
             summary = "정규 스터디 보고서 제출/평가 현황 조회",
             description = "모든 정규 스터디 팀의 보고서 제출 및 평가 현황을 조회합니다. 번개 스터디는 포함되지 않습니다."
     )
-    public ResponseEntity<ResponseDto<Map<String, Object>>> getTeamReportsStatus(
+    public ResponseEntity<ResponseDto<TeamReportsStatusResponseDto>> getTeamReportsStatus(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer semester,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        Map<String, Object> status = adminTeamService.getTeamReportsStatus(year, semester, uuid);
+        TeamReportsStatusResponseDto status = adminTeamService.getTeamReportsStatus(year, semester, uuid);
         return ResponseEntity.ok(ResponseDto.success(status));
     }
 }
