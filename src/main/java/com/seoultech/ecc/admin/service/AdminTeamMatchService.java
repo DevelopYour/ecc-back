@@ -55,8 +55,8 @@ public class AdminTeamMatchService {
         List<ApplyRegularSubjectEntity> subjectApplications = applySubjectRepository.findAll();
 
         for (ApplyRegularSubjectEntity app : subjectApplications) {
-            memberSubjectMap.computeIfAbsent(app.getMember().getUuid(), k -> new ArrayList<>())
-                    .add(app.getSubject().getSubjectId());
+            memberSubjectMap.computeIfAbsent(app.getMember().getId(), k -> new ArrayList<>())
+                    .add(app.getSubject().getId());
         }
 
         // Build member-time mapping
@@ -64,8 +64,8 @@ public class AdminTeamMatchService {
         List<ApplyRegularTimeEntity> timeApplications = applyTimeRepository.findAll();
 
         for (ApplyRegularTimeEntity app : timeApplications) {
-            memberTimeMap.computeIfAbsent(app.getMember().getUuid(), k -> new ArrayList<>())
-                    .add(app.getTime().getTimeId());
+            memberTimeMap.computeIfAbsent(app.getMember().getId(), k -> new ArrayList<>())
+                    .add(app.getTime().getId());
         }
 
 

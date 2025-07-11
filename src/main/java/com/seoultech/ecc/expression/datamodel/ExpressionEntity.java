@@ -13,7 +13,7 @@ public class ExpressionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "expression_id")
     private Integer id;
 
     @Column(nullable = false, length = 30)

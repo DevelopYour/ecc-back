@@ -15,10 +15,11 @@ public class ApplyRegularSubjectEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "apply_regular_subject_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_uuid", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)

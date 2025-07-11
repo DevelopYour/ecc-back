@@ -18,7 +18,7 @@ public interface TeamRepository extends JpaRepository<TeamEntity, Integer> {
 
     // 팀원으로 팀 조회
     @Query("SELECT t FROM TeamEntity t JOIN t.teamMembers tm JOIN tm.member m " +
-            "WHERE m.uuid = :uuid")
+            "WHERE m.id = :uuid")
     List<TeamEntity> findTeamsByMember(@Param("uuid") Integer uuid, Sort sort);
 
     // 년도, 학기로 팀 조회

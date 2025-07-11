@@ -14,7 +14,7 @@ public class TimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "time_id")
-    private Integer timeId;
+    private Integer id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

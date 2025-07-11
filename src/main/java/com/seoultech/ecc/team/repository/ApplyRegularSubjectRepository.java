@@ -11,5 +11,5 @@ public interface ApplyRegularSubjectRepository extends JpaRepository<ApplyRegula
 
     void deleteByMember(MemberEntity entity);
 
-    List<ApplyRegularSubjectEntity> findBySubject_SubjectId(Integer subjectId);
+    List<ApplyRegularSubjectEntity> findBySubjectId(Integer subjectId);
 }

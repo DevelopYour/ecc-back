@@ -22,6 +22,6 @@ public class SubjectService {
 
     public Map<Integer, SubjectEntity> getSubjectMap(){
         return subjectRepository.findAll().stream()
-                .collect(Collectors.toMap(SubjectEntity::getSubjectId, t -> t));
+                .collect(Collectors.toMap(SubjectEntity::getId, t -> t));
     }
 }

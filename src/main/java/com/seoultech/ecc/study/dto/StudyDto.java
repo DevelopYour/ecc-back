@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class StudyDto {
-    private Integer uuid;
+    private Integer id;
     private Integer teamId;
     private Integer reportId;
     private Integer subjectId;

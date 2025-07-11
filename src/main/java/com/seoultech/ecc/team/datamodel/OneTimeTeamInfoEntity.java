@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class OneTimeTeamInfoEntity extends BaseEntity {
 
     @Id
-    @Column(name = "team_id")
+    @Column(name = "one_time_team_info_id")
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)

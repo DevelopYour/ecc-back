@@ -33,7 +33,7 @@ public class MemberResponse {
 
     public static MemberResponse fromEntity(MemberEntity member) {
         return MemberResponse.builder()
-                .uuid(member.getUuid())
+                .uuid(member.getId())
                 .studentId(member.getStudentId())
                 .name(member.getName())
                 .tel(member.getTel())

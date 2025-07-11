@@ -23,7 +23,7 @@ public class TimeService {
     public Map<Integer, Integer> getTimeHourMap() {
         return timeRepository.findAll().stream()
                 .collect(Collectors.toMap(
-                        TimeEntity::getTimeId,
+                        TimeEntity::getId,
                         t -> t.getDay().ordinal() * 24 + t.getStartTime()
                 ));
     }

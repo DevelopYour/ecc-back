@@ -44,7 +44,7 @@ public class ApplyStudyDto {
             public static ApplySubjectDto fromEntity(ApplyRegularSubjectEntity entity) {
                 return ApplySubjectDto.builder()
                         .id(entity.getId())
-                        .subjectId(entity.getSubject().getSubjectId())
+                        .subjectId(entity.getSubject().getId())
                         .subjectName(entity.getSubject().getName())
                         .build();
             }
@@ -61,7 +61,7 @@ public class ApplyStudyDto {
             public static ApplyTimeDto fromEntity(ApplyRegularTimeEntity entity) {
                 return ApplyTimeDto.builder()
                         .id(entity.getId())
-                        .timeId(entity.getTime().getTimeId())
+                        .timeId(entity.getTime().getId())
                         .day(entity.getTime().getDay())
                         .startTime(entity.getTime().getStartTime())
                         .build();

@@ -20,7 +20,8 @@ public class MemberEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer uuid; // 회원ID
+    @Column(name = "member_id")
+    private Integer id; // 회원ID
 
     @Column(name = "student_id", nullable = false, unique = true)
     private String studentId; // 학번 (로그인 ID)로 사용

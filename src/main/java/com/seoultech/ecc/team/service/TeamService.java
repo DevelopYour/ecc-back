@@ -89,7 +89,7 @@ public class TeamService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다. ID: " + teamId));
 
         return team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getUuid().equals(uuid));
+                .anyMatch(tm -> tm.getMember().getId().equals(uuid));
     }
 
     public List<SubjectDto> getAllSubjects() {

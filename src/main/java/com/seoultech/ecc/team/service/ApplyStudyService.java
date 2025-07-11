@@ -102,7 +102,7 @@ public class ApplyStudyService {
 
     public ApplyStudyDto.ApplyResponse toApplyResponse(MemberEntity member, List<ApplyRegularSubjectEntity> subjects, List<ApplyRegularTimeEntity> times){
         return ApplyStudyDto.ApplyResponse.builder()
-                .memberUuid(member.getUuid())
+                .memberUuid(member.getId())
                 .memberName(member.getName())
                 .subjects(subjects.stream().map(ApplyStudyDto.ApplyResponse.ApplySubjectDto::fromEntity).collect(Collectors.toList()))
                 .times(times.stream().map(ApplyStudyDto.ApplyResponse.ApplyTimeDto::fromEntity).collect(Collectors.toList()))

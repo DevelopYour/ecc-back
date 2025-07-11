@@ -16,6 +16,7 @@ import lombok.Setter;
 public class MajorEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "major_id")
     private Integer id;
 
     @Column(nullable = false)

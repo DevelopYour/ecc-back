@@ -15,7 +15,7 @@ public class TopicCategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "topic_category_id")
     private Integer id;
 
     @Column(nullable = false, length = 30)

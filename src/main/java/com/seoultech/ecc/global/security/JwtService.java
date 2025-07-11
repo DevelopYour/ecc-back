@@ -26,10 +26,10 @@ public class JwtService {
     @Transactional
     public TokenResponse generateTokens(MemberEntity member) {
         // Access Token 생성 - uuid 추가
-        String accessToken = jwtTokenProvider.createAccessToken(member.getStudentId(), member.getUuid(), member.getRole());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getStudentId(), member.getId(), member.getRole());
 
         // Refresh Token 생성 - uuid 추가
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getStudentId(), member.getUuid());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getStudentId(), member.getId());
 
         // Access Token 만료 시간 계산
         Date expirationDate = jwtTokenProvider.getExpirationDate(accessToken);
@@ -52,7 +52,7 @@ public class JwtService {
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .accessTokenExpiresIn(expiresIn)
-                .uuid(member.getUuid())
+                .uuid(member.getId())
                 .studentId(member.getStudentId())
                 .name(member.getName())
                 .status(member.getStatus())
@@ -93,7 +93,7 @@ public class JwtService {
         }
 
         // 새 Access Token 생성
-        String newAccessToken = jwtTokenProvider.createAccessToken(studentId, member.getUuid(), member.getRole());
+        String newAccessToken = jwtTokenProvider.createAccessToken(studentId, member.getId(), member.getRole());
 
         // Access Token 만료 시간 계산
         Date expirationDate = jwtTokenProvider.getExpirationDate(newAccessToken);
@@ -105,7 +105,7 @@ public class JwtService {
                 .refreshToken(refreshToken) // 기존 리프레시 토큰 유지
                 .tokenType("Bearer")
                 .accessTokenExpiresIn(expiresIn)
-                .uuid(member.getUuid())
+                .uuid(member.getId())
                 .studentId(member.getStudentId())
                 .name(member.getName())
                 .status(member.getStatus())

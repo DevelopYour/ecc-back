@@ -34,7 +34,7 @@ public class CustomUserDetails implements UserDetails {
      * 회원 식별 시 항상 이 메서드를 사용
      */
     public Integer getId() {
-        return memberEntity.getUuid();
+        return memberEntity.getId();
     }
 
     @Override

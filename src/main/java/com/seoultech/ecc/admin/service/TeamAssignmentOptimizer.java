@@ -231,7 +231,7 @@ public class TeamAssignmentOptimizer {
 
         // Create time entity map for easy lookup
         Map<Integer, TimeEntity> timeEntityMap = timeRepository.findAll().stream()
-                .collect(Collectors.toMap(TimeEntity::getTimeId, t -> t));
+                .collect(Collectors.toMap(TimeEntity::getId, t -> t));
 
         for (Map.Entry<String, MPVariable> entry : x.entrySet()) {
             if (entry.getValue().solutionValue() > 0.5) {

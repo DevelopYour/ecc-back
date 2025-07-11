@@ -273,7 +273,7 @@ public class OneTimeTeamService {
 
         // 이미 신청한 회원인지 확인
         boolean alreadyApplied = team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getUuid().equals(uuid));
+                .anyMatch(tm -> tm.getMember().getId().equals(uuid));
 
         if (alreadyApplied) {
             throw new IllegalStateException("이미 신청한 번개 스터디입니다.");
@@ -308,7 +308,7 @@ public class OneTimeTeamService {
 
         // 팀원인지 확인
         Optional<TeamMemberEntity> teamMember = team.getTeamMembers().stream()
-                .filter(tm -> tm.getMember().getUuid().equals(uuid))
+                .filter(tm -> tm.getMember().getId().equals(uuid))
                 .findFirst();
 
         if (teamMember.isEmpty()) {

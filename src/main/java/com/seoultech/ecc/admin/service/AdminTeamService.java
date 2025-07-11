@@ -299,7 +299,7 @@ public class AdminTeamService {
 
         // 팀 멤버 조회 및 반환
         List<MemberSimpleDto> members = team.getTeamMembers().stream()
-                .map(tm -> new MemberSimpleDto(tm.getMember().getUuid(), tm.getMember().getStudentId(),tm.getMember().getName()))
+                .map(tm -> new MemberSimpleDto(tm.getMember().getId(), tm.getMember().getStudentId(),tm.getMember().getName()))
                 .toList();
 
         Map<String, Object> result = new HashMap<>();
@@ -328,7 +328,7 @@ public class AdminTeamService {
 
         // 이미 팀에 속해 있는지 확인
         boolean alreadyInTeam = team.getTeamMembers().stream()
-                .anyMatch(tm -> tm.getMember().getUuid().equals(memberUuid));
+                .anyMatch(tm -> tm.getMember().getId().equals(memberUuid));
 
         if (alreadyInTeam) {
             throw new IllegalStateException("이미 팀에 속해 있는 회원입니다.");
@@ -363,7 +363,7 @@ public class AdminTeamService {
 
         // 팀에서 해당 멤버 찾기
         Optional<TeamMemberEntity> teamMemberOpt = team.getTeamMembers().stream()
-                .filter(tm -> tm.getMember().getUuid().equals(memberUuid))
+                .filter(tm -> tm.getMember().getId().equals(memberUuid))
                 .findFirst();
 
         if (teamMemberOpt.isEmpty()) {
@@ -485,11 +485,11 @@ public class AdminTeamService {
 
         for (TeamEntity team : teams) {
             Map<String, Object> teamStatus = new HashMap<>();
-            teamStatus.put("teamId", team.getTeamId());
+            teamStatus.put("teamId", team.getId());
             teamStatus.put("teamName", team.getName());
 
             // 팀의 보고서 조회
-            List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getTeamId());
+            List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(team.getId());
 
             // 주차별 현황
             List<Map<String, Object>> weeklyStatus = new ArrayList<>();

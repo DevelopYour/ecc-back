@@ -14,7 +14,7 @@ public class SubjectDto {
 
     public static SubjectDto fromEntity(SubjectEntity subject) {
         return SubjectDto.builder()
-                .subjectId(subject.getSubjectId())
+                .subjectId(subject.getId())
                 .name(subject.getName())
                 .build();
     }

@@ -130,9 +130,9 @@ public class OneTimeTeamDto {
                     .collect(Collectors.toList());
 
             return Response.builder()
-                    .teamId(entity.getTeamId())
+                    .teamId(entity.getId())
                     .name(entity.getName())
-                    .subjectId(entity.getSubject().getSubjectId())
+                    .subjectId(entity.getSubject().getId())
                     .subjectName(entity.getSubject().getName())
                     .startTime(entity.getOneTimeInfo().getStartTime())
                     .endTime(entity.getOneTimeInfo().getEndTime())
@@ -198,9 +198,9 @@ public class OneTimeTeamDto {
                     .collect(Collectors.toList());
 
             return DetailResponse.builder()
-                    .teamId(entity.getTeamId())
+                    .teamId(entity.getId())
                     .name(entity.getName())
-                    .subjectId(entity.getSubject().getSubjectId())
+                    .subjectId(entity.getSubject().getId())
                     .subjectName(entity.getSubject().getName())
                     .startTime(entity.getOneTimeInfo().getStartTime())
                     .endTime(entity.getOneTimeInfo().getEndTime())

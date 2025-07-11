@@ -16,7 +16,7 @@ public class MemberSimpleDto {
 
     public static MemberSimpleDto fromTeamMemberEntity(TeamMemberEntity entity) {
         return MemberSimpleDto.builder()
-                .id(entity.getMember().getUuid())
+                .id(entity.getMember().getId())
                 .studentId(entity.getMember().getStudentId())
                 .name(entity.getMember().getName())
                 .build();
@@ -24,7 +24,7 @@ public class MemberSimpleDto {
 
     public static MemberSimpleDto fromEntity(MemberEntity entity) {
         return MemberSimpleDto.builder()
-                .id(entity.getUuid())
+                .id(entity.getId())
                 .studentId(entity.getStudentId())
                 .name(entity.getName())
                 .build();

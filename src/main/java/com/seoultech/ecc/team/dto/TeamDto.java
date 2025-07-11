@@ -41,7 +41,7 @@ public class TeamDto {
      */
     public static TeamDto fromEntity(TeamEntity team) {
         return TeamDto.builder()
-                .id(team.getTeamId())
+                .id(team.getId())
                 .name(team.getName())
                 .score(team.getScore())
                 .year(team.getYear())
@@ -49,7 +49,7 @@ public class TeamDto {
                 .day(team.getTime().getDay())
                 .startTime(team.getTime().getStartTime())
                 .subjectName(team.getSubject().getName())
-                .subjectId(team.getSubject().getSubjectId())
+                .subjectId(team.getSubject().getId())
                 .regular(team.isRegular())
                 .build();
     }
@@ -68,11 +68,11 @@ public class TeamDto {
         boolean creator = uuid.equals(team.getCreatedBy());
 
         return TeamDto.builder()
-                .id(team.getTeamId())
+                .id(team.getId())
                 .name(team.getName())
-                .subjectId(team.getSubject().getSubjectId())
+                .subjectId(team.getSubject().getId())
                 .subjectName(team.getSubject().getName())
-                .timeId(team.getTime().getTimeId())
+                .timeId(team.getTime().getId())
                 .day(team.getTime().getDay())
                 .startTime(team.getTime().getStartTime())
                 .year(team.getYear())

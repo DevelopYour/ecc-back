@@ -13,7 +13,7 @@ import lombok.*;
 public class TopicEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "topic_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

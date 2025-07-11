@@ -10,16 +10,17 @@ import lombok.Setter;
 @Setter
 @Table(
         name = "team_member",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"member_uuid", "team_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "team_id"})
 )
 public class TeamMemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "team_member_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_uuid", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)

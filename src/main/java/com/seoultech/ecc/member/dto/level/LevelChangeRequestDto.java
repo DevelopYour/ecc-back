@@ -29,7 +29,7 @@ public class LevelChangeRequestDto {
     public static LevelChangeRequestDto fromEntity(LevelChangeRequestEntity entity) {
         return LevelChangeRequestDto.builder()
                 .id(entity.getId())
-                .memberUuid(entity.getMember().getUuid())
+                .memberUuid(entity.getMember().getId())
                 .studentId(entity.getMember().getStudentId())
                 .memberName(entity.getMember().getName())
                 .currentLevel(entity.getCurrentLevel())

@@ -16,7 +16,8 @@ import lombok.Setter;
 public class SubjectEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer subjectId;
+    @Column(name = "subject_id")
+    private Integer id;
 
     @Column(nullable = false)
     private String name;
