@@ -1,40 +1,61 @@
-services:
-  mariadb:
-    image: mariadb:10.9
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: ecc
-    ports:
-      - "13306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    networks:
-      - ecc-backend
+version: '3.8'
 
-  mongodb:
-    image: mongo:6.0
-    restart: always
-    environment:
-      MONGO_INITDB_DATABASE: ecc
+services:
+  # Spring Boot 애플리케이션
+  spring-app:
+    build: .
     ports:
-      - "12717:27017"
+      - "8080:8080"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://${RDS_ENDPOINT}:3306/${RDS_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=${RDS_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${RDS_PASSWORD}
+
+      - SPRING_DATA_MONGODB_URI=mongodb://admin:${MONGODB_PASSWORD}@mongodb:27017/myapp?authSource=admin
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # MongoDB 컨테이너
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    restart: unless-stopped
     networks:
-      - ecc-backend
+      - app-network
 
+  # Redis 컨테이너
   redis:
-    image: redis:7.2
-    restart: always
+    image: redis:7-alpine
+    container_name: redis
     ports:
-      - "16379:6379"
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
     networks:
-      - ecc-backend
+      - app-network
 
 volumes:
-  mariadb_data:
   mongodb_data:
+  redis_data:
 
 networks:
-  ecc-backend:
+  app-network:
+    driver: bridge
