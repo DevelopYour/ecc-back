@@ -10,16 +10,30 @@ services:
       - mongodb
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://${RDS_ENDPOINT}:3306/${RDS_DATABASE}
-      - SPRING_DATASOURCE_USERNAME=${RDS_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${RDS_PASSWORD}
-
-      - SPRING_DATA_MONGODB_URI=mongodb://admin:${MONGODB_PASSWORD}@mongodb:27017/myapp?authSource=admin
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
-
+      # Spring 프로필 설정
       - SPRING_PROFILES_ACTIVE=prod
+
+      # RDS MariaDB 연결
+      - SPRING_DATASOURCE_URL=${DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+
+      # MongoDB 연결 (로컬 컨테이너)
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI}
+
+      # Redis 연결 (로컬 컨테이너)
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST}
+      - SPRING_DATA_REDIS_PORT=${REDIS_PORT}
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      # JWT 설정
+      - JWT_SECRET=${JWT_SECRET}
+
+      # OpenAI 설정
+      - SPRING_AI_OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - SPRING_AI_OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SPRING_AI_OPENAI_CHAT_OPTIONS_MAX_TOKENS=${OPENAI_MAX_TOKENS}
     restart: unless-stopped
     networks:
       - app-network
@@ -34,7 +48,7 @@ services:
       - mongodb_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+      - MONGO_INITDB_ROOT_PASSWORD=${REDIS_PASSWORD}
     restart: unless-stopped
     networks:
       - app-network
