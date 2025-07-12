@@ -1,5 +1,6 @@
 package com.seoultech.ecc.team.datamodel;
 
+import com.seoultech.ecc.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "time")
-public class TimeEntity {
+public class TimeEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

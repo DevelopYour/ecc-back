@@ -1,5 +1,6 @@
 package com.seoultech.ecc.team.datamodel;
 
+import com.seoultech.ecc.global.BaseEntity;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "apply_regular_subject")
-public class ApplyRegularSubjectEntity {
+public class ApplyRegularSubjectEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
