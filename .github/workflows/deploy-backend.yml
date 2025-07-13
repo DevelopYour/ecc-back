@@ -38,20 +38,21 @@ jobs:
           echo "=== Build artifacts ==="
           ls -la build/libs/
           echo "=== JAR file details ==="
-          find build/libs -name "*.jar" -type f
+          find build/libs -name "*.jar" -type f -exec ls -lh {} \;
+          echo "=== Total size ==="
+          du -sh build/libs/
 
-      # 빌드된 JAR 파일을 EC2로 전송 (최신 버전 + 개선된 설정)
-      - name: Copy JAR to EC2
-        uses: appleboy/scp-action@v0.1.7
+      # rsync로 JAR 파일을 EC2에 전송 (scp보다 안정적)
+      - name: Deploy JAR to EC2 via rsync
+        uses: burnett01/rsync-deployments@6.0.0
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          source: "build/libs/"
-          target: "ecc-back/"
-          strip_components: 0
-          overwrite: true
+          switches: -avzr --progress --human-readable
+          path: build/libs/
+          remote_path: /home/ubuntu/ecc-back/build/libs/
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USER }}
+          remote_key: ${{ secrets.EC2_SSH_KEY }}
+          remote_key_pass: ${{ secrets.EC2_SSH_KEY_PASSPHRASE || '' }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
@@ -59,7 +60,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          timeout: 300s
+          timeout: 600s
           script: |
             echo "🚀 Starting deployment..."
             
@@ -96,30 +97,52 @@ jobs:
             
             # 전송된 파일들 확인
             echo "📁 Checking transferred files..."
-            ls -la ~/ecc-back/build/libs/ || echo "build/libs directory not found"
-            
-            # JAR 파일이 있는지 확인 (경로 수정)
-            if ls ~/ecc-back/build/libs/*.jar 1> /dev/null 2>&1; then
-              echo "✅ JAR file found"
+            if [ -d ~/ecc-back/build/libs/ ]; then
+              echo "✅ build/libs directory found"
               ls -la ~/ecc-back/build/libs/
+              echo "Directory size: $(du -sh ~/ecc-back/build/libs/)"
             else
-              echo "❌ JAR file not found"
-              echo "Current directory contents:"
+              echo "❌ build/libs directory not found"
+              echo "Current ecc-back directory contents:"
               ls -la ~/ecc-back/
               exit 1
             fi
             
-            # 빌드 없이 컨테이너 시작 (--build 제거)
-            echo "🐳 Starting containers (no build)..."
+            # JAR 파일 확인 (더 안전한 방법)
+            echo "🔍 Verifying JAR files..."
+            JAR_COUNT=$(find ~/ecc-back/build/libs/ -name "*.jar" -type f | wc -l)
+            if [ "$JAR_COUNT" -gt 0 ]; then
+              echo "✅ Found $JAR_COUNT JAR file(s)"
+              find ~/ecc-back/build/libs/ -name "*.jar" -type f -exec ls -lh {} \;
+            
+              # 실행 가능한 JAR 파일 찾기 (SNAPSHOT.jar, plain이 아닌 것)
+              MAIN_JAR=$(find ~/ecc-back/build/libs/ -name "*SNAPSHOT.jar" -not -name "*plain.jar" -type f | head -1)
+              if [ -n "$MAIN_JAR" ]; then
+                echo "✅ Main JAR file: $MAIN_JAR"
+                echo "JAR size: $(ls -lh "$MAIN_JAR" | awk '{print $5}')"
+              else
+                echo "⚠️ Main JAR file not found, using any available JAR"
+              fi
+            else
+              echo "❌ No JAR files found"
+              exit 1
+            fi
+            
+            # 빌드 없이 컨테이너 시작
+            echo "🐳 Starting containers (using pre-built JAR)..."
             docker compose up -d
             
-            # Wait for containers to start
+            # 컨테이너 시작 대기
             echo "⏳ Waiting for containers to start..."
-            sleep 30
+            sleep 45
             
-            # Check container status
+            # 컨테이너 상태 확인
             echo "✅ Checking container status..."
             docker compose ps
+            
+            # 컨테이너 로그 확인 (오류 디버깅용)
+            echo "📋 Checking Spring Boot container logs..."
+            docker compose logs spring-app --tail=20
             
             # 메모리 상태 재확인
             echo "💾 Memory status after deployment:"
@@ -127,24 +150,34 @@ jobs:
             
             # Docker stats 확인
             echo "📊 Container resource usage:"
-            timeout 10s docker stats --no-stream || true
+            timeout 15s docker stats --no-stream || true
             
-            # API 상태 확인 (여러 번 시도)
+            # API 상태 확인 (더 많은 재시도)
             echo "🩺 API 상태 확인 중..."
-            for i in {1..5}; do
-              if curl -f -s http://localhost:8080/api/major; then
+            API_SUCCESS=false
+            for i in {1..8}; do
+              echo "Attempt $i/8: Testing API endpoint..."
+              if curl -f -s -m 10 http://localhost:8080/api/major >/dev/null 2>&1; then
                 echo "✅ API 상태 확인 성공 (시도 $i)"
+                API_SUCCESS=true
                 break
               else
-                echo "⏳ API 준비 중... (시도 $i/5)"
-                sleep 10
+                echo "⏳ API 준비 중... (시도 $i/8)"
+                if [ $i -lt 8 ]; then
+                  sleep 15
+                fi
               fi
             done
             
-            # 최종 확인
-            if curl -f -s http://localhost:8080/api/major >/dev/null; then
+            # 최종 확인 및 결과
+            if [ "$API_SUCCESS" = true ]; then
               echo "🎉 Deployment completed successfully!"
+              echo "🌐 API is responding at http://localhost:8080/api/major"
             else
               echo "❌ Deployment completed but API is not responding"
+              echo "📋 Container status for debugging:"
+              docker compose ps
+              echo "📋 Spring Boot logs for debugging:"
+              docker compose logs spring-app --tail=50
               exit 1
             fi
