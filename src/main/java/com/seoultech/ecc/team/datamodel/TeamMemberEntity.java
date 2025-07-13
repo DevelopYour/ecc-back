@@ -1,6 +1,5 @@
 package com.seoultech.ecc.team.datamodel;
 
-import com.seoultech.ecc.global.BaseEntity;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import lombok.Setter;
         name = "team_member",
         uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "team_id"})
 )
-public class TeamMemberEntity extends BaseEntity {
+public class TeamMemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

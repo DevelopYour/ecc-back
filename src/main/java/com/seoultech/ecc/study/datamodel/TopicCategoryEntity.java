@@ -1,7 +1,5 @@
 package com.seoultech.ecc.study.datamodel;
 
-import com.seoultech.ecc.admin.dto.EditCategoryDto;
-import com.seoultech.ecc.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +10,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "topic_category")
-public class TopicCategoryEntity extends BaseEntity {
+public class TopicCategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
