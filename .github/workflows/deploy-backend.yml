@@ -67,8 +67,12 @@ jobs:
             echo "✅ Checking container status..."
             docker compose ps
             
-            # Test API health
-            echo "🩺 Testing API health..."
-            curl -f http://localhost:8080/api/major || echo "❌ API health check failed"
+            # API 상태 확인 (적절한 에러 처리)
+            echo "🩺 API 상태 확인 중..."
+            if curl -f -s http://localhost:8080/api/major; then
+              echo "✅ API 상태 확인 성공"
+            else
+              echo "❌ API 상태 확인 실패"
+            fi
             
             echo "🎉 Deployment completed!"
