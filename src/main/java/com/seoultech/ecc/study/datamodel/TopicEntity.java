@@ -1,6 +1,5 @@
 package com.seoultech.ecc.study.datamodel;
 
-import com.seoultech.ecc.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "topic")
-public class TopicEntity extends BaseEntity {
+public class TopicEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "topic_id")
