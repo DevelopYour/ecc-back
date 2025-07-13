@@ -27,8 +27,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # GitHub Actions에서 빌드
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build -x test --no-daemon
+        timeout-minutes: 10
+
+      # 빌드된 JAR 파일을 EC2로 전송
+      - name: Copy JAR to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "~/ecc-back/"
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
@@ -36,13 +48,14 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 300s
           script: |
             echo "🚀 Starting deployment..."
             
             # Navigate to project directory
             cd ~/ecc-back
             
-            # Pull latest code
+            # Pull latest code (docker-compose.yml 등을 위해)
             echo "📡 Pulling latest code..."
             git pull origin main
             
@@ -50,13 +63,38 @@ jobs:
             echo "🔧 Loading environment variables..."
             source ~/load-env.sh
             
-            # Stop existing containers
-            echo "🛑 Stopping existing containers..."
-            docker compose down
+            # 강제로 기존 컨테이너 및 리소스 정리
+            echo "🛑 Stopping and cleaning existing containers..."
+            docker compose down || true
+            docker stop $(docker ps -q) 2>/dev/null || true
+            docker rm $(docker ps -aq) 2>/dev/null || true
             
-            # Build and start new containers
-            echo "🐳 Building and starting containers..."
-            docker compose up --build -d
+            # 8080 포트 사용 중인 프로세스 강제 종료
+            echo "🔫 Killing processes on port 8080..."
+            sudo pkill -f "java.*8080" || true
+            sudo fuser -k 8080/tcp || true
+            
+            # Docker 시스템 정리 (이미지는 유지)
+            echo "🧹 Cleaning Docker system..."
+            docker container prune -f
+            docker volume prune -f
+            
+            # 메모리 상태 확인
+            echo "💾 Memory status before deployment:"
+            free -h
+            
+            # JAR 파일이 있는지 확인
+            if [ -f build/libs/*.jar ]; then
+              echo "✅ JAR file found"
+              ls -la build/libs/
+            else
+              echo "❌ JAR file not found"
+              exit 1
+            fi
+            
+            # 빌드 없이 컨테이너 시작 (--build 제거)
+            echo "🐳 Starting containers (no build)..."
+            docker compose up -d
             
             # Wait for containers to start
             echo "⏳ Waiting for containers to start..."
@@ -66,12 +104,30 @@ jobs:
             echo "✅ Checking container status..."
             docker compose ps
             
-            # API 상태 확인 (적절한 에러 처리)
-            echo "🩺 API 상태 확인 중..."
-            if curl -f -s http://localhost:8080/api/major; then
-              echo "✅ API 상태 확인 성공"
-            else
-              echo "❌ API 상태 확인 실패"
-            fi
+            # 메모리 상태 재확인
+            echo "💾 Memory status after deployment:"
+            free -h
             
-            echo "🎉 Deployment completed!"
+            # Docker stats 확인
+            echo "📊 Container resource usage:"
+            timeout 10s docker stats --no-stream || true
+            
+            # API 상태 확인 (여러 번 시도)
+            echo "🩺 API 상태 확인 중..."
+            for i in {1..5}; do
+              if curl -f -s http://localhost:8080/api/major; then
+                echo "✅ API 상태 확인 성공 (시도 $i)"
+                break
+              else
+                echo "⏳ API 준비 중... (시도 $i/5)"
+                sleep 10
+              fi
+            done
+            
+            # 최종 확인
+            if curl -f -s http://localhost:8080/api/major >/dev/null; then
+              echo "🎉 Deployment completed successfully!"
+            else
+              echo "❌ Deployment completed but API is not responding"
+              exit 1
+            fi
