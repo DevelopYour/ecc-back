@@ -32,15 +32,26 @@ jobs:
         run: ./gradlew clean build -x test --no-daemon
         timeout-minutes: 10
 
-      # 빌드된 JAR 파일을 EC2로 전송
+      # 빌드 결과 확인
+      - name: Check build artifacts
+        run: |
+          echo "=== Build artifacts ==="
+          ls -la build/libs/
+          echo "=== JAR file details ==="
+          find build/libs -name "*.jar" -type f
+
+      # 빌드된 JAR 파일을 EC2로 전송 (최신 버전 + 개선된 설정)
       - name: Copy JAR to EC2
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "~/ecc-back/"
+          port: 22
+          source: "build/libs/"
+          target: "ecc-back/"
+          strip_components: 0
+          overwrite: true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
@@ -83,12 +94,18 @@ jobs:
             echo "💾 Memory status before deployment:"
             free -h
             
-            # JAR 파일이 있는지 확인
-            if [ -f build/libs/*.jar ]; then
+            # 전송된 파일들 확인
+            echo "📁 Checking transferred files..."
+            ls -la ~/ecc-back/build/libs/ || echo "build/libs directory not found"
+            
+            # JAR 파일이 있는지 확인 (경로 수정)
+            if ls ~/ecc-back/build/libs/*.jar 1> /dev/null 2>&1; then
               echo "✅ JAR file found"
-              ls -la build/libs/
+              ls -la ~/ecc-back/build/libs/
             else
               echo "❌ JAR file not found"
+              echo "Current directory contents:"
+              ls -la ~/ecc-back/
               exit 1
             fi
             
