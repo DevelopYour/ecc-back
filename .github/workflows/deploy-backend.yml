@@ -1,0 +1,74 @@
+name: Deploy Spring Boot to EC2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'build.gradle'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT }}
+          script: |
+            echo "🚀 Starting deployment..."
+            
+            # Navigate to project directory
+            cd ~/ecc-back
+            
+            # Pull latest code
+            echo "📡 Pulling latest code..."
+            git pull origin main
+            
+            # Load environment variables
+            echo "🔧 Loading environment variables..."
+            source ~/load-env.sh
+            
+            # Stop existing containers
+            echo "🛑 Stopping existing containers..."
+            docker compose down
+            
+            # Build and start new containers
+            echo "🐳 Building and starting containers..."
+            docker compose up --build -d
+            
+            # Wait for containers to start
+            echo "⏳ Waiting for containers to start..."
+            sleep 30
+            
+            # Check container status
+            echo "✅ Checking container status..."
+            docker compose ps
+            
+            # Test API health
+            echo "🩺 Testing API health..."
+            curl -f http://localhost:8080/api/major || echo "❌ API health check failed"
+            
+            echo "🎉 Deployment completed!"
