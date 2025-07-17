@@ -17,26 +17,41 @@ public class CorsConfig {
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
 
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+//        List<String> origins = new ArrayList<>();
+//
+//        // 프로덕션 도메인들
+//        origins.add("https://www.ecc-seoultech.co.kr");
+//        origins.add("https://ecc-seoultech.co.kr");
+//        origins.add("https://ecc-front.vercel.app");
+//
+//        // 개발 환경에서만 localhost 허용
+//        if ("dev".equals(activeProfile)) {
+//            origins.add("http://localhost:3000");
+//        }
+//
+//        configuration.setAllowedOrigins(origins);
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("*"));
+//        configuration.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        List<String> origins = new ArrayList<>();
-
-        // 프로덕션 도메인들
-        origins.add("https://www.ecc-seoultech.co.kr");
-        origins.add("https://ecc-seoultech.co.kr");
-        origins.add("https://ecc-front.vercel.app");
-
-        // 개발 환경에서만 localhost 허용
-        if ("dev".equals(activeProfile)) {
-            origins.add("http://localhost:3000");
-        }
-
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        // 임시로 모든 도메인 허용
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
