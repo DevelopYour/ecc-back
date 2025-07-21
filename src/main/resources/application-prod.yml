@@ -45,3 +45,8 @@ server:
   port: 8080
   error:
     include-stacktrace: never  # 스택 트레이스 숨기기
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
