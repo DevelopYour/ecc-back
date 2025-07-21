@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -57,7 +59,7 @@ public class AuthController {
     @Operation(summary = "로그인", description = "학번과 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
     public ResponseEntity<ResponseDto<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         TokenResponse response = authService.login(request);
-        System.out.println("로그인 완료" + response.getStudentId()) ;
+        log.info("로그인 완료" + response.getStudentId()) ;
         return ResponseEntity.ok(ResponseDto.success("로그인이 성공적으로 완료되었습니다.", response));
     }
 

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/study")
 @RequiredArgsConstructor
@@ -48,8 +50,7 @@ public class StudyController {
     public ResponseEntity<ResponseDto<StudyRedis>> enterStudyRoom(
             @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        System.out.println("🔥🔥🔥 CONTROLLER METHOD CALLED! teamId: " + teamId + ", userId: " + userDetails.getId());
-        System.out.flush();
+        log.info("🔥🔥🔥 CONTROLLER METHOD CALLED! teamId: " + teamId + ", userId: " + userDetails.getId());
         return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
     }
 
