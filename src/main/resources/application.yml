@@ -13,8 +13,8 @@ spring:
 
 logging:
   level:
-    root: WARN
-    com.seoultech.ecc: INFO
+    root: INFO  # WARN → INFO로 임시 변경
+    com.seoultech.ecc: DEBUG  # INFO → DEBUG로 임시 변경
     org.springframework.security: WARN
 
 jwt:

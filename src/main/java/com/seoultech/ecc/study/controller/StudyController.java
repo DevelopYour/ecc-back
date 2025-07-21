@@ -36,7 +36,21 @@ public class StudyController {
     @PostMapping("/{teamId}")
     @Operation(summary = "공부방 입장", description = "진행 중인 공부방이 없다면 특정 팀의 특정 주차 보고서 초안 데이터를 생성하고 공부방(Redis)을 생성합니다.")
     public ResponseEntity<ResponseDto<StudyRedis>> enterStudyRoom(@PathVariable Integer teamId) {
-        return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
+        System.out.println("========================================");
+        System.out.println("🔥🔥🔥 CONTROLLER METHOD CALLED! 🔥🔥🔥");
+        System.out.println("teamId: " + teamId);
+        System.out.println("========================================");
+
+        try {
+            StudyRedis result = studyService.getStudyRoom(teamId);
+            System.out.println("🎉 SUCCESS: " + result.getId());
+            return ResponseEntity.ok(ResponseDto.success(result));
+        } catch (Exception e) {
+            System.out.println("💥 CONTROLLER ERROR: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+//        return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
     }
 
     @GetMapping("/{teamId}/topic")
