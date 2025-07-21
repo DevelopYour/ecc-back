@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class OneTimeTeamInfoEntity extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "one_time_team_info_id")
     private Integer id;
 
