@@ -25,6 +25,14 @@ spring:
       host: ${SPRING_DATA_REDIS_HOST}
       port: ${SPRING_DATA_REDIS_PORT}
       password: ${SPRING_DATA_REDIS_PASSWORD}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+        shutdown-timeout: 100ms
 
 jwt:
   secret: ${JWT_SECRET}
@@ -32,13 +40,13 @@ jwt:
 logging:
   level:
     root: INFO
-    com.seoultech.ecc: DEBUG  # 이 부분 추가!
+    com.seoultech.ecc: DEBUG
     org.springframework.security: WARN
   file:
     name: /app/logs/application.log
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"  # 콘솔 로그도 추가
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 springdoc:
   swagger-ui:
