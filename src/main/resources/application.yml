@@ -13,9 +13,9 @@ spring:
 
 logging:
   level:
-    root: INFO  # WARN → INFO로 임시 변경
-    com.seoultech.ecc: DEBUG  # INFO → DEBUG로 임시 변경
-    org.springframework.security: WARN
+    root: DEBUG  # WARN
+    com.seoultech.ecc: DEBUG  # INFO
+    org.springframework.security: DEBUG # WARN
 
 jwt:
   access-token:

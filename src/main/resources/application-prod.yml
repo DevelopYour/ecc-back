@@ -39,25 +39,9 @@ spring:
   # 캐시 설정 (Redis 사용 활성화)
   cache:
     type: redis
-    redis:
-      time-to-live: 600000  # 10분
 
 jwt:
   secret: ${JWT_SECRET}
-
-logging:
-  level:
-    root: INFO
-    com.seoultech.ecc: DEBUG
-    org.springframework.security: WARN
-    # Redis 디버그 로그 (임시)
-    org.springframework.data.redis: DEBUG
-    org.springframework.boot.autoconfigure.data.redis: DEBUG
-  file:
-    name: /app/logs/application.log
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 springdoc:
   swagger-ui:
@@ -69,13 +53,3 @@ server:
   port: 8080
   error:
     include-stacktrace: never
-
-# 액추에이터 활성화 (디버깅용)
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
