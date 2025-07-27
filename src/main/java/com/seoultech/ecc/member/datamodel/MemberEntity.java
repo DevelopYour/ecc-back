@@ -74,7 +74,7 @@ public class MemberEntity extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TeamMemberEntity> teamMembers = new ArrayList<>();
+    private List<TeamMemberEntity> teamMembers;
 
     // 사용자가 특정 상태인지 확인하는 편의 메서드들
     public boolean isActive() {
