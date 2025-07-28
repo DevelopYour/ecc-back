@@ -10,15 +10,62 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  ai:
+    openai:
+      base-url: https://api.openai.com/v1
+      api-key: ${ecc.openai.api-key}        # 다른 이름 사용
+      chat:
+        options:
+          max-tokens: 300
+  datasource:
+    url: ${ecc.datasource.url}
+    username: ${ecc.datasource.username}
+    password: ${ecc.datasource.password}
+  data:
+    redis:
+      host: ${ecc.redis.host}
+      port: ${ecc.redis.port}
+    mongodb:
+      uri: ${ecc.mongodb.uri}
 
 logging:
   level:
-    root: DEBUG  # WARN
-    com.seoultech.ecc: DEBUG  # INFO
-    org.springframework.security: DEBUG # WARN
+    root: WARN
+    com.seoultech.ecc: INFO
+    org.springframework.security: WARN
 
 jwt:
+  secret: ${ecc.jwt.secret}
   access-token:
-    expiration: 7200000     # 2시간
+    expiration: 7200000
   refresh-token:
-    expiration: 2592000000  # 30일
+    expiration: 2592000000
+
+---
+# 개발 환경 전용 설정
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.seoultech.ecc: DEBUG
+
+---
+# 프로덕션 환경 전용 설정
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+
+logging:
+  level:
+    root: ERROR
+    com.seoultech.ecc: WARN
