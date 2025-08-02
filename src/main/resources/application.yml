@@ -1,8 +1,6 @@
 spring:
   application:
     name: ecc-back
-  profiles:
-    active: dev
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,20 +11,22 @@ spring:
   ai:
     openai:
       base-url: https://api.openai.com/v1
-      api-key: ${ecc.openai.api-key}        # 다른 이름 사용
+      api-key: ${ECC_OPENAI_API_KEY}
       chat:
         options:
           max-tokens: 300
   datasource:
-    url: ${ecc.datasource.url}
-    username: ${ecc.datasource.username}
-    password: ${ecc.datasource.password}
+    url: ${ECC_DATASOURCE_URL}
+    username: ${ECC_DATASOURCE_USERNAME}
+    password: ${ECC_DATASOURCE_PASSWORD}
   data:
     redis:
-      host: ${ecc.redis.host}
-      port: ${ecc.redis.port}
+      host: ${ECC_REDIS_HOST}
+      port: ${ECC_REDIS_PORT}
+      ssl:
+        enabled: true
     mongodb:
-      uri: ${ecc.mongodb.uri}
+      uri: ${ECC_MONGODB_URI}
 
 logging:
   level:
@@ -35,7 +35,7 @@ logging:
     org.springframework.security: WARN
 
 jwt:
-  secret: ${ecc.jwt.secret}
+  secret: ${ECC_JWT_SECRET}
   access-token:
     expiration: 7200000
   refresh-token:

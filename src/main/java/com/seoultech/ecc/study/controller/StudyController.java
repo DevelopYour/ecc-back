@@ -50,7 +50,6 @@ public class StudyController {
     public ResponseEntity<ResponseDto<StudyRedis>> enterStudyRoom(
             @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info("🔥🔥🔥 CONTROLLER METHOD CALLED! teamId: " + teamId + ", userId: " + userDetails.getId());
         return ResponseEntity.ok(ResponseDto.success(studyService.getStudyRoom(teamId)));
     }
 
