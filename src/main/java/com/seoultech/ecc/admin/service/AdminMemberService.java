@@ -194,4 +194,12 @@ public class AdminMemberService {
 
         memberRepository.delete(member);
     }
+
+    public Long countAllMembers() {
+        return memberRepository.count();
+    }
+
+    public Long countAllPendingMembers() {
+        return memberRepository.countByStatus(MemberStatus.PENDING);
+    }
 }

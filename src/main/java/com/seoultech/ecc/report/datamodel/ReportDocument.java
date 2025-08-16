@@ -27,7 +27,7 @@ public class ReportDocument extends BaseDocument {
     private int week;
     private List<ReportTopicDto> topics;
     private String comments;
-    private int grade;
+    private Integer grade;
     private boolean submitted;
     private LocalDateTime submittedAt;
 }

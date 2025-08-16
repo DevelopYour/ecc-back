@@ -604,4 +604,12 @@ public class AdminTeamService {
             throw new RuntimeException("관리자 권한이 없습니다.");
         }
     }
+
+    public Long countTeams(boolean isRegular) {
+        return teamRepository.countByRegular(isRegular);
+    }
+
+    public Long countUncheckedReports(){
+        return reportRepository.countBySubmittedTrueAndGradeIsNull();
+    }
 }

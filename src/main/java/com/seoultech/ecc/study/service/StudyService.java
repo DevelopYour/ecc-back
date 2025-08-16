@@ -80,50 +80,25 @@ public class StudyService {
 
     @Transactional
     public StudyRedis getStudyRoom(Integer teamId) {
-        System.out.println("=== getStudyRoom 시작 - teamId: " + teamId);
-
-        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
-        System.out.println("1. Redis에서 기존 studyId 조회 중...");
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
-        System.out.println("1-1. 조회 결과 existingStudyId: " + existingStudyId);
 
         if (existingStudyId != null) {
-            System.out.println("2. 기존 studyId 발견, StudyRedis 조회 중...");
             StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId);
-            System.out.println("2-1. StudyRedis 조회 결과: " + (existingStudy != null ? "존재" : "null"));
             if (existingStudy != null) {
-                System.out.println("2-2. 기존 StudyRedis 반환");
                 return existingStudy;
             }
-            // 예외 처리
-            System.out.println("2-3. 키는 있는데 값이 null - 예외 발생 예정");
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
 
-        System.out.println("3. 기존 study 없음, 새로 생성 시작");
+        System.out.printf("team %d의 study redis 생성 시작", teamId);
 
         try {
-            System.out.println("4. 보고서 초안 생성 중...");
             String reportId = reportService.createReport(teamId);
-            System.out.println("4-1. 생성된 reportId: " + reportId);
-
-            System.out.println("5. StudyRedis 객체 생성 중...");
             StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>());
-            System.out.println("5-1. StudyRedis 객체 생성 완료: " + studyRedis.getId());
-
-            System.out.println("6. Redis 저장 중...");
             studyRepository.save(studyRedis);
-            System.out.println("6-1. Redis 저장 완료");
-
-            System.out.println("7. 팀 인덱싱 저장 중...");
             studyRepository.saveTeamIndex(teamId, reportId);
-            System.out.println("7-1. 팀 인덱싱 저장 완료");
-
-            System.out.println("=== getStudyRoom 완료 - 반환할 studyRedis ID: " + studyRedis.getId());
             return studyRedis;
-
         } catch (Exception e) {
-            System.out.println("!!! 예외 발생: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             e.printStackTrace();
             throw e;
         }

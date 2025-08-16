@@ -53,7 +53,7 @@ public class ReportService {
         report.setSubjectId(1); // TODO: 추후 처리 필요
         report.setWeek(team.getStudyCount() + 1);
         team.setStudyCount(team.getStudyCount() + 1);
-        report.setGrade(0);
+        report.setGrade(null);
         report.setSubmitted(false);
         return reportRepository.save(report).getId();
     }

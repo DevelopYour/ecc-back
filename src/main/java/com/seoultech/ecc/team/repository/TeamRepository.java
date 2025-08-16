@@ -23,4 +23,6 @@ public interface TeamRepository extends JpaRepository<TeamEntity, Integer> {
 
     // 년도, 학기로 팀 조회
     List<TeamEntity> findByYearAndSemester(int year, int semester, Sort sort);
+
+    Long countByRegular(boolean isRegular);
 }

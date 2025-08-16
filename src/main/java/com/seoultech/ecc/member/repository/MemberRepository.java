@@ -19,4 +19,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
     List<MemberEntity> findByLevel(Integer level);
 
     List<MemberEntity> findByStatusAndLevel(MemberStatus status, Integer level);
+
+    Long countByStatus(MemberStatus status);
 }
