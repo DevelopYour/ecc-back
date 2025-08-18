@@ -1,4 +1,24 @@
 <configuration>
+    <!-- 개발환경용 콘솔 로그 -->
+    <springProfile name="!prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <!-- 개발용 상세 로깅 -->
+        <logger name="com.seoultech.ecc" level="DEBUG"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO"/>
+        <logger name="org.springframework.data.mongodb.core" level="INFO"/>
+    </springProfile>
+
     <!-- 운영환경용 CloudWatch + 콘솔 로그 -->
     <springProfile name="prod">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -20,13 +40,13 @@
             </layout>
         </appender>
 
-        <root level="INFO">
+        <root level="WARN">  <!-- 운영환경에서는 WARN 레벨 -->
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="CLOUDWATCH"/>
         </root>
 
-        <!-- 디버그 로그 레벨 설정 -->
-        <logger name="com.seoultech.ecc" level="DEBUG"/>
-        <logger name="org.springframework.web" level="DEBUG"/>
+        <!-- 운영환경용 로깅 (필요한 것만) -->
+        <logger name="com.seoultech.ecc" level="INFO"/>
+        <logger name="org.springframework.web" level="INFO"/>
     </springProfile>
 </configuration>

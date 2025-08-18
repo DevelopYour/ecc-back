@@ -23,8 +23,6 @@ spring:
     redis:
       host: ${ECC_REDIS_HOST}
       port: ${ECC_REDIS_PORT}
-      ssl:
-        enabled: true
     mongodb:
       uri: ${ECC_MONGODB_URI}
 
@@ -56,3 +54,7 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: none
+  data:
+    redis:
+      ssl:
+        enabled: true

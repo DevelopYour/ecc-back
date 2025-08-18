@@ -11,6 +11,7 @@ import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.study.datamodel.*;
 import com.seoultech.ecc.study.repository.StudyRepository;
 import com.seoultech.ecc.study.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class StudyService {
 
     @Autowired
@@ -48,9 +50,11 @@ public class StudyService {
                 studyDto.setStudyStatus(StudyStatus.ONGOING);
                 dto.setReviewSummaries(null);
             } else if(report.isSubmitted()){ // 보고서 제출 완료
+                studyDto.setReportId(report.getId());
                 studyDto.setStudyStatus(StudyStatus.COMPLETE);
                 dto.setReviewSummaries(reviewService.getReviewStatusInfos(report.getId()));
             } else { // 보고서 미제출
+                studyDto.setReportId(report.getId());
                 studyDto.setStudyStatus(StudyStatus.DRAFTING);
                 dto.setReviewSummaries(null);
             }
@@ -60,28 +64,11 @@ public class StudyService {
         return dtos;
     }
 
-//    @Transactional
-//    public StudyRedis getStudyRoom(Integer teamId) {
-//        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
-//        String existingStudyId = studyRepository.findStudyIdByTeamId(teamId); // 해당 팀의 스터디 redis 존재 여부 확인
-//        if (existingStudyId != null) {
-//            StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId); // 스터디Id로 redis 내용 확인
-//            if (existingStudy != null) return existingStudy;
-//            // 예외 처리 (키는 있는데 값은 없는 경우
-//            throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
-//        }
-//        // 없으면 생성
-//        String reportId = reportService.createReport(teamId); // 1. 보고서 초안 생성 TODO: 보고서 초안은 있지만 study redis가 없는 경우 처리 필요 (생성날짜로 판단?)
-//        StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>()); // 2. Redis Study 객체 생성 (빈 topic 목록)
-//        studyRepository.save(studyRedis); // 3. Redis 저장
-//        studyRepository.saveTeamIndex(teamId, reportId);// 인덱싱용 저장
-//        return studyRedis;
-//    }
-
     @Transactional
     public StudyRedis getStudyRoom(Integer teamId) {
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
 
+        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
         if (existingStudyId != null) {
             StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId);
             if (existingStudy != null) {
@@ -90,8 +77,8 @@ public class StudyService {
             throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
         }
 
-        System.out.printf("team %d의 study redis 생성 시작", teamId);
-
+        // 없으면 생성
+        log.info("team " + teamId + "의 study redis 생성 시작");
         try {
             String reportId = reportService.createReport(teamId);
             StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>());

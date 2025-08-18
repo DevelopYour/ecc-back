@@ -14,6 +14,8 @@ public class StudySummaryDto {
 
     private int week;
 
+    private String reportId;
+
     private StudyStatus studyStatus;
 }
 

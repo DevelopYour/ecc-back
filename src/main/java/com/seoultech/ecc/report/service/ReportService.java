@@ -46,15 +46,17 @@ public class ReportService {
     @Transactional
     public String createReport(Integer teamId) {
         TeamEntity team = teamRepository.findById(teamId).orElse(null); // TODO: 추후 처리 필요
-        ReportDocument report = new ReportDocument();
-        report.setTeamId(teamId);
         List<MemberSimpleDto> members = teamMemberRepository.findMembersByTeamId(teamId).stream().map(MemberSimpleDto::fromEntity).collect(Collectors.toList());
-        report.setMembers(members);
-        report.setSubjectId(1); // TODO: 추후 처리 필요
-        report.setWeek(team.getStudyCount() + 1);
+        ReportDocument report = ReportDocument.builder()
+                .teamId(teamId)
+                .members(members)
+                .subjectId(1) // TODO: 추후 처리 필요
+                .week(team.getStudyCount() + 1)
+                .grade(null)
+                .submitted(false)
+                .build();
         team.setStudyCount(team.getStudyCount() + 1);
-        report.setGrade(null);
-        report.setSubmitted(false);
+        teamRepository.save(team);
         return reportRepository.save(report).getId();
     }
 }
