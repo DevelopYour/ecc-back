@@ -21,13 +21,5 @@ public abstract class BaseDocument {
     @LastModifiedDate
     @Field("updated_at")
     private LocalDateTime updatedAt;
-
-    @CreatedBy
-    @Field("created_by")
-    private Integer createdBy;  // 변경: String -> Integer (uuid 사용)
-
-    @LastModifiedBy
-    @Field("updated_by")
-    private Integer updatedBy;  // 변경: String -> Integer (uuid 사용)
 }
 
