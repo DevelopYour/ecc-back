@@ -38,6 +38,10 @@ public class AdminTeamMatchService {
     private final TeamAssignmentOptimizer optimizer;
     private final MemberService memberService;
 
+//    public Boolean changeTeamRecruitmentStatus(Boolean ) {
+//
+//    }
+
     public List<ApplyStudyDto.ApplyResponse> getRegularApplicants() {
         return adminMemberService.getMembersByStatus(MemberStatus.ACTIVE)
                 .stream()
@@ -91,8 +95,7 @@ public class AdminTeamMatchService {
         entity.setTime(time);
         entity.setName(subject.getName() + "(" + time.getDay() + "-" + time.getStartTime() + "시)");
         entity.setScore(0);
-        entity.setYear(2025);
-        entity.setSemester(2);
+        // TODO: 학기
         entity.setRegular(true);
         entity.setStudyCount(0);
 
