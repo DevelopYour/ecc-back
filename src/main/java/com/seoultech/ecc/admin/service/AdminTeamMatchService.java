@@ -38,10 +38,6 @@ public class AdminTeamMatchService {
     private final TeamAssignmentOptimizer optimizer;
     private final MemberService memberService;
 
-//    public Boolean changeTeamRecruitmentStatus(Boolean ) {
-//
-//    }
-
     public List<ApplyStudyDto.ApplyResponse> getRegularApplicants() {
         return adminMemberService.getMembersByStatus(MemberStatus.ACTIVE)
                 .stream()

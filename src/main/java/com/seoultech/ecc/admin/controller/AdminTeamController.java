@@ -31,13 +31,12 @@ public class AdminTeamController {
     @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다. 정규 스터디와 번개 스터디를 필터링할 수 있습니다.")
     public ResponseEntity<ResponseDto<List<TeamDto>>> getAllTeams(
             @RequestParam(required = false) Boolean regular,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer semester,
+            @RequestParam(required = false) Integer semesterId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        List<TeamDto> teams = adminTeamService.getAllTeams(uuid, regular, year, semester);
+        List<TeamDto> teams = adminTeamService.getAllTeams(uuid, regular, semesterId);
         return ResponseEntity.ok(ResponseDto.success(teams));
     }
 
@@ -252,13 +251,12 @@ public class AdminTeamController {
             description = "모든 정규 스터디 팀의 보고서 제출 및 평가 현황을 조회합니다. 번개 스터디는 포함되지 않습니다."
     )
     public ResponseEntity<ResponseDto<Map<String, Object>>> getTeamReportsStatus(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer semester,
+            @RequestParam(required = false) Integer semesterId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        Map<String, Object> status = adminTeamService.getTeamReportsStatus(year, semester, uuid);
+        Map<String, Object> status = adminTeamService.getTeamReportsStatus(semesterId, uuid);
         return ResponseEntity.ok(ResponseDto.success(status));
     }
 }

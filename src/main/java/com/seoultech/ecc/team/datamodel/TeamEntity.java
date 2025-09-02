@@ -39,7 +39,7 @@ public class TeamEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id", nullable = false)
-    private SemesterEntity semesterEntity;
+    private SemesterEntity semester;
 
     @Column(name = "is_regular", nullable = false, columnDefinition = "boolean default true")
     private boolean regular = true;
