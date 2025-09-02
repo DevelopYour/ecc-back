@@ -207,29 +207,6 @@ public class AdminTeamService {
     }
 
     /**
-     * 번개 스터디 보고서 평가 점수 수정 (UUID 사용)
-     */
-    @Transactional
-    public ReportDocument updateOneTimeReportGrade(Integer teamId, int grade, Integer adminUuid) {
-        // 관리자 권한 확인
-        checkAdminPermission(adminUuid);
-
-        // 점수 유효성 검사
-        if (grade < 0 || grade > 100) {
-            throw new IllegalArgumentException("평가 점수는 0-100 사이의 값이어야 합니다.");
-        }
-
-        // 번개 스터디 보고서 조회
-        ReportDocument report = getOneTimeTeamReport(teamId, adminUuid);
-
-        // 점수 업데이트
-        report.setGrade(grade);
-
-        // 저장
-        return reportRepository.save(report);
-    }
-
-    /**
      * 관리자 전용 - 번개 스터디 완전 삭제 (UUID 사용)
      */
     @Transactional

@@ -133,26 +133,6 @@ public class AdminTeamController {
         }
     }
 
-    @PatchMapping("/one-time/{teamId}/report/grade")
-    @Operation(
-            summary = "번개 스터디 보고서 평가 점수 수정",
-            description = "번개 스터디의 보고서 평가 점수를 수정합니다."
-    )
-    public ResponseEntity<ResponseDto<ReportDocument>> updateOneTimeReportGrade(
-            @PathVariable Integer teamId,
-            @RequestParam int grade,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        Integer uuid = userDetails.getId();
-
-        try {
-            ReportDocument updatedReport = adminTeamService.updateOneTimeReportGrade(teamId, grade, uuid);
-            return ResponseEntity.ok(ResponseDto.success("번개 스터디 보고서 평가 점수가 수정되었습니다.", updatedReport));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
-        }
-    }
-
     @DeleteMapping("/one-time/{teamId}")
     @Operation(
             summary = "번개 스터디 삭제",
