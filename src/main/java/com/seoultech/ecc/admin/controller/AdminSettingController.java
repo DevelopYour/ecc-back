@@ -1,7 +1,7 @@
 package com.seoultech.ecc.admin.controller;
 
-import com.seoultech.ecc.admin.dto.AdminSummaryDto;
 import com.seoultech.ecc.admin.dto.SemesterDto;
+import com.seoultech.ecc.admin.dto.SettingDto;
 import com.seoultech.ecc.admin.service.AdminSettingsService;
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.team.service.ApplyStudyService;
@@ -24,6 +24,13 @@ public class AdminSettingController {
     private final AdminSettingsService settingService;
     private final ApplyStudyService applyStudyService;
 
+    @GetMapping
+    @Operation(summary = "현재 설정 조회", description = "전체 학기 및 현재 학기 정보를 조회합니다.")
+    public ResponseEntity<ResponseDto<SettingDto>> getSettingsInfo() {
+        SettingDto setting = settingService.getSettingInfo();
+        return ResponseEntity.ok(ResponseDto.success(setting));
+    }
+
     @GetMapping("semester")
     @Operation(summary = "현재 학기 조회", description = "현재 설정된 연도 및 학기 정보를 조회합니다.")
     public ResponseEntity<ResponseDto<SemesterDto>> getCurrentSemester() {
@@ -38,7 +45,6 @@ public class AdminSettingController {
         return ResponseEntity.ok(ResponseDto.success(true));
     }
 
-    // applystudyservice로 옮겨
     @GetMapping("study-recruitment")
     @Operation(summary = "정규스터디 모집 여부 조회", description = "현재 학기의 정규스터디 모집 여부 상태를 조회합니다.")
     public ResponseEntity<ResponseDto<Boolean>> getRecruitmentStatus() {

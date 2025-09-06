@@ -4,11 +4,15 @@ import com.seoultech.ecc.admin.datamodel.SemesterEntity;
 import com.seoultech.ecc.admin.datamodel.SettingEntity;
 import com.seoultech.ecc.admin.datamodel.SettingKey;
 import com.seoultech.ecc.admin.dto.SemesterDto;
+import com.seoultech.ecc.admin.dto.SettingDto;
 import com.seoultech.ecc.admin.repository.SemesterRepository;
 import com.seoultech.ecc.admin.repository.SettingRepository;
+import com.seoultech.ecc.team.service.ApplyStudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +20,16 @@ public class AdminSettingsService {
 
     private final SemesterRepository semesterRepository;
     private final SettingRepository settingRepository;
+    private final ApplyStudyService applyStudyService;
+
+    // 현재 설정 정보 조회
+    public SettingDto getSettingInfo() {
+        SettingDto dto = new SettingDto();
+        dto.setCurrentSemester(getCurrentSemester());
+        dto.setIsRecruiting(applyStudyService.getRecruitmentStatus());
+        dto.setSemesters(semesterRepository.findAll().stream().map(SemesterDto::fromEntity).collect(Collectors.toList()));
+        return dto;
+    }
 
     // 현재 학기 조회
     public SemesterDto getCurrentSemester() {
