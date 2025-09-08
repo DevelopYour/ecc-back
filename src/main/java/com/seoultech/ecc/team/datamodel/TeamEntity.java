@@ -1,5 +1,6 @@
 package com.seoultech.ecc.team.datamodel;
 
+import com.seoultech.ecc.admin.datamodel.SemesterEntity;
 import com.seoultech.ecc.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,11 +37,9 @@ public class TeamEntity extends BaseEntity {
     @Column(nullable = false, columnDefinition = "int default 0")
     private int score;
 
-    @Column(nullable = false)
-    private int year;
-
-    @Column(nullable = false)
-    private int semester;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id", nullable = false)
+    private SemesterEntity semester;
 
     @Column(name = "is_regular", nullable = false, columnDefinition = "boolean default true")
     private boolean regular = true;

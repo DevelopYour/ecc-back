@@ -119,8 +119,7 @@ public class OneTimeTeamService {
         team.setSubject(subject);
         team.setTime(defaultTime); // 기본 시간 정보 사용
         team.setScore(0);
-        team.setYear(currentYear);
-        team.setSemester(currentSemester);
+        // TODO 학기
         team.setRegular(false);
         team.setStudyCount(0);
 

@@ -91,8 +91,7 @@ public class AdminTeamMatchService {
         entity.setTime(time);
         entity.setName(subject.getName() + "(" + time.getDay() + "-" + time.getStartTime() + "시)");
         entity.setScore(0);
-        entity.setYear(2025);
-        entity.setSemester(2);
+        // TODO: 학기
         entity.setRegular(true);
         entity.setStudyCount(0);
 

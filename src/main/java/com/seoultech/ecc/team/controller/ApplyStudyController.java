@@ -21,7 +21,15 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Bearer Authentication")
 public class ApplyStudyController {
 
-    private final ApplyStudyService regularStudyService;
+    private final ApplyStudyService studyService;
+
+
+    @GetMapping("/staus")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "정규스터디 모집 여부 조회", description = "현재 학기의 정규스터디 모집 여부 상태를 조회합니다.")
+    public ResponseEntity<ResponseDto<Boolean>> getRecruitmentStatus() {
+        return ResponseEntity.ok(ResponseDto.success(studyService.getRecruitmentStatus()));
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
@@ -32,7 +40,7 @@ public class ApplyStudyController {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyResponse response = regularStudyService.applyRegularStudy(uuid, request);
+        ApplyStudyDto.ApplyResponse response = studyService.applyRegularStudy(uuid, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청이 완료되었습니다.", response));
     }
@@ -45,7 +53,7 @@ public class ApplyStudyController {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyResponse response = regularStudyService.getRegularStudyApplications(uuid);
+        ApplyStudyDto.ApplyResponse response = studyService.getRegularStudyApplications(uuid);
 
         return ResponseEntity.ok(ResponseDto.success(response));
     }
@@ -59,7 +67,7 @@ public class ApplyStudyController {
 
         Integer uuid = userDetails.getId();
 
-        ApplyStudyDto.ApplyResponse response = regularStudyService.updateRegularStudy(uuid, request);
+        ApplyStudyDto.ApplyResponse response = studyService.updateRegularStudy(uuid, request);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청 내역이 수정되었습니다.", response));
     }
@@ -72,7 +80,7 @@ public class ApplyStudyController {
 
         Integer uuid = userDetails.getId();
 
-        regularStudyService.deleteStudyApplications(uuid);
+        studyService.deleteStudyApplications(uuid);
 
         return ResponseEntity.ok(ResponseDto.success("정규 스터디 신청이 취소되었습니다.", null));
     }

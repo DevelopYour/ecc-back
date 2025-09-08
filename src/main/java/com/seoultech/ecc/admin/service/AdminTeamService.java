@@ -40,17 +40,16 @@ public class AdminTeamService {
      * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public List<TeamDto> getAllTeams(Integer adminUuid, Boolean regular, Integer year, Integer semester) {
+    public List<TeamDto> getAllTeams(Integer adminUuid, Boolean regular, Integer semesterId) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
         // 필터 조합에 따른 조회 로직
         List<TeamEntity> teams;
 
-        if (year != null && semester != null) {
+        if (semesterId != null) {
             // 연도와 학기로 필터링
-            teams = teamRepository.findByYearAndSemester(year, semester,
-                    Sort.by(Sort.Direction.DESC, "createdAt"));
+            teams = teamRepository.findBySemester_Id(semesterId);
 
             // 정규 스터디 여부로 추가 필터링
             if (regular != null) {
@@ -437,25 +436,21 @@ public class AdminTeamService {
      * 팀 보고서 제출/평가 현황 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeamReportsStatus(Integer year, Integer semester, Integer adminUuid) {
+    public Map<String, Object> getTeamReportsStatus(Integer semesterId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
-        // 현재 기본 연도와 학기 설정 (필터링을 위한 기본값)
-        int currentYear = year != null ? year : LocalDateTime.now().getYear();
-        int currentSemester = semester != null ? semester : (LocalDateTime.now().getMonthValue() <= 6 ? 1 : 2);
-
         // 필터에 맞는 팀 조회 (정규 스터디만)
-        List<TeamEntity> teams = teamRepository.findByYearAndSemester(
-                        currentYear, currentSemester, Sort.by(Sort.Direction.DESC, "createdAt"))
+        List<TeamEntity> teams = teamRepository.findBySemester_Id(semesterId)
                 .stream()
                 .filter(TeamEntity::isRegular)
                 .toList();
 
         // 결과 저장 맵
         Map<String, Object> result = new HashMap<>();
-        result.put("year", currentYear);
-        result.put("semester", currentSemester);
+//        TODO: 아래 주석된 두 줄 빼거나 semesterId 로 대체하면 될 거 같은데 (효선)
+//        result.put("year", currentYear);
+//        result.put("semester", currentSemester);
 
         // 팀별 보고서 현황
         List<Map<String, Object>> teamReportStatusList = new ArrayList<>();

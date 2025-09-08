@@ -44,8 +44,7 @@ public class TeamDto {
                 .id(team.getId())
                 .name(team.getName())
                 .score(team.getScore())
-                .year(team.getYear())
-                .semester(team.getSemester())
+                // TODO: 학기
                 .day(team.getTime().getDay())
                 .startTime(team.getTime().getStartTime())
                 .subjectName(team.getSubject().getName())
@@ -75,8 +74,7 @@ public class TeamDto {
                 .timeId(team.getTime().getId())
                 .day(team.getTime().getDay())
                 .startTime(team.getTime().getStartTime())
-                .year(team.getYear())
-                .semester(team.getSemester())
+                // TODO 학기
                 .score(team.getScore())
                 .studyCount(team.getStudyCount())
                 .regular(team.isRegular())

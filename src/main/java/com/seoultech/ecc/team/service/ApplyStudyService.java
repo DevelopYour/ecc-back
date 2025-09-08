@@ -1,5 +1,7 @@
 package com.seoultech.ecc.team.service;
 
+import com.seoultech.ecc.admin.datamodel.SettingKey;
+import com.seoultech.ecc.admin.repository.SettingRepository;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.repository.MemberRepository;
@@ -23,6 +25,12 @@ public class ApplyStudyService {
     private final TimeService timeService;
     private final ApplyRegularTimeRepository applyTimeRepository;
     private final ApplyRegularSubjectRepository applySubjectRepository;
+    private final SettingRepository settingRepository;
+
+    public Boolean getRecruitmentStatus() {
+        String value = settingRepository.findBySettingKey(SettingKey.RECRUITMENT_STATUS.getKey()).getSettingValue();
+        return value.equals("true");
+    }
 
     // 정규 스터디 신청 (UUID 사용)
     @Transactional
@@ -100,7 +108,7 @@ public class ApplyStudyService {
         return member;
     }
 
-    public ApplyStudyDto.ApplyResponse toApplyResponse(MemberEntity member, List<ApplyRegularSubjectEntity> subjects, List<ApplyRegularTimeEntity> times){
+    private ApplyStudyDto.ApplyResponse toApplyResponse(MemberEntity member, List<ApplyRegularSubjectEntity> subjects, List<ApplyRegularTimeEntity> times){
         return ApplyStudyDto.ApplyResponse.builder()
                 .memberUuid(member.getId())
                 .memberName(member.getName())
