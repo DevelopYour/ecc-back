@@ -3,6 +3,7 @@ package com.seoultech.ecc.admin.service;
 import com.seoultech.ecc.admin.datamodel.SemesterEntity;
 import com.seoultech.ecc.admin.datamodel.SettingEntity;
 import com.seoultech.ecc.admin.datamodel.SettingKey;
+import com.seoultech.ecc.admin.dto.CreateSemesterDto;
 import com.seoultech.ecc.admin.dto.SemesterDto;
 import com.seoultech.ecc.admin.dto.SettingDto;
 import com.seoultech.ecc.admin.repository.SemesterRepository;
@@ -40,7 +41,7 @@ public class AdminSettingsService {
 
     // 현재 학기 갱신
     @Transactional
-    public void updateCurrentSemester(SemesterDto dto) {
+    public void updateCurrentSemester(CreateSemesterDto dto) {
         // 새로운 Semester 추가
         SemesterEntity newSemester = new SemesterEntity();
         newSemester.setYear(dto.getYear());
