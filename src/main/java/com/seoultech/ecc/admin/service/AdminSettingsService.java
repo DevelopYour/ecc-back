@@ -58,6 +58,7 @@ public class AdminSettingsService {
     public void setRecruitmentStatus(Boolean recruitmentStatus) {
         SettingEntity entity = settingRepository.findBySettingKey(SettingKey.RECRUITMENT_STATUS.getKey());
         entity.setSettingValue(recruitmentStatus.toString());
+        settingRepository.save(entity);
     }
 
 }

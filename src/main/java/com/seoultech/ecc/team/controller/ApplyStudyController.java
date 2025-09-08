@@ -24,7 +24,7 @@ public class ApplyStudyController {
     private final ApplyStudyService studyService;
 
 
-    @GetMapping("/staus")
+    @GetMapping("/status")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "정규스터디 모집 여부 조회", description = "현재 학기의 정규스터디 모집 여부 상태를 조회합니다.")
     public ResponseEntity<ResponseDto<Boolean>> getRecruitmentStatus() {
