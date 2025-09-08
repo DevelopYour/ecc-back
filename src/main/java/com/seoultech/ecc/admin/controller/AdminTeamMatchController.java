@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/admin/team-match")
+@RequestMapping("/api/admin/team-match")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "팀 배정 API", description = "관리자 전용 팀 배정 API")

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/admin/content/")
+@RequestMapping("/api/admin/content/")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "스터디 콘텐츠 관리 API", description = "관리자 전용 콘텐츠 관리 API")

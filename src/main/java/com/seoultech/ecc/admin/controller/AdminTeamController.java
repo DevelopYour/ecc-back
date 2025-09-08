@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/admin/teams")
+@RequestMapping("/api/admin/teams")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "팀 관리 API", description = "관리자 전용 팀 관리 API")
