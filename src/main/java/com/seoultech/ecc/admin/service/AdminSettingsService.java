@@ -39,6 +39,12 @@ public class AdminSettingsService {
         return SemesterDto.fromEntity(semester);
     }
 
+    // 현재 학기 아이디 조회
+    public SemesterEntity getCurrentSemesterEntity() {
+        String semesterId = settingRepository.findBySettingKey(SettingKey.CURRENT_SEMESTER_ID.getKey()).getSettingValue();
+        return semesterRepository.findById(Integer.valueOf(semesterId)).get();
+    }
+
     // 현재 학기 갱신
     @Transactional
     public void updateCurrentSemester(CreateSemesterDto dto) {

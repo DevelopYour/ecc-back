@@ -35,6 +35,7 @@ public class AdminTeamMatchController {
     @Operation(summary = "팀 매칭 실행", description = "OR-Tools 최적화 알고리즘을 실행 후 팀 매칭 결과를 반환합니다.")
     public ResponseEntity<ResponseDto<List<AssignedTeamDto>>> executeTeamAssignment() {
         List<AssignedTeamDto> response = service.assignTeams();
+        System.out.println(response.size());
         return ResponseEntity.ok(ResponseDto.success(response));
     }
 

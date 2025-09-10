@@ -1,6 +1,9 @@
 package com.seoultech.ecc.admin.service;
 
+import com.seoultech.ecc.admin.datamodel.SemesterEntity;
 import com.seoultech.ecc.admin.dto.AssignedTeamDto;
+import com.seoultech.ecc.admin.repository.SemesterRepository;
+import com.seoultech.ecc.admin.repository.SettingRepository;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
@@ -37,6 +40,7 @@ public class AdminTeamMatchService {
 
     private final TeamAssignmentOptimizer optimizer;
     private final MemberService memberService;
+    private final AdminSettingsService adminSettingsService;
 
     public List<ApplyStudyDto.ApplyResponse> getRegularApplicants() {
         return adminMemberService.getMembersByStatus(MemberStatus.ACTIVE)
@@ -87,11 +91,13 @@ public class AdminTeamMatchService {
         TeamEntity entity = new TeamEntity();
         SubjectEntity subject = subjectService.getSubjectById(dto.getSubjectId());
         TimeEntity time = timeService.getTimeById(dto.getTimeId());
+
+
         entity.setSubject(subject);
         entity.setTime(time);
         entity.setName(subject.getName() + "(" + time.getDay() + "-" + time.getStartTime() + "시)");
         entity.setScore(0);
-        // TODO: 학기
+        entity.setSemester(adminSettingsService.getCurrentSemesterEntity());
         entity.setRegular(true);
         entity.setStudyCount(0);
 
