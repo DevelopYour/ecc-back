@@ -1,5 +1,7 @@
 package com.seoultech.ecc.admin.controller;
 
+import com.seoultech.ecc.admin.dto.AssignedTeamDto;
+import com.seoultech.ecc.admin.service.AdminTeamMatchService;
 import com.seoultech.ecc.admin.service.AdminTeamService;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.member.dto.ResponseDto;
@@ -26,6 +28,7 @@ import java.util.Map;
 public class AdminTeamController {
 
     private final AdminTeamService adminTeamService;
+    private final AdminTeamMatchService adminTeamMatchService;
 
     @GetMapping
     @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다. 정규 스터디와 번개 스터디를 필터링할 수 있습니다.")
@@ -38,6 +41,14 @@ public class AdminTeamController {
 
         List<TeamDto> teams = adminTeamService.getAllTeams(uuid, regular, semesterId);
         return ResponseEntity.ok(ResponseDto.success(teams));
+    }
+
+    @PostMapping
+    @Operation(summary = "팀 생성", description = "새로운 팀을 추가합니다.")
+    public ResponseEntity<ResponseDto<Integer>> saveTeamAssignment(
+            @RequestBody List<AssignedTeamDto> teams) {
+        Integer numberOfTeams = adminTeamMatchService.saveTeams(teams);
+        return ResponseEntity.ok(ResponseDto.success(numberOfTeams));
     }
 
     @GetMapping("/{teamId}")

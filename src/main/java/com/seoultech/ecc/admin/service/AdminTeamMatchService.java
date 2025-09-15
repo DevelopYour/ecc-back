@@ -1,9 +1,6 @@
 package com.seoultech.ecc.admin.service;
 
-import com.seoultech.ecc.admin.datamodel.SemesterEntity;
 import com.seoultech.ecc.admin.dto.AssignedTeamDto;
-import com.seoultech.ecc.admin.repository.SemesterRepository;
-import com.seoultech.ecc.admin.repository.SettingRepository;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
@@ -95,7 +92,7 @@ public class AdminTeamMatchService {
 
         entity.setSubject(subject);
         entity.setTime(time);
-        entity.setName(subject.getName() + "(" + time.getDay() + "-" + time.getStartTime() + "시)");
+        entity.setName("[" + subject.getName() + "] " + time.getDay() + "_" + time.getStartTime());
         entity.setScore(0);
         entity.setSemester(adminSettingsService.getCurrentSemesterEntity());
         entity.setRegular(true);

@@ -25,7 +25,7 @@ public class AdminTeamMatchController {
     private final AdminTeamMatchService service;
 
     @GetMapping("/applications")
-    @Operation(summary = "전체 팀 조회", description = "모든 팀 목록을 조회합니다. 정규 스터디와 번개 스터디를 필터링할 수 있습니다.")
+    @Operation(summary = "정규 스터디 신청 내역 조회", description = "정규 스터디 신청 내역을 조회합니다.")
     public ResponseEntity<ResponseDto<List<ApplyStudyDto.ApplyResponse>>> getRegularApplications() {
         List<ApplyStudyDto.ApplyResponse> response = service.getRegularApplicants();
         return ResponseEntity.ok(ResponseDto.success(response));
