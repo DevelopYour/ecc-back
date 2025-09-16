@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,18 +72,32 @@ public class StudyService {
         studyEnterDto.setIsGeneral(subjectService.isGeneralTeam(teamId));
 
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
-        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 아이디 반환
         if (existingStudyId != null) {
             studyEnterDto.setStudyId(existingStudyId);
+            return studyEnterDto;
         }
-        // 없으면 생성
+
         log.info("team " + teamId + "의 study redis 생성 시작");
         try {
             String reportId = reportService.createReport(teamId);
-            StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>(), null);
-            studyRepository.save(studyRedis);
+
+            if (studyEnterDto.getIsGeneral()) {
+                // 일반 과목 - GeneralRedis 초기화 (모든 리스트 초기화 필요)
+                GeneralRedis general = new GeneralRedis();
+                general.setId("general_1");
+                general.setCorrections(new ArrayList<>());
+                general.setVocabs(new ArrayList<>());
+                general.setExpressions(new ArrayList<>());
+
+                StudyRedis studyRedis = new StudyRedis(reportId, teamId, null, general);
+                studyRepository.save(studyRedis);
+            } else {
+                StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>(), null);
+                studyRepository.save(studyRedis);
+            }
+
             studyRepository.saveTeamIndex(teamId, reportId);
-            studyEnterDto.setStudyId(studyRedis.getId());
+            studyEnterDto.setStudyId(reportId);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -133,7 +145,8 @@ public class StudyService {
 
         // 4. Generate AI translation
         AiExpressionResponse aiResponse = questionDto.isTranslation() ? // 질문 유형(번역/피드백)에 따라 요청 처리
-                openAiService.generateTranslation(questionDto.getQuestion(), questionDto.isKorean()) : openAiService.generateFeedback(questionDto.getQuestion());
+                openAiService.generateTranslation(questionDto.getQuestion(), questionDto.isKorean()) :
+                openAiService.generateFeedback(questionDto.getQuestion());
 
         // 5. Create and add expression
         ExpressionRedis expression = createExpression(targetTopic, questionDto, aiResponse);
@@ -144,6 +157,103 @@ public class StudyService {
 
         System.out.printf("Successfully added AI-generated expression for study: %s, topic: %d",
                 studyId, questionDto.getTopicId());
+
+        return study;
+    }
+
+
+    @Transactional
+    public StudyRedis addCorrectionsToGeneralStudy(String studyId, List<CorrectionRedis> correctionDtos) {
+        StudyRedis study = studyRepository.findByStudyId(studyId);
+        if (study == null) {
+            throw new IllegalArgumentException("Study not found for id: " + studyId);
+        }
+
+        GeneralRedis general = study.getGeneral();
+        if (general == null) {
+            throw new IllegalArgumentException("This is not a general subject study");
+        }
+
+        // corrections 리스트가 null인 경우 초기화
+        if (general.getCorrections() == null) {
+            general.setCorrections(new ArrayList<>());
+        }
+
+        // 오답 추가
+        for (CorrectionRedis dto : correctionDtos) {
+            CorrectionRedis correction = new CorrectionRedis();
+            correction.setId("correction_" + System.currentTimeMillis() + "_" + Math.random());
+            correction.setQuestion(dto.getQuestion());
+            correction.setAnswer(dto.getAnswer());
+            correction.setDescription(dto.getDescription());
+            general.getCorrections().add(correction);
+        }
+
+        studyRepository.save(study);
+        return study;
+    }
+
+    @Transactional
+    public StudyRedis addVocabsToGeneralStudy(String studyId, List<VocabRedis> vocabDtos) {
+        StudyRedis study = studyRepository.findByStudyId(studyId);
+        if (study == null) {
+            throw new IllegalArgumentException("Study not found for id: " + studyId);
+        }
+
+        GeneralRedis general = study.getGeneral();
+        if (general == null) {
+            throw new IllegalArgumentException("This is not a general subject study");
+        }
+
+        // vocabs 리스트가 null인 경우 초기화
+        if (general.getVocabs() == null) {
+            general.setVocabs(new ArrayList<>());
+        }
+
+        // 단어 추가
+        for (VocabRedis dto : vocabDtos) {
+            VocabRedis vocab = new VocabRedis();
+            vocab.setId("vocab_" + System.currentTimeMillis() + "_" + Math.random());
+            vocab.setEnglish(dto.getEnglish());
+            vocab.setKorean(dto.getKorean());
+            general.getVocabs().add(vocab);
+        }
+
+        studyRepository.save(study);
+        return study;
+    }
+
+    @Transactional
+    public StudyRedis getGeneralAiHelpAndAdd(String studyId, ExpressionToAskDto questionDto) {
+        validateGeneralInput(studyId, questionDto);
+
+        StudyRedis study = studyRepository.findByStudyId(studyId);
+        if (study == null) {
+            throw new IllegalArgumentException("Study not found for id: " + studyId);
+        }
+
+        GeneralRedis general = study.getGeneral();
+        if (general == null) {
+            throw new IllegalArgumentException("This is not a general subject study");
+        }
+
+        // expressions 리스트가 null인 경우 초기화 (이 부분이 핵심!)
+        if (general.getExpressions() == null) {
+            general.setExpressions(new ArrayList<>());
+        }
+
+        // AI 응답 생성
+        AiExpressionResponse aiResponse = questionDto.isTranslation() ?
+                openAiService.generateTranslation(questionDto.getQuestion(), questionDto.isKorean()) :
+                openAiService.generateFeedback(questionDto.getQuestion());
+
+        // Expression 생성 및 추가
+        ExpressionRedis expression = createGeneralExpression(general, questionDto, aiResponse);
+        general.getExpressions().add(expression);
+
+        studyRepository.save(study);
+
+        log.info("Successfully added AI-generated expression for general study: {}", studyId);
 
         return study;
     }
@@ -161,6 +271,19 @@ public class StudyService {
         if (questionDto.getTopicId() == null) {
             throw new IllegalArgumentException("Topic ID cannot be null");
         }
+    }
+
+    private void validateGeneralInput(String studyId, ExpressionToAskDto questionDto) {
+        if (studyId == null || studyId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Study ID cannot be null or empty");
+        }
+        if (questionDto == null) {
+            throw new IllegalArgumentException("Question DTO cannot be null");
+        }
+        if (questionDto.getQuestion() == null || questionDto.getQuestion().trim().isEmpty()) {
+            throw new IllegalArgumentException("Question cannot be null or empty");
+        }
+        // 일반 과목에서는 topicId가 필요없음
     }
 
     private TopicRedis findTopicInStudy(StudyRedis study, Integer topicId) {
@@ -193,14 +316,75 @@ public class StudyService {
         return expression;
     }
 
+    private ExpressionRedis createGeneralExpression(GeneralRedis general, ExpressionToAskDto questionDto, AiExpressionResponse aiResponse) {
+        ExpressionRedis expression = new ExpressionRedis();
+
+        // Generate next sequential ID for general expressions
+        Integer newExpressionId = general.getExpressions().stream()
+                .mapToInt(ExpressionRedis::getExpressionId)
+                .max()
+                .orElse(0) + 1;
+
+        expression.setExpressionId(newExpressionId);
+        expression.setKorean(aiResponse.getKorean());
+        expression.setEnglish(aiResponse.getEnglish());
+        expression.setTranslation(questionDto.isTranslation());
+
+        if (questionDto.isTranslation()) { // 번역
+            expression.setExampleEnglish(aiResponse.getExampleEnglish());
+            expression.setExampleKorean(aiResponse.getExampleKorean());
+        } else { // 교정
+            expression.setFeedback(aiResponse.getFeedback());
+            expression.setOriginal(questionDto.getQuestion());
+        }
+        return expression;
+    }
+
     @Transactional
     public String finishStudy(String studyId) {
         StudyRedis study = studyRepository.findByStudyId(studyId);
         if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);
         ReportDocument report = reportService.findByReportId(studyId);
 
-        // StudyRedis 데이터 ReportDocument로 옮기기
-        report.setTopics(fromRedisToDocument(study));
+        // 회화 과목인지 일반 과목인지 확인 후 분기
+        if (study.getTopics() != null && !study.getTopics().isEmpty()) {
+            // 회화 과목
+            report.setTopics(fromRedisToDocument(study));
+        } else if (study.getGeneral() != null) {
+            // 일반 과목
+            return finishGeneralStudy(studyId);
+        }
+
+        reportService.saveReport(report);
+
+        // Redis 키 삭제
+        studyRepository.deleteByStudyId(studyId);
+        studyRepository.deleteTeamIndex(study.getTeamId());
+        return studyId;
+    }
+
+    @Transactional
+    public String finishGeneralStudy(String studyId) {
+        StudyRedis study = studyRepository.findByStudyId(studyId);
+        if (study == null) throw new IllegalArgumentException("Study not found for id: " + studyId);
+        ReportDocument report = reportService.findByReportId(studyId);
+        GeneralRedis general = study.getGeneral();
+        // 1. corrections
+        report.setCorrections(general.getCorrections().stream().map(CorrectionRedis::toCorrectionDto).collect(Collectors.toList()));
+        // 2. vocabs
+        report.setVocabs(general.getVocabs().stream().map(VocabRedis::toVocabDto).collect(Collectors.toList()));
+
+        // 3. translations
+        // 4. feedbacks
+        Map<Boolean, List<ExpressionRedis>> grouped = general.getExpressions()
+                .stream()
+                .collect(Collectors.partitioningBy(ExpressionRedis::isTranslation));
+        report.setTranslations(grouped.get(true).stream()
+                .map(ReportTranslationDto::fromRedis)
+                .collect(Collectors.toList()));
+        report.setFeedbacks(grouped.get(false).stream()
+                .map(ReportFeedbackDto::fromRedis)
+                .collect(Collectors.toList()));
         reportService.saveReport(report);
 
         // Redis 키 삭제 (study, team 인덱싱)
@@ -242,4 +426,6 @@ public class StudyService {
                 })
                 .collect(Collectors.toList());
     }
+
+
 }

@@ -3,7 +3,9 @@ package com.seoultech.ecc.study.controller;
 import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
+import com.seoultech.ecc.study.datamodel.CorrectionRedis;
 import com.seoultech.ecc.study.datamodel.StudyRedis;
+import com.seoultech.ecc.study.datamodel.VocabRedis;
 import com.seoultech.ecc.study.dto.*;
 import com.seoultech.ecc.study.service.StudyService;
 import com.seoultech.ecc.study.service.TopicService;
@@ -78,12 +80,51 @@ public class StudyController {
 
     @PostMapping("/{studyId}/ai-help")
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "AI 도움 받기", description = "AI에게 표현 관련 질문 후 해당 데이터를 저장합니다.")
+    @Operation(summary = "AI 도움 받기 (회화)", description = "회화 주제에 대해 AI에게 표현 관련 질문 후 해당 데이터를 저장합니다.")
     public ResponseEntity<ResponseDto<StudyRedis>> getExpressionByAiHelp(
             @PathVariable String studyId,
             @RequestBody ExpressionToAskDto question,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(ResponseDto.success(studyService.getAiHelpAndAdd(studyId, question)));
+    }
+
+    @PostMapping("/{studyId}/general/corrections")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "오답 저장 (일반 과목)", description = "일반 과목의 오답 정리 데이터를 저장합니다.")
+    public ResponseEntity<ResponseDto<StudyRedis>> saveCorrections(
+            @PathVariable String studyId,
+            @RequestBody List<CorrectionRedis> corrections,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ResponseDto.success(studyService.addCorrectionsToGeneralStudy(studyId, corrections)));
+    }
+
+    @PostMapping("/{studyId}/general/vocabs")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "단어 저장 (일반 과목)", description = "일반 과목의 단어 정리 데이터를 저장합니다.")
+    public ResponseEntity<ResponseDto<StudyRedis>> saveVocabs(
+            @PathVariable String studyId,
+            @RequestBody List<VocabRedis> vocabs,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ResponseDto.success(studyService.addVocabsToGeneralStudy(studyId, vocabs)));
+    }
+
+    @PostMapping("/{studyId}/general/ai-help")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "AI 도움 받기 (일반 과목)", description = "일반 과목에서 AI에게 표현 관련 질문 후 해당 데이터를 저장합니다.")
+    public ResponseEntity<ResponseDto<StudyRedis>> getGeneralExpressionByAiHelp(
+            @PathVariable String studyId,
+            @RequestBody ExpressionToAskDto question,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ResponseDto.success(studyService.getGeneralAiHelpAndAdd(studyId, question)));
+    }
+
+    @PutMapping("/{studyId}/general")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "일반 과목 스터디 종료", description = "StudyRedis의 데이터를 ReportDocument로 옮긴 뒤 삭제합니다.")
+    public ResponseEntity<ResponseDto<String>> finishGeneralStudy(
+            @PathVariable String studyId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ResponseDto.success(studyService.finishGeneralStudy(studyId)));
     }
 
     @PutMapping("/{studyId}")

@@ -14,7 +14,7 @@ import java.util.List;
 public class StudyRedis {
     private String id;
     private Integer teamId;
-    private List<TopicRedis> topics;
-    private List<GeneralRedis> generals;
+    private List<TopicRedis> topics; // 회화 과목 (자유회화, 오픽)
+    private GeneralRedis general; // 일반 시험 과목 (토익, 토플, 아이엘츠)
 }
 
