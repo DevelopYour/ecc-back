@@ -1,6 +1,7 @@
 package com.seoultech.ecc.team.service;
 
 import com.seoultech.ecc.member.repository.MemberRepository;
+import com.seoultech.ecc.team.datamodel.SubjectEntity;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.team.dto.SubjectDto;
 import com.seoultech.ecc.team.dto.TeamDto;
@@ -19,8 +20,6 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     private final TeamRepository teamRepository;
-    private final SubjectRepository subjectRepository;
-    private final MemberRepository memberRepository;
 
     /**
      * 회원이 속한.모든 팀 조회 (UUID 사용)
@@ -92,9 +91,9 @@ public class TeamService {
                 .anyMatch(tm -> tm.getMember().getId().equals(uuid));
     }
 
-    public List<SubjectDto> getAllSubjects() {
-        return subjectRepository.findAll().stream().map(SubjectDto::fromEntity).collect(Collectors.toList());
+    // 특정 팀의 과목
+    public Integer getSubjectId(Integer teamId){
+        return teamRepository.findById(teamId).get().getSubject().getId();
     }
-
 
 }

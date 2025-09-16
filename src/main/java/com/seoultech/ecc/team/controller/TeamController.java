@@ -4,6 +4,7 @@ import com.seoultech.ecc.member.dto.ResponseDto;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
 import com.seoultech.ecc.team.dto.SubjectDto;
 import com.seoultech.ecc.team.dto.TeamDto;
+import com.seoultech.ecc.team.service.SubjectService;
 import com.seoultech.ecc.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,6 +28,7 @@ import java.util.List;
 public class TeamController {
 
     private final TeamService teamService;
+    private final SubjectService subjectService;
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
@@ -76,6 +78,6 @@ public class TeamController {
     @GetMapping("/subjects")
     @Operation(summary = "신청 가능한 과목 목록 조회", description = "전체 과목 목록을 조회합니다.")
     public ResponseEntity<ResponseDto<List<SubjectDto>>> getAllSubjects() {
-        return ResponseEntity.ok(ResponseDto.success(teamService.getAllSubjects()));
+        return ResponseEntity.ok(ResponseDto.success(subjectService.getAllSubjects()));
     }
 }

@@ -11,10 +11,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyRedis {
+public class GeneralRedis {
     private String id;
-    private Integer teamId;
-    private List<TopicRedis> topics;
-    private List<GeneralRedis> generals;
+    private List<CorrectionRedis> corrections; // 오답
+    private List<VocabRedis> vocabs; // 단어
 }
 

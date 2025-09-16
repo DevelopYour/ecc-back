@@ -11,6 +11,7 @@ import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.study.datamodel.*;
 import com.seoultech.ecc.study.repository.StudyRepository;
 import com.seoultech.ecc.study.dto.*;
+import com.seoultech.ecc.team.service.SubjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,9 @@ public class StudyService {
 
     @Autowired
     private StudyRepository studyRepository;
+
+    @Autowired
+    private SubjectService subjectService;
 
     public List<WeeklySummaryDto> getTeamProgress(Integer teamId) {
         List<ReportDocument> reports = reportService.findReportsByTeamId(teamId);
@@ -65,32 +69,38 @@ public class StudyService {
     }
 
     @Transactional
-    public StudyRedis getStudyRoom(Integer teamId) {
+    public StudyEnterDto getStudyRoom(Integer teamId) {
+        StudyEnterDto studyEnterDto = new StudyEnterDto();
+        studyEnterDto.setIsGeneral(subjectService.isGeneralTeam(teamId));
+
         String existingStudyId = studyRepository.findStudyIdByTeamId(teamId);
-
-        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 반환
+        // teamId로 이미 진행 중인 study Redis 확인 후 있으면 아이디 반환
         if (existingStudyId != null) {
-            StudyRedis existingStudy = studyRepository.findByStudyId(existingStudyId);
-            if (existingStudy != null) {
-                return existingStudy;
-            }
-            throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + existingStudyId + ")");
+            studyEnterDto.setStudyId(existingStudyId);
         }
-
         // 없으면 생성
         log.info("team " + teamId + "의 study redis 생성 시작");
         try {
             String reportId = reportService.createReport(teamId);
-            StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>());
+            StudyRedis studyRedis = new StudyRedis(reportId, teamId, new ArrayList<>(), null);
             studyRepository.save(studyRedis);
             studyRepository.saveTeamIndex(teamId, reportId);
-            return studyRedis;
+            studyEnterDto.setStudyId(studyRedis.getId());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+        return studyEnterDto;
     }
 
+    @Transactional
+    public StudyRedis getStudyData(String studyId) {
+        StudyRedis existingStudy = studyRepository.findByStudyId(studyId);
+        if (existingStudy != null)  return existingStudy;
+        else throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + studyId + ")");
+    }
+
+    @Transactional
     public StudyRedis addTopicToStudy(String studyId, List<TopicDto> topicDtos) {
         // 1. Redis에서 기존 StudyRedis 객체 불러오기
         StudyRedis study = studyRepository.findByStudyId(studyId);

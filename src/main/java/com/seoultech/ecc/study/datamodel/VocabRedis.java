@@ -5,16 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyRedis {
+public class VocabRedis {
     private String id;
-    private Integer teamId;
-    private List<TopicRedis> topics;
-    private List<GeneralRedis> generals;
+    private String english;
+    private String korean;
 }
 
