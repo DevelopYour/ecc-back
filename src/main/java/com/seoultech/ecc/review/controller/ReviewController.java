@@ -24,6 +24,13 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @GetMapping("/me/report/{reportId}")
+    @Operation(summary = "복습자료 아이디 조회", description = "로그인한 유저의 아이디와 보고서 아이디로 특정 복습자료 아이디를 조회합니다.")
+    public ResponseEntity<ResponseDto<String>> getMyReviewId(@PathVariable String reportId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ResponseDto.success(reviewService.findReviewIdByReportAndMemberId(reportId, userDetails.getId())));
+    }
+
+
     @GetMapping("/me")
     @Operation(summary = "복습자료 목록 조회", description = "로그인한 유저의 복습자료 목록을 조회합니다.")
     public ResponseEntity<ResponseDto<List<ReviewDocument>>> getMyReviews(@AuthenticationPrincipal CustomUserDetails userDetails) {

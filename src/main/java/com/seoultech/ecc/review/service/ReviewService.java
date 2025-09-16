@@ -29,6 +29,10 @@ public class ReviewService {
     @Autowired
     private OpenAiService aiService;
 
+    public String findReviewIdByReportAndMemberId(String reportId, Integer memberId) {
+        return reviewRepository.findByReportIdAndMemberId(reportId, memberId).getId();
+    }
+
     public List<ReviewDocument> findAllByMemberId(int memberId) {
         return reviewRepository.findAllByMemberId(memberId);
     }

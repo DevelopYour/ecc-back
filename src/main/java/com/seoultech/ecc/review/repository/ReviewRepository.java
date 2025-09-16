@@ -9,4 +9,6 @@ public interface ReviewRepository extends MongoRepository<ReviewDocument, String
     List<ReviewDocument> findAllByMemberId(Integer memberId);
 
     List<ReviewDocument> findAllByReportId(String reportId);
+
+    ReviewDocument findByReportIdAndMemberId(String reportId, Integer memberId);
 }
