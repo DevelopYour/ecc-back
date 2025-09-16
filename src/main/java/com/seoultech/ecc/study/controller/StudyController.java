@@ -57,10 +57,11 @@ public class StudyController {
         return ResponseEntity.ok(ResponseDto.success(studyService.getStudyData(studyId)));
     }
 
-    @GetMapping("/topic")
+    @GetMapping("/team/{teamId}/topic")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "주제 목록 조회", description = "주제 목록을 요청합니다.")
     public ResponseEntity<ResponseDto<List<TopicSetDto>>> getTopicsByAiHelp(
+            @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(ResponseDto.success(topicService.getAllTopics()));
     }

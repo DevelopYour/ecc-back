@@ -35,6 +35,6 @@ public class SubjectService {
     // teamId로 해당 팀의 과목이 회화과목인지 일반(시험)과목인지 판단
     public Boolean isGeneralTeam(Integer teanId) {
         Integer subjectId = teamService.getSubjectId(teanId);
-        return subjectId > 1; // 0(자유회화), 1(오픽)
+        return subjectId > 2; // 1(자유회화), 2(오픽)
     }
 }

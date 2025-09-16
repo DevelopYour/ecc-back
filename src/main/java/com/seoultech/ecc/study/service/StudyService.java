@@ -95,9 +95,7 @@ public class StudyService {
 
     @Transactional
     public StudyRedis getStudyData(String studyId) {
-        StudyRedis existingStudy = studyRepository.findByStudyId(studyId);
-        if (existingStudy != null)  return existingStudy;
-        else throw new IllegalStateException("Study key exists but StudyRedis is null. (studyId=" + studyId + ")");
+        return studyRepository.findByStudyId(studyId);
     }
 
     @Transactional
