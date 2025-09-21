@@ -1,6 +1,7 @@
 package com.seoultech.ecc.admin.controller;
 
 import com.seoultech.ecc.admin.dto.AssignedTeamDto;
+import com.seoultech.ecc.admin.dto.TeamDetailDto;
 import com.seoultech.ecc.admin.service.AdminTeamMatchService;
 import com.seoultech.ecc.admin.service.AdminTeamService;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
@@ -53,30 +54,27 @@ public class AdminTeamController {
 
     @GetMapping("/{teamId}")
     @Operation(summary = "팀 상세 정보 조회", description = "특정 팀의 상세 정보를 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다.")
-    public ResponseEntity<ResponseDto<TeamDto>> getTeamDetail(
+    public ResponseEntity<ResponseDto<TeamDetailDto>> getTeamDetail(
             @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        Integer uuid = userDetails.getId();
-
-        TeamDto teamDetail = adminTeamService.getTeamDetail(teamId, uuid);
+        TeamDetailDto teamDetail = adminTeamService.getTeamDetail(teamId, userDetails.getId());
         return ResponseEntity.ok(ResponseDto.success(teamDetail));
     }
 
-    @GetMapping("/{teamId}/{week}")
+    @GetMapping("/{teamId}/report/{reportId}")
     @Operation(
             summary = "팀 주차별 상세 정보 조회",
             description = "특정 팀의 주차별 상세 정보를 조회합니다. 정규 스터디만 주차별 조회가 가능합니다."
     )
     public ResponseEntity<ResponseDto<Object>> getTeamWeekDetail(
             @PathVariable Integer teamId,
-            @PathVariable int week,
+            @PathVariable String reportId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
         try {
-            Object weekDetail = adminTeamService.getTeamWeekDetail(teamId, week, uuid);
+            Object weekDetail = adminTeamService.getTeamWeekDetail(teamId, reportId, uuid);
             return ResponseEntity.ok(ResponseDto.success(weekDetail));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));

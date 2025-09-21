@@ -1,14 +1,18 @@
 package com.seoultech.ecc.admin.service;
 
+import com.seoultech.ecc.admin.dto.TeamDetailDto;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.member.repository.MemberRepository;
 import com.seoultech.ecc.report.datamodel.ReportDocument;
 import com.seoultech.ecc.report.repository.ReportRepository;
+import com.seoultech.ecc.report.service.ReportService;
 import com.seoultech.ecc.review.datamodel.ReviewDocument;
 import com.seoultech.ecc.review.datamodel.ReviewStatus;
+import com.seoultech.ecc.review.dto.ReviewSummaryDto;
 import com.seoultech.ecc.review.repository.ReviewRepository;
+import com.seoultech.ecc.review.service.ReviewService;
 import com.seoultech.ecc.team.datamodel.TeamEntity;
 import com.seoultech.ecc.team.datamodel.TeamMemberEntity;
 import com.seoultech.ecc.team.dto.TeamDto;
@@ -21,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -35,6 +38,8 @@ public class AdminTeamService {
     private final MemberRepository memberRepository;
     private final ReportRepository reportRepository;
     private final ReviewRepository reviewRepository;
+    private final ReviewService reviewService;
+    private final ReportService reportService;
 
     /**
      * 전체 팀 목록 조회 (필터링 옵션 포함) (UUID 사용)
@@ -76,21 +81,27 @@ public class AdminTeamService {
      * 특정 팀 상세 정보 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public TeamDto getTeamDetail(Integer teamId, Integer adminUuid) {
+    public TeamDetailDto getTeamDetail(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
-        // 팀 조회
-        TeamEntity team = getTeamById(teamId);
+        // 팀
+        TeamDto team = TeamDto.fromEntityWithDetails(getTeamById(teamId), adminUuid);
 
-        return TeamDto.fromEntityWithDetails(team, adminUuid);
+        // 보고서 요약 목록
+        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+
+        return TeamDetailDto.builder()
+                .team(team)
+                .reports(reports)
+                .build();
     }
 
     /**
      * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamWeekDetail(Integer teamId, int week, Integer adminUuid) {
+    public Object getTeamWeekDetail(Integer teamId, String reportId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -100,26 +111,15 @@ public class AdminTeamService {
         // 번개 스터디 체크
         checkRegularStudy(team);
 
-        // 주차별 보고서 조회
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
-
-        // 요청한 주차의 보고서 찾기
-        Optional<ReportDocument> reportOpt = reports.stream()
-                .filter(report -> report.getWeek() == week)
-                .findFirst();
-
-        if (reportOpt.isEmpty()) {
-            throw new RuntimeException("해당 주차의 보고서가 존재하지 않습니다.");
-        }
-
-        ReportDocument report = reportOpt.get();
+        // 해당 주차 보고서 조회
+        ReportDocument report = reportService.findByReportId(reportId);
 
         // 주차별 복습 상태 정보 조회
-        List<ReviewDocument> reviews = reviewRepository.findAllByReportId(report.getId());
+        List<ReviewSummaryDto> reviews = reviewService.getReviewStatusInfos(report.getId());
 
         // 주차별 상세 정보 구성 (보고서 + 복습 상태)
         Map<String, Object> weekDetail = new HashMap<>();
-        weekDetail.put("teamInfo", TeamDto.fromEntity(team));
+        weekDetail.put("team", TeamDto.fromEntity(team));
         weekDetail.put("report", report);
         weekDetail.put("reviews", reviews);
 

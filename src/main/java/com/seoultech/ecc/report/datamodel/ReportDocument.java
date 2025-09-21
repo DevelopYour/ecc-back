@@ -1,6 +1,5 @@
 package com.seoultech.ecc.report.datamodel;
 
-import com.seoultech.ecc.expression.ExpressionDto;
 import com.seoultech.ecc.global.BaseDocument;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
 import com.seoultech.ecc.report.dto.*;

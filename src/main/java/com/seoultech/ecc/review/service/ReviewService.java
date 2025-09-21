@@ -90,6 +90,12 @@ public class ReviewService {
                         topic.getTranslations().stream().filter(Objects::nonNull).forEach(translation ->
                                 questions.add(ReviewQuestionDto.fromTranslation(translation)))
                 );
+            } else if(review.getFeedbacks() != null) {
+                review.getFeedbacks().stream().filter(Objects::nonNull).forEach(feedback ->
+                        questions.add(ReviewQuestionDto.fromFeedback(feedback)));
+            } else if(review.getTranslations() != null) {
+                review.getTranslations().stream().filter(Objects::nonNull).forEach(translation ->
+                        questions.add(ReviewQuestionDto.fromTranslation(translation)));
             }
             test.setQuestions(questions);
             test = reviewTestRepository.save(test);
