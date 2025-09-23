@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class TeamDetailDto {
     private TeamDto team;
-    private List<ReportDocument> reports; // TODO: dto로
+    private List<ReportSummaryDto> reports;
 }

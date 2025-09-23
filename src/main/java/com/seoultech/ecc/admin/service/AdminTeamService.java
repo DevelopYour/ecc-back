@@ -1,5 +1,6 @@
 package com.seoultech.ecc.admin.service;
 
+import com.seoultech.ecc.admin.dto.ReportSummaryDto;
 import com.seoultech.ecc.admin.dto.TeamDetailDto;
 import com.seoultech.ecc.admin.dto.TeamMemberOperationResultDto;
 import com.seoultech.ecc.admin.dto.TeamMembersDto;
@@ -92,7 +93,7 @@ public class AdminTeamService {
         TeamDto team = TeamDto.fromEntityWithDetails(getTeamById(teamId), adminUuid);
 
         // 보고서 요약 목록
-        List<ReportDocument> reports = reportRepository.findByTeamIdOrderByWeekAsc(teamId);
+        List<ReportSummaryDto> reports = reportRepository.findReportSummaryByTeamIdOrderByWeekAsc(teamId);
 
         return TeamDetailDto.builder()
                 .team(team)
