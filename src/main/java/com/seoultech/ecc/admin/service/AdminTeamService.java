@@ -1,6 +1,9 @@
 package com.seoultech.ecc.admin.service;
 
 import com.seoultech.ecc.admin.dto.TeamDetailDto;
+import com.seoultech.ecc.admin.dto.TeamMemberOperationResultDto;
+import com.seoultech.ecc.admin.dto.TeamMembersDto;
+import com.seoultech.ecc.admin.dto.TeamWeekDetailDto;
 import com.seoultech.ecc.member.datamodel.MemberEntity;
 import com.seoultech.ecc.member.datamodel.MemberStatus;
 import com.seoultech.ecc.member.dto.MemberSimpleDto;
@@ -101,7 +104,7 @@ public class AdminTeamService {
      * 특정 팀의 주차별 상세 정보 조회 (정규 스터디 전용) (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamWeekDetail(Integer teamId, String reportId, Integer adminUuid) {
+    public TeamWeekDetailDto getTeamWeekDetail(Integer teamId, String reportId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -117,13 +120,12 @@ public class AdminTeamService {
         // 주차별 복습 상태 정보 조회
         List<ReviewSummaryDto> reviews = reviewService.getReviewStatusInfos(report.getId());
 
-        // 주차별 상세 정보 구성 (보고서 + 복습 상태)
-        Map<String, Object> weekDetail = new HashMap<>();
-        weekDetail.put("team", TeamDto.fromEntity(team));
-        weekDetail.put("report", report);
-        weekDetail.put("reviews", reviews);
-
-        return weekDetail;
+        // TeamWeekDetailDto로 구성하여 반환
+        return TeamWeekDetailDto.builder()
+                .team(TeamDto.fromEntity(team))
+                .report(report)
+                .reviews(reviews)
+                .build();
     }
 
     /**
@@ -266,7 +268,7 @@ public class AdminTeamService {
      * 팀 멤버 조회 (UUID 사용)
      */
     @Transactional(readOnly = true)
-    public Object getTeamMembers(Integer teamId, Integer adminUuid) {
+    public TeamMembersDto getTeamMembers(Integer teamId, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -278,20 +280,20 @@ public class AdminTeamService {
                 .map(tm -> new MemberSimpleDto(tm.getMember().getId(), tm.getMember().getStudentId(),tm.getMember().getName()))
                 .toList();
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("teamId", teamId);
-        result.put("teamName", team.getName());
-        result.put("isRegular", team.isRegular());
-        result.put("members", members);
-
-        return result;
+        // TeamMembersDto로 구성하여 반환
+        return TeamMembersDto.builder()
+                .teamId(teamId)
+                .teamName(team.getName())
+                .isRegular(team.isRegular())
+                .members(members)
+                .build();
     }
 
     /**
      * 팀에 멤버 추가 (UUID 사용)
      */
     @Transactional
-    public Object addTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
+    public TeamMemberOperationResultDto addTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -323,14 +325,25 @@ public class AdminTeamService {
         teamMemberRepository.save(teamMember);
 
         // 결과 반환을 위해 다시 조회
-        return getTeamMembers(teamId, adminUuid);
+        TeamEntity updatedTeam = getTeamById(teamId);
+        List<MemberSimpleDto> updatedMembers = updatedTeam.getTeamMembers().stream()
+                .map(tm -> new MemberSimpleDto(tm.getMember().getId(), tm.getMember().getStudentId(), tm.getMember().getName()))
+                .toList();
+
+        // TeamMemberOperationResultDto로 구성하여 반환
+        return TeamMemberOperationResultDto.builder()
+                .teamId(teamId)
+                .teamName(updatedTeam.getName())
+                .isRegular(updatedTeam.isRegular())
+                .members(updatedMembers)
+                .build();
     }
 
     /**
      * 팀에서 멤버 삭제 (UUID 사용)
      */
     @Transactional
-    public Object removeTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
+    public TeamMemberOperationResultDto removeTeamMember(Integer teamId, Integer memberUuid, Integer adminUuid) {
         // 관리자 권한 확인
         checkAdminPermission(adminUuid);
 
@@ -352,7 +365,18 @@ public class AdminTeamService {
         teamMemberRepository.delete(teamMember);
 
         // 결과 반환을 위해 다시 조회
-        return getTeamMembers(teamId, adminUuid);
+        TeamEntity updatedTeam = getTeamById(teamId);
+        List<MemberSimpleDto> updatedMembers = updatedTeam.getTeamMembers().stream()
+                .map(tm -> new MemberSimpleDto(tm.getMember().getId(), tm.getMember().getStudentId(), tm.getMember().getName()))
+                .toList();
+
+        // TeamMemberOperationResultDto로 구성하여 반환
+        return TeamMemberOperationResultDto.builder()
+                .teamId(teamId)
+                .teamName(updatedTeam.getName())
+                .isRegular(updatedTeam.isRegular())
+                .members(updatedMembers)
+                .build();
     }
 
     /**
