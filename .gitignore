@@ -41,6 +41,7 @@ out/
 .DS_Store
 
 docker-compose-dev.yml
+.env.dev
 
 .run/
 *.run.xml

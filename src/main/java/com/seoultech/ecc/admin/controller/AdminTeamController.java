@@ -1,7 +1,6 @@
 package com.seoultech.ecc.admin.controller;
 
-import com.seoultech.ecc.admin.dto.AssignedTeamDto;
-import com.seoultech.ecc.admin.dto.TeamDetailDto;
+import com.seoultech.ecc.admin.dto.*;
 import com.seoultech.ecc.admin.service.AdminTeamMatchService;
 import com.seoultech.ecc.admin.service.AdminTeamService;
 import com.seoultech.ecc.member.dto.CustomUserDetails;
@@ -68,7 +67,7 @@ public class AdminTeamController {
             summary = "팀 주차별 상세 정보 조회",
             description = "특정 팀의 주차별 상세 정보를 조회합니다. 정규 스터디만 주차별 조회가 가능합니다."
     )
-    public ResponseEntity<ResponseDto<Object>> getTeamWeekDetail(
+    public ResponseEntity<ResponseDto<TeamWeekDetailDto>> getTeamWeekDetail(
             @PathVariable Integer teamId,
             @PathVariable String reportId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -76,7 +75,7 @@ public class AdminTeamController {
         Integer uuid = userDetails.getId();
 
         try {
-            Object weekDetail = adminTeamService.getTeamWeekDetail(teamId, reportId, uuid);
+            TeamWeekDetailDto weekDetail = adminTeamService.getTeamWeekDetail(teamId, reportId, uuid);
             return ResponseEntity.ok(ResponseDto.success(weekDetail));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
@@ -187,13 +186,13 @@ public class AdminTeamController {
             summary = "팀 멤버 조회",
             description = "특정 팀의 멤버 목록을 조회합니다. 정규 스터디와 번개 스터디 모두 조회 가능합니다."
     )
-    public ResponseEntity<ResponseDto<Object>> getTeamMembers(
+    public ResponseEntity<ResponseDto<TeamMembersDto>> getTeamMembers(
             @PathVariable Integer teamId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Integer uuid = userDetails.getId();
 
-        Object members = adminTeamService.getTeamMembers(teamId, uuid);
+        TeamMembersDto members = adminTeamService.getTeamMembers(teamId, uuid);
         return ResponseEntity.ok(ResponseDto.success(members));
     }
 
@@ -202,7 +201,7 @@ public class AdminTeamController {
             summary = "팀 멤버 추가",
             description = "특정 팀에 멤버를 추가합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
     )
-    public ResponseEntity<ResponseDto<Object>> addTeamMember(
+    public ResponseEntity<ResponseDto<TeamMemberOperationResultDto>> addTeamMember(
             @PathVariable Integer teamId,
             @RequestParam Integer memberUuid, // studentId 대신 uuid 사용
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -210,7 +209,7 @@ public class AdminTeamController {
         Integer adminUuid = userDetails.getId();
 
         try {
-            Object result = adminTeamService.addTeamMember(teamId, memberUuid, adminUuid);
+            TeamMemberOperationResultDto result = adminTeamService.addTeamMember(teamId, memberUuid, adminUuid);
             return ResponseEntity.ok(ResponseDto.success("팀원이 추가되었습니다.", result));
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
@@ -222,7 +221,7 @@ public class AdminTeamController {
             summary = "팀 멤버 삭제",
             description = "특정 팀에서 멤버를 삭제합니다. 정규 스터디와 번개 스터디 모두 적용 가능합니다."
     )
-    public ResponseEntity<ResponseDto<Object>> removeTeamMember(
+    public ResponseEntity<ResponseDto<TeamMemberOperationResultDto>> removeTeamMember(
             @PathVariable Integer teamId,
             @PathVariable Integer memberUuid, // studentId 대신 uuid 사용
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -230,7 +229,7 @@ public class AdminTeamController {
         Integer adminUuid = userDetails.getId();
 
         try {
-            Object result = adminTeamService.removeTeamMember(teamId, memberUuid, adminUuid);
+            TeamMemberOperationResultDto result = adminTeamService.removeTeamMember(teamId, memberUuid, adminUuid);
             return ResponseEntity.ok(ResponseDto.success("팀원이 삭제되었습니다.", result));
         } catch (RuntimeException e) {
             return ResponseEntity.ok(ResponseDto.error(e.getMessage()));
